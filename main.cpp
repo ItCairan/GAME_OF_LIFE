@@ -3,6 +3,7 @@
 int main(int argc, char** argv)
 {
 	setlocale(LC_ALL, "RUSSIAN");
+	srand(time(NULL));
 
 	if (SDL_Init(SDL_INIT_EVERYTHING) < 0)
 	{
@@ -16,8 +17,11 @@ int main(int argc, char** argv)
 		Mix_Chunk* Sound = NULL;
 		Mix_Music* fon = NULL;
 
-		int volume_music = 60, volume_sound = 60, Sound_Enable = 1, Music_Enable = 1;
-		SDL_Rect Handle_board = {0,0,0,0};
+		Settings_Game Settings_Game;
+		InputSettings(Settings_Game);
+		Game_Progress Progress;
+		int volume_music = Settings_Game.volume_music, volume_sound = Settings_Game.volume_sound, Sound_Enable = Settings_Game.Sound_Enable, Music_Enable = Settings_Game.Music_Enable;
+		SDL_Rect Handle_board = { Settings_Game.Handle_board.x,0,0,0};
 
 		window = SDL_CreateWindow("LIFE", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 0, 0, SDL_WINDOW_FULLSCREEN_DESKTOP);
 		if (window == NULL)
@@ -31,7 +35,7 @@ int main(int argc, char** argv)
 			int SCREEN_WIDTH, SCREEN_HEIGHT;
 			SDL_GetWindowSize(window, &SCREEN_WIDTH, &SCREEN_HEIGHT);
 
-			SCREEN_WIDTH += 10;
+			SCREEN_WIDTH += 5;
 
 			SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, 0);
 
@@ -77,9 +81,9 @@ int main(int argc, char** argv)
 			Mix_OpenAudio(22050, MIX_DEFAULT_FORMAT, 2, 1024);
 			if (Music_Enable == 1)
 			{
+				loadBackgroundMusic();
 				Mix_VolumeMusic(volume_music);
 			}
-			loadBackgroundMusic();
 
 			int red_board_rule = 0, red_board_settings = 0, red_board_start = 0, red_board_exit = 0, red_board_title = 255, red_text_rule = 214, red_text_settings = 214, red_text_start = 214, red_text_exit = 214, red_text_title = 255;
 			char Button_Start[] = u8"ÈÃÐÀÒÜ";
@@ -110,7 +114,8 @@ int main(int argc, char** argv)
 			while (!quit)
 			{
 				if (Main == 1) { Main = 0; }
-				while (SDL_PollEvent(&event)) {
+				while (SDL_PollEvent(&event)) 
+				{
 					if (event.type == SDL_QUIT)
 						quit = true;
 					if (((event.button.x <= Button_Rule_Rect_Board.x + Button_Rule_Rect_Board.w) and (event.button.x >= Button_Rule_Rect_Board.x)) and ((event.button.y <= Button_Rule_Rect_Board.y + Button_Rule_Rect_Board.h) and (event.button.y >= Button_Rule_Rect_Board.y)))
@@ -164,14 +169,14 @@ int main(int argc, char** argv)
 							}
 							draw_Place(renderer, Button_Rule_Texture, Button_Rule_Text);
 							SDL_RenderPresent(renderer);
-							SDL_Delay(100);
+							SDL_Delay(50);
 							SDL_SetRenderDrawColor(renderer, 140, 140, 140, 0);
 							SDL_RenderFillRect(renderer, &Button_Rule_Rect_Shadow);
 							SDL_SetRenderDrawColor(renderer, 64, 64, 64, 0);
 							SDL_RenderFillRect(renderer, &Button_Rule_Rect);
 							draw_Place(renderer, Button_Rule_Texture, Button_Rule_Text);
 							SDL_RenderPresent(renderer);
-							SDL_Delay(200);
+							SDL_Delay(20);
 							Rule(window, renderer, Fl, volume_music, volume_sound, Sound_Enable, Music_Enable, Main);
 							if (Fl == 1) { quit = true; break; }
 						}
@@ -184,14 +189,14 @@ int main(int argc, char** argv)
 							}
 							draw_Place(renderer, Button_Settings_Texture, Button_Settings_Text);
 							SDL_RenderPresent(renderer);
-							SDL_Delay(100);
+							SDL_Delay(50);
 							SDL_SetRenderDrawColor(renderer, 140, 140, 140, 0);
 							SDL_RenderFillRect(renderer, &Button_Settings_Rect_Shadow);
 							SDL_SetRenderDrawColor(renderer, 64, 64, 64, 0);
 							SDL_RenderFillRect(renderer, &Button_Settings_Rect);
 							draw_Place(renderer, Button_Settings_Texture, Button_Settings_Text);
 							SDL_RenderPresent(renderer);
-							SDL_Delay(200);
+							SDL_Delay(20);
 							Settings(window, renderer, Fl, volume_music, volume_sound, Sound_Enable, Music_Enable, Handle_board, Main);
 							if (Music_Enable == 1)
 							{
@@ -208,15 +213,23 @@ int main(int argc, char** argv)
 							}
 							draw_Place(renderer, Button_Start_Texture, Button_Start_Text);
 							SDL_RenderPresent(renderer);
-							SDL_Delay(100);
+							SDL_Delay(50);
 							SDL_SetRenderDrawColor(renderer, 140, 140, 140, 0);
 							SDL_RenderFillRect(renderer, &Button_Start_Rect_Shadow);
 							SDL_SetRenderDrawColor(renderer, 64, 64, 64, 0);
 							SDL_RenderFillRect(renderer, &Button_Start_Rect);
 							draw_Place(renderer, Button_Start_Texture, Button_Start_Text);
 							SDL_RenderPresent(renderer);
-							SDL_Delay(200);
-							Load_Save_Menu(window, renderer, Fl, volume_music, volume_sound, Sound_Enable, Music_Enable, Handle_board, Main);
+							SDL_Delay(20);
+							int Choose = InputGameProgress(Progress);
+							if (Choose == 2)
+							{
+								Load_Save_Menu(window, renderer, Fl, volume_music, volume_sound, Sound_Enable, Music_Enable, Handle_board, Main, Progress, Choose);
+							}
+							else
+							{
+								Playground(window, renderer, Fl, volume_music, volume_sound, Sound_Enable, Music_Enable, Handle_board, Main, Progress, Choose);
+							}
 							if (Fl == 1) { quit = true; break; }
 						}
 						if (((event.button.x <= Button_Exit_Rect_Board.x + Button_Exit_Rect_Board.w) and (event.button.x >= Button_Exit_Rect_Board.x)) and ((event.button.y <= Button_Exit_Rect_Board.y + Button_Exit_Rect_Board.h) and (event.button.y >= Button_Exit_Rect_Board.y)))
@@ -228,14 +241,14 @@ int main(int argc, char** argv)
 							}
 							draw_Place(renderer, Button_Exit_Texture, Button_Exit_Text);
 							SDL_RenderPresent(renderer);
-							SDL_Delay(100);
+							SDL_Delay(50);
 							SDL_SetRenderDrawColor(renderer, 140, 140, 140, 0);
 							SDL_RenderFillRect(renderer, &Button_Exit_Rect_Shadow);
 							SDL_SetRenderDrawColor(renderer, 64, 64, 64, 0);
 							SDL_RenderFillRect(renderer, &Button_Exit_Rect);
 							draw_Place(renderer, Button_Exit_Texture, Button_Exit_Text);
 							SDL_RenderPresent(renderer);
-							SDL_Delay(200);
+							SDL_Delay(20);
 							quit = 1;
 						}
 					}
@@ -336,6 +349,8 @@ int main(int argc, char** argv)
 			SDL_DestroyWindow(window);
 			SDL_Quit();
 		}
+		OutputSettings(volume_music, volume_sound, Sound_Enable, Music_Enable, Handle_board);
+		Verification(1);
 	}
 	return 0;
 }	
