@@ -347,6 +347,7 @@ int main(int argc, char** argv)
 			Mix_CloseAudio();
 			SDL_DestroyRenderer(renderer);
 			SDL_DestroyWindow(window);
+			IMG_Quit();
 			SDL_Quit();
 		}
 		OutputSettings(volume_music, volume_sound, Sound_Enable, Music_Enable, Handle_board);

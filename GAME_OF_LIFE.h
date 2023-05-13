@@ -14,7 +14,7 @@
 using namespace std;
 
 const int SCREEN_WIDTH = 1200;
-const int SCREEN_HEIGHT = 1000;
+const int SCREEN_HEIGHT = 900;
 
 struct Settings_Game
 {

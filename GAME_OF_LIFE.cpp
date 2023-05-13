@@ -314,8 +314,6 @@ void End_Game_Menu(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int& vol
 	Mix_Chunk* Sound = NULL;
 	Mix_Music* fon = NULL;
 
-	SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN_DESKTOP);
-
 	int SCREEN_WIDTH, SCREEN_HEIGHT;
 	SDL_GetWindowSize(window, &SCREEN_WIDTH, &SCREEN_HEIGHT);
 
@@ -566,8 +564,6 @@ void Load_Save_Menu(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int& vo
 {
 	Mix_Chunk* Sound = NULL;
 	Mix_Music* fon = NULL;
-
-	SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN_DESKTOP);
 
 	int SCREEN_WIDTH, SCREEN_HEIGHT;
 	SDL_GetWindowSize(window, &SCREEN_WIDTH, &SCREEN_HEIGHT);
