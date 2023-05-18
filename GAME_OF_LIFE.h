@@ -5,16 +5,14 @@
 #include <SDL_ttf.h>
 #include <SDL_image.h>
 #include <SDL.h>
-#include <cmath>
 #include "SDL_mixer.h"
 #include <random>
 #include <Windows.h>
-#include <icu.h>
 
 using namespace std;
 
-const int SCREEN_WIDTH = 1200;
-const int SCREEN_HEIGHT = 900;
+const int SCREEN_WIDTH = 1920;
+const int SCREEN_HEIGHT = 1080;
 
 struct Settings_Game
 {
@@ -41,7 +39,6 @@ void sound(char* name, int& volume_sound);
 SDL_Texture* TakeTextureBackground(SDL_Renderer*& renderer, char* name);
 void draw_Place(SDL_Renderer*& renderer, SDL_Texture* texture, SDL_Rect rect);
 void loadBackgroundMusic();
-void loadBackgroundMusicGame();
 
 void InputSettings(Settings_Game& Settings);
 void OutputSettings(int volume_music, int volume_sound, int Sound_Enable, int Music_Enable, SDL_Rect Handle_board);

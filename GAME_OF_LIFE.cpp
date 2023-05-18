@@ -22,21 +22,38 @@ SDL_Texture* get_text_texture(SDL_Renderer*& renderer, char* text, TTF_Font* fon
 		{
 			if (red_text == 214)
 			{
-				fore_color.r = 214;
-				fore_color.g = 214;
-				fore_color.b = 214;
+				fore_color.r = 240;
+				fore_color.g = 240;
+				fore_color.b = 240;
 			}
 			else
 			{
-				fore_color.r = 255;
-				fore_color.g = 0;
-				fore_color.b = 0;
+				if (red_text == -3)
+				{
+					fore_color.r = 0;
+					fore_color.g = 220;
+					fore_color.b = 0;
+				}
+				else
+				{
+					if (red_text == -4)
+					{
+						fore_color.r = 0;
+						fore_color.g = 255;
+						fore_color.b = 0;
+					}
+					else
+					{
+						fore_color.r = 255;
+						fore_color.g = 0;
+						fore_color.b = 0;
+					}
+				}
 			}
 		}
 	}
 	textSurface = TTF_RenderUTF8_Solid(font, text, fore_color);
 	SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, textSurface);
-	cout << SDL_GetError();
 	SDL_FreeSurface(textSurface);
 	return texture;
 }
@@ -61,20 +78,14 @@ void draw_Place(SDL_Renderer*& renderer, SDL_Texture* texture, SDL_Rect rect)
 
 void loadBackgroundMusic()
 {
-	Mix_Music* fon = Mix_LoadMUS("Otis McDonald Reset.mp3");
-	Mix_PlayMusic(fon, -1);
-}
-
-void loadBackgroundMusicGame()
-{
-	Mix_Music* fon = Mix_LoadMUS("Tobu Colors.mp3");
+	Mix_Music* fon = Mix_LoadMUS("After dark.mp3");
 	Mix_PlayMusic(fon, -1);
 }
 
 SDL_Texture* TakeTextureBackground(SDL_Renderer*& renderer, char* name)
 {
 	SDL_Surface* BackgroundImage = IMG_Load(name);
-	SDL_SetColorKey(BackgroundImage, SDL_TRUE, SDL_MapRGB(BackgroundImage->format, 255, 255, 255));
+	//SDL_SetColorKey(BackgroundImage, SDL_TRUE, SDL_MapRGB(BackgroundImage->format, 255, 255, 255));
 	SDL_Texture* BackgorundTexture = SDL_CreateTextureFromSurface(renderer, BackgroundImage);
 	SDL_FreeSurface(BackgroundImage);
 	return BackgorundTexture;
@@ -319,8 +330,8 @@ void End_Game_Menu(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int& vol
 
 	SCREEN_WIDTH += 5;
 
-	TTF_Font* Button_font = TTF_OpenFont("Button.ttf", 100);
-	TTF_Font* Title_Small_font = TTF_OpenFont("Button.ttf", 500);
+	TTF_Font* Button_font = TTF_OpenFont("Button_2.ttf", 100);
+	TTF_Font* Title_Small_font = TTF_OpenFont("Button_2.ttf", 500);
 	SDL_Texture* Button_Exit_Texture;
 	SDL_Texture* Button_New_Texture;
 	SDL_Texture* Title_Texture;
@@ -381,6 +392,11 @@ void End_Game_Menu(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int& vol
 	Button_Exit_Texture_Pressed = get_text_texture(renderer, Button_Exit, Button_font, red_text_Exit_press);
 	Button_New_Texture_Pressed = get_text_texture(renderer, Button_New, Button_font, red_text_new_press);
 
+	char BackgroudFile[] = "Background_2.bmp";
+	SDL_Texture* TextureBackground = TakeTextureBackground(renderer, BackgroudFile);
+	SDL_Rect Background = { 0,0, SCREEN_WIDTH, SCREEN_HEIGHT };
+	Game_Progress Block;
+
 	SDL_Event event;
 	bool quit = false;
 	char name[] = "Sound.wav";
@@ -425,12 +441,13 @@ void End_Game_Menu(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int& vol
 					draw_Place(renderer, Button_Exit_Texture, Button_Exit_Text);
 					SDL_RenderPresent(renderer);
 					SDL_Delay(50);
-					SDL_SetRenderDrawColor(renderer, 140, 140, 140, 0);
+					SDL_SetRenderDrawColor(renderer, 120, 120, 120, 0);
 					SDL_RenderFillRect(renderer, &Button_Exit_Rect_Shadow);
 					SDL_SetRenderDrawColor(renderer, 64, 64, 64, 0);
 					SDL_RenderFillRect(renderer, &Button_Exit_Rect);
 					draw_Place(renderer, Button_Exit_Texture, Button_Exit_Text);
 					SDL_RenderPresent(renderer);
+					InputGameProgress(Block);
 					SDL_Delay(20);
 					Main = 1;
 					quit = 1;
@@ -445,7 +462,7 @@ void End_Game_Menu(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int& vol
 					draw_Place(renderer, Button_New_Texture, Button_New_Text);
 					SDL_RenderPresent(renderer);
 					SDL_Delay(50);
-					SDL_SetRenderDrawColor(renderer, 140, 140, 140, 0);
+					SDL_SetRenderDrawColor(renderer, 120, 120, 120, 0);
 					SDL_RenderFillRect(renderer, &Button_New_Rect_Shadow);
 					SDL_SetRenderDrawColor(renderer, 64, 64, 64, 0);
 					SDL_RenderFillRect(renderer, &Button_New_Rect);
@@ -460,12 +477,7 @@ void End_Game_Menu(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int& vol
 		SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
 		SDL_RenderClear(renderer);
 
-		char BackgroudFile[] = "Background.bmp";
-		SDL_Texture* TextureBackground = TakeTextureBackground(renderer, BackgroudFile);
-		SDL_Rect Background = { 0,0, SCREEN_WIDTH, SCREEN_HEIGHT };
 		SDL_RenderCopy(renderer, TextureBackground, NULL, &Background);
-		SDL_DestroyTexture(TextureBackground);
-
 
 		SDL_SetRenderDrawColor(renderer, red_board_title, 0, 0, 0);
 		SDL_RenderFillRect(renderer, &Title_Rect_Board);
@@ -473,7 +485,7 @@ void End_Game_Menu(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int& vol
 		SDL_SetRenderDrawColor(renderer, 64, 64, 64, 0);
 		SDL_RenderFillRect(renderer, &Title_Rect_Shadow);
 
-		SDL_SetRenderDrawColor(renderer, 140, 140, 140, 0);
+		SDL_SetRenderDrawColor(renderer, 160, 160, 160, 0);
 		SDL_RenderFillRect(renderer, &Title_Rect);
 		if (victory == 0)
 		{
@@ -490,7 +502,7 @@ void End_Game_Menu(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int& vol
 		SDL_SetRenderDrawColor(renderer, 64, 64, 64, 0);
 		SDL_RenderFillRect(renderer, &Title_Small_Rect_Shadow);
 
-		SDL_SetRenderDrawColor(renderer, 140, 140, 140, 0);
+		SDL_SetRenderDrawColor(renderer, 120, 120, 120, 0);
 		SDL_RenderFillRect(renderer, &Title_Small_Rect);
 		if (victory == 0)
 		{
@@ -511,7 +523,7 @@ void End_Game_Menu(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int& vol
 		SDL_SetRenderDrawColor(renderer, 64, 64, 64, 0);
 		SDL_RenderFillRect(renderer, &Button_Exit_Rect_Shadow);
 
-		SDL_SetRenderDrawColor(renderer, 140, 140, 140, 0);
+		SDL_SetRenderDrawColor(renderer, 120, 120, 120, 0);
 		SDL_RenderFillRect(renderer, &Button_Exit_Rect);
 
 
@@ -522,7 +534,7 @@ void End_Game_Menu(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int& vol
 		SDL_SetRenderDrawColor(renderer, 64, 64, 64, 0);
 		SDL_RenderFillRect(renderer, &Button_New_Rect_Shadow);
 
-		SDL_SetRenderDrawColor(renderer, 140, 140, 140, 0);
+		SDL_SetRenderDrawColor(renderer, 120, 120, 120, 0);
 		SDL_RenderFillRect(renderer, &Button_New_Rect);
 
 
@@ -547,6 +559,7 @@ void End_Game_Menu(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int& vol
 		SDL_RenderPresent(renderer);
 	}
 
+	SDL_DestroyTexture(TextureBackground);
 	SDL_DestroyTexture(Button_Exit_Texture_Pressed);
 	SDL_DestroyTexture(Button_New_Texture_Pressed);
 	SDL_DestroyTexture(Button_Exit_Texture);
@@ -570,8 +583,8 @@ void Load_Save_Menu(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int& vo
 
 	SCREEN_WIDTH += 5;
 
-	TTF_Font* Button_font = TTF_OpenFont("Button.ttf", 100);
-	TTF_Font* Title_Small_font = TTF_OpenFont("Button.ttf", 500);
+	TTF_Font* Button_font = TTF_OpenFont("Button_2.ttf", 100);
+	TTF_Font* Title_Small_font = TTF_OpenFont("Button_2.ttf", 500);
 	TTF_Font* arrows = TTF_OpenFont("Arrows.ttf", 1000);
 	SDL_Texture* Button_Exit_Texture;
 	SDL_Texture* Button_Load_Texture;
@@ -631,6 +644,10 @@ void Load_Save_Menu(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int& vo
 	Button_Load_Texture_Pressed = get_text_texture(renderer, Button_Load, Button_font, red_text_load_press);
 	Button_New_Texture_Pressed = get_text_texture(renderer, Button_New, Button_font, red_text_new_press);
 
+	char BackgroudFile[] = "Background_2.bmp";
+	SDL_Texture* TextureBackground = TakeTextureBackground(renderer, BackgroudFile);
+	SDL_Rect Background = { 0,0, SCREEN_WIDTH, SCREEN_HEIGHT };
+
 	SDL_Event event;
 	bool quit = false;
 	char name[] = "Sound.wav";
@@ -682,20 +699,21 @@ void Load_Save_Menu(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int& vo
 				}
 				SDL_SetRenderDrawColor(renderer, 255, 0, 0, 0);
 				SDL_RenderFillRect(renderer, &Button_Exit_Rect_Board);
-				SDL_SetRenderDrawColor(renderer, 140, 140, 140, 0);
+				SDL_SetRenderDrawColor(renderer, 120, 120, 120, 0);
 				SDL_RenderFillRect(renderer, &Button_Exit_Rect_Shadow);
 				SDL_SetRenderDrawColor(renderer, 64, 64, 64, 0);
 				SDL_RenderFillRect(renderer, &Button_Exit_Rect);
 				draw_Place(renderer, Button_Exit_Texture_Pressed, Button_Exit_Text);
 				SDL_RenderPresent(renderer);
 				SDL_Delay(50);
-				SDL_SetRenderDrawColor(renderer, 140, 140, 140, 0);
+				SDL_SetRenderDrawColor(renderer, 120, 120, 120, 0);
 				SDL_RenderFillRect(renderer, &Button_Exit_Rect_Shadow);
 				SDL_SetRenderDrawColor(renderer, 64, 64, 64, 0);
 				SDL_RenderFillRect(renderer, &Button_Exit_Rect);
 				draw_Place(renderer, Button_Exit_Texture, Button_Exit_Text);
 				SDL_RenderPresent(renderer);
 				SDL_Delay(20);
+				Verification(2);
 				quit = true;
 			}
 			if (event.type == SDL_MOUSEBUTTONDOWN && event.button.button == SDL_BUTTON_LEFT)
@@ -710,7 +728,7 @@ void Load_Save_Menu(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int& vo
 					draw_Place(renderer, Button_Exit_Texture, Button_Exit_Text);
 					SDL_RenderPresent(renderer);
 					SDL_Delay(50);
-					SDL_SetRenderDrawColor(renderer, 140, 140, 140, 0);
+					SDL_SetRenderDrawColor(renderer, 120, 120, 120, 0);
 					SDL_RenderFillRect(renderer, &Button_Exit_Rect_Shadow);
 					SDL_SetRenderDrawColor(renderer, 64, 64, 64, 0);
 					SDL_RenderFillRect(renderer, &Button_Exit_Rect);
@@ -729,7 +747,7 @@ void Load_Save_Menu(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int& vo
 					draw_Place(renderer, Button_Load_Texture, Button_Load_Text);
 					SDL_RenderPresent(renderer);
 					SDL_Delay(50);
-					SDL_SetRenderDrawColor(renderer, 140, 140, 140, 0);
+					SDL_SetRenderDrawColor(renderer, 120, 120, 120, 0);
 					SDL_RenderFillRect(renderer, &Button_Load_Rect_Shadow);
 					SDL_SetRenderDrawColor(renderer, 64, 64, 64, 0);
 					SDL_RenderFillRect(renderer, &Button_Load_Rect);
@@ -748,7 +766,7 @@ void Load_Save_Menu(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int& vo
 					draw_Place(renderer, Button_New_Texture, Button_New_Text);
 					SDL_RenderPresent(renderer);
 					SDL_Delay(50);
-					SDL_SetRenderDrawColor(renderer, 140, 140, 140, 0);
+					SDL_SetRenderDrawColor(renderer, 120, 120, 120, 0);
 					SDL_RenderFillRect(renderer, &Button_New_Rect_Shadow);
 					SDL_SetRenderDrawColor(renderer, 64, 64, 64, 0);
 					SDL_RenderFillRect(renderer, &Button_New_Rect);
@@ -766,12 +784,7 @@ void Load_Save_Menu(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int& vo
 		SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
 		SDL_RenderClear(renderer);
 
-		char BackgroudFile[] = "Background.bmp";
-		SDL_Texture* TextureBackground = TakeTextureBackground(renderer, BackgroudFile);
-		SDL_Rect Background = { 0,0, SCREEN_WIDTH, SCREEN_HEIGHT };
 		SDL_RenderCopy(renderer, TextureBackground, NULL, &Background);
-		SDL_DestroyTexture(TextureBackground);
-
 
 		SDL_SetRenderDrawColor(renderer, red_board_title, 0, 0, 0);
 		SDL_RenderFillRect(renderer, &Title_Rect_Board);
@@ -779,7 +792,7 @@ void Load_Save_Menu(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int& vo
 		SDL_SetRenderDrawColor(renderer, 64, 64, 64, 0);
 		SDL_RenderFillRect(renderer, &Title_Rect_Shadow);
 
-		SDL_SetRenderDrawColor(renderer, 140, 140, 140, 0);
+		SDL_SetRenderDrawColor(renderer, 160, 160, 160, 0);
 		SDL_RenderFillRect(renderer, &Title_Rect);
 
 		draw_Place(renderer, Title_Texture, Title_Text);
@@ -791,7 +804,7 @@ void Load_Save_Menu(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int& vo
 		SDL_SetRenderDrawColor(renderer, 64, 64, 64, 0);
 		SDL_RenderFillRect(renderer, &Title_Small_Rect_Shadow);
 
-		SDL_SetRenderDrawColor(renderer, 140, 140, 140, 0);
+		SDL_SetRenderDrawColor(renderer, 120, 120, 120, 0);
 		SDL_RenderFillRect(renderer, &Title_Small_Rect);
 		
 		draw_Place(renderer, Title_Small_1_Texture, Title_Small_Text_1);
@@ -805,7 +818,7 @@ void Load_Save_Menu(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int& vo
 		SDL_SetRenderDrawColor(renderer, 64, 64, 64, 0);
 		SDL_RenderFillRect(renderer, &Button_Load_Rect_Shadow);
 
-		SDL_SetRenderDrawColor(renderer, 140, 140, 140, 0);
+		SDL_SetRenderDrawColor(renderer, 120, 120, 120, 0);
 		SDL_RenderFillRect(renderer, &Button_Load_Rect);
 
 
@@ -816,7 +829,7 @@ void Load_Save_Menu(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int& vo
 		SDL_SetRenderDrawColor(renderer, 64, 64, 64, 0);
 		SDL_RenderFillRect(renderer, &Button_New_Rect_Shadow);
 
-		SDL_SetRenderDrawColor(renderer, 140, 140, 140, 0);
+		SDL_SetRenderDrawColor(renderer, 120, 120, 120, 0);
 		SDL_RenderFillRect(renderer, &Button_New_Rect);
 
 
@@ -827,7 +840,7 @@ void Load_Save_Menu(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int& vo
 		SDL_SetRenderDrawColor(renderer, 64, 64, 64, 0);
 		SDL_RenderFillRect(renderer, &Button_Exit_Rect_Shadow);
 
-		SDL_SetRenderDrawColor(renderer, 140, 140, 140, 0);
+		SDL_SetRenderDrawColor(renderer, 120, 120, 120, 0);
 		SDL_RenderFillRect(renderer, &Button_Exit_Rect);
 
 		if (color_exit == 0)
@@ -860,6 +873,7 @@ void Load_Save_Menu(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int& vo
 		SDL_RenderPresent(renderer);
 	}
 
+	SDL_DestroyTexture(TextureBackground);
 	SDL_DestroyTexture(Button_Exit_Texture);
 	SDL_DestroyTexture(Button_Load_Texture_Pressed);
 	SDL_DestroyTexture(Button_New_Texture_Pressed);
@@ -886,7 +900,7 @@ void Menu_Pause(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int& volume
 
 	SCREEN_WIDTH += 5;
 
-	TTF_Font* my_font = TTF_OpenFont("Button.ttf", 1000);
+	TTF_Font* my_font = TTF_OpenFont("Button_2.ttf", 500);
 	SDL_Texture* Button_Resume_Texture;
 	SDL_Texture* Button_Exit_Texture;
 	SDL_Texture* Button_Rule_Texture;
@@ -943,6 +957,9 @@ void Menu_Pause(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int& volume
 	Button_Rule_Texture_Pressed = get_text_texture(renderer, Button_Rule, my_font, red_text_rule_press);
 	Button_Settings_Texture_Pressed = get_text_texture(renderer, Button_Settings, my_font, red_text_settings_press);
 
+	char BackgroudFile[] = "Background_2.bmp";
+	SDL_Texture* TextureBackground = TakeTextureBackground(renderer, BackgroudFile);
+	SDL_Rect Background = { 0,0, SCREEN_WIDTH, SCREEN_HEIGHT };
 
 	SDL_Event event;
 	bool quit = false;
@@ -1005,14 +1022,14 @@ void Menu_Pause(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int& volume
 				}
 				SDL_SetRenderDrawColor(renderer, 255, 0, 0, 0);
 				SDL_RenderFillRect(renderer, &Button_Resume_Rect_Board);
-				SDL_SetRenderDrawColor(renderer, 140, 140, 140, 0);
+				SDL_SetRenderDrawColor(renderer, 120, 120, 120, 0);
 				SDL_RenderFillRect(renderer, &Button_Resume_Rect_Shadow);
 				SDL_SetRenderDrawColor(renderer, 64, 64, 64, 0);
 				SDL_RenderFillRect(renderer, &Button_Resume_Rect);
 				draw_Place(renderer, Button_Resume_Texture_Pressed, Button_Resume_Text);
 				SDL_RenderPresent(renderer);
 				SDL_Delay(50);
-				SDL_SetRenderDrawColor(renderer, 140, 140, 140, 0);
+				SDL_SetRenderDrawColor(renderer, 120, 120, 120, 0);
 				SDL_RenderFillRect(renderer, &Button_Resume_Rect_Shadow);
 				SDL_SetRenderDrawColor(renderer, 64, 64, 64, 0);
 				SDL_RenderFillRect(renderer, &Button_Resume_Rect);
@@ -1033,7 +1050,7 @@ void Menu_Pause(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int& volume
 					draw_Place(renderer, Button_Rule_Texture, Button_Rule_Text);
 					SDL_RenderPresent(renderer);
 					SDL_Delay(50);
-					SDL_SetRenderDrawColor(renderer, 140, 140, 140, 0);
+					SDL_SetRenderDrawColor(renderer, 120, 120, 120, 0);
 					SDL_RenderFillRect(renderer, &Button_Rule_Rect_Shadow);
 					SDL_SetRenderDrawColor(renderer, 64, 64, 64, 0);
 					SDL_RenderFillRect(renderer, &Button_Rule_Rect);
@@ -1053,7 +1070,7 @@ void Menu_Pause(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int& volume
 					draw_Place(renderer, Button_Settings_Texture, Button_Settings_Text);
 					SDL_RenderPresent(renderer);
 					SDL_Delay(50);
-					SDL_SetRenderDrawColor(renderer, 140, 140, 140, 0);
+					SDL_SetRenderDrawColor(renderer, 120, 120, 120, 0);
 					SDL_RenderFillRect(renderer, &Button_Settings_Rect_Shadow);
 					SDL_SetRenderDrawColor(renderer, 64, 64, 64, 0);
 					SDL_RenderFillRect(renderer, &Button_Settings_Rect);
@@ -1077,7 +1094,7 @@ void Menu_Pause(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int& volume
 					draw_Place(renderer, Button_Resume_Texture, Button_Resume_Text);
 					SDL_RenderPresent(renderer);
 					SDL_Delay(50);
-					SDL_SetRenderDrawColor(renderer, 140, 140, 140, 0);
+					SDL_SetRenderDrawColor(renderer, 120, 120, 120, 0);
 					SDL_RenderFillRect(renderer, &Button_Resume_Rect_Shadow);
 					SDL_SetRenderDrawColor(renderer, 64, 64, 64, 0);
 					SDL_RenderFillRect(renderer, &Button_Resume_Rect);
@@ -1096,7 +1113,7 @@ void Menu_Pause(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int& volume
 					draw_Place(renderer, Button_Exit_Texture, Button_Exit_Text);
 					SDL_RenderPresent(renderer);
 					SDL_Delay(50);
-					SDL_SetRenderDrawColor(renderer, 140, 140, 140, 0);
+					SDL_SetRenderDrawColor(renderer, 120, 120, 120, 0);
 					SDL_RenderFillRect(renderer, &Button_Exit_Rect_Shadow);
 					SDL_SetRenderDrawColor(renderer, 64, 64, 64, 0);
 					SDL_RenderFillRect(renderer, &Button_Exit_Rect);
@@ -1114,11 +1131,7 @@ void Menu_Pause(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int& volume
 		SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
 		SDL_RenderClear(renderer);
 
-		char BackgroudFile[] = "Background.bmp";
-		SDL_Texture* TextureBackground = TakeTextureBackground(renderer, BackgroudFile);
-		SDL_Rect Background = { 0,0, SCREEN_WIDTH, SCREEN_HEIGHT };
 		SDL_RenderCopy(renderer, TextureBackground, NULL, &Background);
-		SDL_DestroyTexture(TextureBackground);
 
 		SDL_SetRenderDrawColor(renderer, red_board_Resume, 0, 0, 0);
 		SDL_RenderFillRect(renderer, &Button_Resume_Rect_Board);
@@ -1135,7 +1148,7 @@ void Menu_Pause(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int& volume
 		SDL_RenderFillRect(renderer, &Button_Rule_Rect_Shadow);
 		SDL_RenderFillRect(renderer, &Button_Settings_Rect_Shadow);
 
-		SDL_SetRenderDrawColor(renderer, 140, 140, 140, 0);
+		SDL_SetRenderDrawColor(renderer, 120, 120, 120, 0);
 		SDL_RenderFillRect(renderer, &Button_Resume_Rect);
 		SDL_RenderFillRect(renderer, &Button_Exit_Rect);
 		SDL_RenderFillRect(renderer, &Button_Rule_Rect);
@@ -1180,7 +1193,7 @@ void Menu_Pause(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int& volume
 		SDL_SetRenderDrawColor(renderer, 64, 64, 64, 0);
 		SDL_RenderFillRect(renderer, &Title_Rect_Shadow);
 
-		SDL_SetRenderDrawColor(renderer, 140, 140, 140, 0);
+		SDL_SetRenderDrawColor(renderer, 160, 160, 160, 0);
 		SDL_RenderFillRect(renderer, &Title_Rect);
 
 		draw_Place(renderer, Title_Texture, Title_Text);
@@ -1188,6 +1201,7 @@ void Menu_Pause(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int& volume
 		SDL_RenderPresent(renderer);
 	}
 
+	SDL_DestroyTexture(TextureBackground);
 	SDL_DestroyTexture(Button_Resume_Texture);
 	SDL_DestroyTexture(Button_Exit_Texture);
 	SDL_DestroyTexture(Button_Rule_Texture);
@@ -1210,7 +1224,7 @@ int Input_Data(SDL_Window* window, SDL_Renderer* renderer, int& Fl, SDL_Rect &in
 	char inputText[5] = "|";
 	int inputIndex = 0; 
 
-	TTF_Font* font = TTF_OpenFont("Button.ttf", 20);
+	TTF_Font* font = TTF_OpenFont("Button_2.ttf", 20);
 	int maxIndex = 0, end = 3;
 
 	while (!quit) {
@@ -1227,7 +1241,7 @@ int Input_Data(SDL_Window* window, SDL_Renderer* renderer, int& Fl, SDL_Rect &in
 					if (((event.button.x > inputRect.x + inputRect.w) or (event.button.x < inputRect.x)) or ((event.button.y > inputRect.y + inputRect.h) or (event.button.y < inputRect.y))) 
 					{ 
 						quit = 1;  
-						break; 
+						return -1;
 					}
 				}
 			}
@@ -1311,14 +1325,14 @@ int Input_Data(SDL_Window* window, SDL_Renderer* renderer, int& Fl, SDL_Rect &in
 
 		int red_text = 214;
 
-		SDL_Rect textRect = { inputRect.x+2, inputRect.y + 8, 0, 0 };
+		SDL_Rect textRect = { inputRect.x+2, inputRect.y + 2, 0, 0 };
 		SDL_Color textColor = { 0, 0, 0 };
 		SDL_Color fore_color = { 0, 0, 0 };
 		SDL_Color back_color = { 255, 255, 255 };
 		SDL_Surface* textSurface = TTF_RenderText_Shaded(font, inputText, fore_color, back_color);
 		SDL_Texture* textTexture = get_text_texture(renderer, inputText, font, red_text);
 		textRect.w = textSurface->w;
-		textRect.h = textSurface->h;
+		textRect.h = textSurface->h+8;
 		SDL_SetRenderDrawColor(renderer, 64, 64, 64, 0);
 		SDL_RenderFillRect(renderer, &inputRect);
 		draw_Place(renderer, textTexture, textRect);
@@ -1365,11 +1379,8 @@ void Playground(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int& volume
 	SDL_Texture* Button_Stop_Texture;
 	SDL_Texture* Button_Stop_Texture_Pressed;
 
-	SDL_Texture* Button_Start_Texture_End_Game;
-	SDL_Texture* Button_Start_Texture_Pressed_End_Game;
-
-	SDL_Texture* Button_Stop_Texture_End_Game;
-	SDL_Texture* Button_Stop_Texture_Pressed_End_Game;
+	SDL_Texture* Button_End_Texture;
+	SDL_Texture* Button_End_Texture_Pressed;
 
 	SDL_Texture* Button_Clear_Texture;
 	SDL_Texture* Button_Clear_Texture_Pressed;
@@ -1385,11 +1396,9 @@ void Playground(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int& volume
 	SDL_Texture* Width_Input_Help_Texture;
 	SDL_Texture* Height_Input_Help_Texture;
 
-	TTF_Font* Bind_font = TTF_OpenFont("Button.ttf", 100);
-	TTF_Font* Settings_font = TTF_OpenFont("Button.ttf", 500);
-	TTF_Font* arrows = TTF_OpenFont("Arrows.ttf", 1000);
-	TTF_Font* symbols = TTF_OpenFont("symbols.ttf", 1000);
-	TTF_Font* my_font = TTF_OpenFont("Button.ttf", 1000);
+	TTF_Font* Bind_font = TTF_OpenFont("Button_2.ttf", 100);
+	TTF_Font* symbols = TTF_OpenFont("symbols.ttf", 500);
+	TTF_Font* my_font = TTF_OpenFont("Button_2.ttf", 500);
 
 	SDL_Rect Play_Rect_Board = { int((double)SCREEN_WIDTH / (double)40) * 1,int((double)SCREEN_HEIGHT / (double)40) * 1,int((double)SCREEN_WIDTH / (double)40) * 38, int((double)SCREEN_HEIGHT / (double)40) * 38 };
 	SDL_Rect Play_Rect_Shadow_1 = { Play_Rect_Board.x + 2, Play_Rect_Board.y + 2, Play_Rect_Board.w - 4,  Play_Rect_Board.h - 4 };
@@ -1397,17 +1406,17 @@ void Playground(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int& volume
 	SDL_Rect Play_Rect_Shadow_2 = { Play_Rect_Glare.x + 4, Play_Rect_Glare.y + 4, Play_Rect_Glare.w - 8,  Play_Rect_Glare.h - 8 };
 	SDL_Rect Play_Rect = { Play_Rect_Shadow_2.x + 4, Play_Rect_Shadow_2.y + 4,Play_Rect_Shadow_2.w - 8, Play_Rect_Shadow_2.h - 8 };
 
-	SDL_Rect Title_Rect_Board = { Play_Rect.x, Play_Rect.y + int(Play_Rect.h * double(1.0/10)) , Play_Rect.w, int(Play_Rect.h * double(1.0 / 70)) };
+	SDL_Rect Title_Rect_Board = { Play_Rect.x, Play_Rect.y + int(Play_Rect.h * double(1.0/10)) , Play_Rect.w, int(Play_Rect.h * double(1.0 / 80)) };
 	SDL_Rect Title_Rect_Shadow_1 = { Title_Rect_Board.x, Title_Rect_Board.y + 1, Title_Rect_Board.w,  int(Title_Rect_Board.h * double(1.0 / 2)) - 2};
 	SDL_Rect Title_Rect_Shadow_2 = { Title_Rect_Shadow_1.x, Title_Rect_Shadow_1.y + Title_Rect_Shadow_1.h+2, Title_Rect_Shadow_1.w,  int(Title_Rect_Board.h * double(1.0 / 2))-2};
 	SDL_Rect Title_Rect_Glare = { Title_Rect_Shadow_1.x, Title_Rect_Board.y + 5, Title_Rect_Shadow_1.w,  Title_Rect_Board.h - 10};
 
-	SDL_Rect Parameters_Rect_Board = { Play_Rect.x + int(Play_Rect.w * double(5.0 / 6)), Play_Rect.y, int(Play_Rect.w * double(1.0 / 100)), Play_Rect.h };
+	SDL_Rect Parameters_Rect_Board = { Play_Rect.x + int(Play_Rect.w * double(5.0 / 6)), Play_Rect.y, int(Play_Rect.w * double(1.0 / 120)), Play_Rect.h };
 	SDL_Rect Parameters_Rect_Shadow_1 = { Parameters_Rect_Board.x+1, Parameters_Rect_Board.y, int(Parameters_Rect_Board.w * double(1.0 / 2)) - 2,  Parameters_Rect_Board.h };
 	SDL_Rect Parameters_Rect_Shadow_2 = { Parameters_Rect_Shadow_1.x + Parameters_Rect_Shadow_1.w + 2, Parameters_Rect_Shadow_1.y, int(Parameters_Rect_Board.w * double(1.0 / 2)) - 2,  Play_Rect.h };
 	SDL_Rect Parameters_Rect_Glare = { Parameters_Rect_Board.x + 5, Parameters_Rect_Shadow_1.y, Parameters_Rect_Board.w-10,  Parameters_Rect_Board.h };
 
-	SDL_Rect Title_Button_Rect_Board = { Play_Rect.x + int(Play_Rect.w * double(1.0 / 6)), Play_Rect.y, int(Play_Rect.w * double(1.0 / 100)), int((double)SCREEN_HEIGHT / (double)40) * 4 };
+	SDL_Rect Title_Button_Rect_Board = { Play_Rect.x + int(Play_Rect.w * double(1.0 / 6)), Play_Rect.y, int(Play_Rect.w * double(1.0 / 120)), int((double)SCREEN_HEIGHT / (double)40) * 4 };
 	SDL_Rect Title_Button_Rect_Shadow_1 = { Title_Button_Rect_Board.x + 1, Title_Button_Rect_Board.y, int(Title_Button_Rect_Board.w * double(1.0 / 2)) - 2,  Title_Button_Rect_Board.h };
 	SDL_Rect Title_Button_Rect_Shadow_2 = { Title_Button_Rect_Shadow_1.x + Title_Button_Rect_Shadow_1.w + 2, Title_Button_Rect_Shadow_1.y, int(Title_Button_Rect_Board.w * double(1.0 / 2)) - 2,  Title_Button_Rect_Board.h };
 	SDL_Rect Title_Button_Rect_Glare = { Title_Button_Rect_Board.x + 5, Title_Button_Rect_Shadow_1.y, Title_Button_Rect_Board.w - 10,  Title_Button_Rect_Board.h };
@@ -1419,7 +1428,7 @@ void Playground(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int& volume
 
 	for (int i = 0; i < 4; i++)
 	{
-		Sets_Rect_Board[i] = { Parameters_Rect_Board.x, Play_Rect.y + int(Play_Rect.h * double((4.0 + i )/ 8)) , int(Play_Rect.w * double(1.0 / 6)), int(Play_Rect.h * double(1.0 / 70))};
+		Sets_Rect_Board[i] = { Parameters_Rect_Board.x, Play_Rect.y + int(Play_Rect.h * double((4.0 + i )/ 8)) , int(Play_Rect.w * double(1.0 / 6)), int(Play_Rect.h * double(1.0 / 80))};
 		Sets_Rect_Shadow_1[i] = {Sets_Rect_Board[i].x, Sets_Rect_Board[i].y + 1, Sets_Rect_Board[i].w,  int(Sets_Rect_Board[i].h * double(1.0 / 2)) - 2};
 		Sets_Rect_Shadow_2[i] = {Sets_Rect_Shadow_1[i].x, Sets_Rect_Shadow_1[i].y + Sets_Rect_Shadow_1[i].h + 2, Sets_Rect_Shadow_1[i].w,  int(Sets_Rect_Board[i].h * double(1.0 / 2)) - 2};
 		Sets_Rect_Glare[i] = {Sets_Rect_Shadow_1[i].x, Sets_Rect_Board[i].y + 5, Sets_Rect_Shadow_1[i].w,  Sets_Rect_Board[i].h - 10};
@@ -1428,7 +1437,7 @@ void Playground(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int& volume
 	SDL_Rect Button_Menu_Rect_Board = { Play_Rect.x + int(Play_Rect.w * double(3.0 / 120)) ,Play_Rect.y + int(Play_Rect.h * double(1.0 / 80)), int(Play_Rect.w * double(7.0 / 60)), int(Play_Rect.h * double(1.0/13)) };
 	SDL_Rect Button_Menu_Rect_Shadow = { Button_Menu_Rect_Board.x + 2, Button_Menu_Rect_Board.y + 2, Button_Menu_Rect_Board.w - 4,  Button_Menu_Rect_Board.h - 4 };
 	SDL_Rect Button_Menu_Rect = { Button_Menu_Rect_Shadow.x + 4,Button_Menu_Rect_Shadow.y + 4,Button_Menu_Rect_Shadow.w - 8, Button_Menu_Rect_Shadow.h - 8 };
-	SDL_Rect Button_Menu_Text = { Button_Menu_Rect.x + 4,Button_Menu_Rect.y + 2,Button_Menu_Rect.w - 8, Button_Menu_Rect.h - 8 };
+	SDL_Rect Button_Menu_Text = { Button_Menu_Rect.x + 4,Button_Menu_Rect.y - 4, Button_Menu_Rect.w - 8, Button_Menu_Rect.h};
 
 	SDL_Rect Button_Rand_Rect_Board = { Sets_Rect_Board[0].x + int(Sets_Rect_Board[0].w * double(1.0/8)), Sets_Rect_Board[0].y + Sets_Rect_Board[0].h + int((Sets_Rect_Board[1].y - Sets_Rect_Board[0].y) * double(1.0 / 16)), int(Sets_Rect_Board[0].w * double(13.0 / 16)), int((Sets_Rect_Board[1].y - Sets_Rect_Board[0].y)* double(6.0 / 8)) };
 	SDL_Rect Button_Rand_Rect_Shadow = { Button_Rand_Rect_Board.x + 2, Button_Rand_Rect_Board.y + 2, Button_Rand_Rect_Board.w - 4,  Button_Rand_Rect_Board.h - 4 };
@@ -1439,6 +1448,11 @@ void Playground(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int& volume
 	SDL_Rect Button_Start_Rect_Shadow = { Button_Start_Rect_Board.x + 2, Button_Start_Rect_Board.y + 2, Button_Start_Rect_Board.w - 4,  Button_Start_Rect_Board.h - 4 };
 	SDL_Rect Button_Start_Rect = { Button_Start_Rect_Shadow.x + 4,Button_Start_Rect_Shadow.y + 4,Button_Start_Rect_Shadow.w - 8, Button_Start_Rect_Shadow.h - 8 };
 	SDL_Rect Button_Start_Text = { Button_Start_Rect.x + 4,Button_Start_Rect.y + 10,Button_Start_Rect.w - 8, Button_Start_Rect.h - 8 };
+
+	SDL_Rect Button_End_Rect_Board = { Sets_Rect_Board[1].x + int(Sets_Rect_Board[1].w * double(1.0 / 8)), Sets_Rect_Board[1].y + Sets_Rect_Board[1].h + int((Sets_Rect_Board[3].y - Sets_Rect_Board[1].y - Sets_Rect_Board[1].h)* double(3.0/11)), int(Sets_Rect_Board[1].w * double(13.0 / 16)), int((Sets_Rect_Board[3].y - Sets_Rect_Board[1].y - Sets_Rect_Board[1].h) * double(5.0 / 11)) };
+	SDL_Rect Button_End_Rect_Shadow = { Button_End_Rect_Board.x + 2, Button_End_Rect_Board.y + 2, Button_End_Rect_Board.w - 4,  Button_End_Rect_Board.h - 4 };
+	SDL_Rect Button_End_Rect = { Button_End_Rect_Shadow.x + 4,Button_End_Rect_Shadow.y + 4,Button_End_Rect_Shadow.w - 8, Button_End_Rect_Shadow.h - 8 };
+	SDL_Rect Button_End_Text = { Button_End_Rect.x + 4,Button_End_Rect.y + 16,Button_End_Rect.w - 8, Button_End_Rect.h - 8 };
 
 	SDL_Rect Button_Stop_Rect_Board = { Sets_Rect_Board[2].x + int(Sets_Rect_Board[2].w * double(1.0 / 8)), Sets_Rect_Board[2].y + Sets_Rect_Board[2].h + int((Sets_Rect_Board[3].y - Sets_Rect_Board[2].y) * double(1.0 / 16)), int(Sets_Rect_Board[2].w * double(13.0 / 16)), int((Sets_Rect_Board[3].y - Sets_Rect_Board[2].y) * double(6.0 / 8)) };
 	SDL_Rect Button_Stop_Rect_Shadow = { Button_Stop_Rect_Board.x + 2, Button_Stop_Rect_Board.y + 2, Button_Stop_Rect_Board.w - 4,  Button_Stop_Rect_Board.h - 4 };
@@ -1469,7 +1483,10 @@ void Playground(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int& volume
 	SDL_Rect Generation_Rect_Shadow = { Generation_Rect_Board.x + 2, Generation_Rect_Board.y + 2, Generation_Rect_Board.w - 4,  Generation_Rect_Board.h - 4 };
 	SDL_Rect Generation_Rect = { Generation_Rect_Shadow.x + 4, Generation_Rect_Shadow.y + 4,Generation_Rect_Shadow.w - 8, Generation_Rect_Shadow.h - 8 };
 	SDL_Rect Generation_Text = { Generation_Rect.x + 12, Generation_Rect.y + 10,int(Generation_Rect.w * double (5.0/8)), Generation_Rect.h - 8 };
-	SDL_Rect Generation_Count_Text = { Generation_Text.x + Generation_Text.w + int(Generation_Rect.w * double(1.0 / 32)) + 12, Generation_Rect.y + int(Generation_Text.h * double(1.0 / 8)) + 10, int(Generation_Rect.w * double(1.0 / 4)), int(Generation_Text.h * double(6.0/8))};
+	SDL_Rect Generation_Count_Text_1= { Generation_Text.x + Generation_Text.w + int(Generation_Rect.w * double(1.0 / 8)) - 5, Generation_Rect.y + int(Generation_Text.h * double(1.0 / 8)) + 10, int(Generation_Rect.w * double(1.0 / 8)), int(Generation_Text.h * double(6.0/8))};
+	SDL_Rect Generation_Count_Text_2 = { Generation_Text.x + Generation_Text.w + int(Generation_Rect.w * double(1.0 / 8)) - int(Generation_Rect.w * double(7.0 / 320)) - 5, Generation_Rect.y + int(Generation_Text.h * double(1.0 / 8)) + 10, int(Generation_Rect.w * double(7.0 / 40)), int(Generation_Text.h * double(6.0 / 8)) };
+	SDL_Rect Generation_Count_Text_3 = { Generation_Text.x + Generation_Text.w + int(Generation_Rect.w * double(1.0 / 8)) - int(Generation_Rect.w * double(49.0 / 800)) - 5, Generation_Rect.y + int(Generation_Text.h * double(1.0 / 8)) + 10, int(Generation_Rect.w * double(49.0 / 200)), int(Generation_Text.h * double(6.0 / 8)) };
+	SDL_Rect Generation_Count_Text_4 = { Generation_Text.x + Generation_Text.w + int(Generation_Rect.w * double(1.0 / 8)) - int(Generation_Rect.w * double(343.0 / 3000)) - 5, Generation_Rect.y + int(Generation_Text.h * double(1.0 / 8)) + 10, int(Generation_Rect.w * double(343.0 / 1000)), int(Generation_Text.h * double(6.0 / 8)) };
 
 	SDL_Rect Title_Parameters_Rect_Board = { Parameters_Rect_Board.x + Parameters_Rect_Board.w + int((Play_Rect.x + Play_Rect.w - Parameters_Rect_Board.x - Parameters_Rect_Board.w) * double(1.0 / 16)) + 2, Play_Rect.y + int((Title_Rect_Board.y - Play_Rect.y) * double(2.0 / 16)), int((Play_Rect.x + Play_Rect.w - Parameters_Rect_Board.x - Parameters_Rect_Board.w) * double(14.0 / 16)), int((Title_Rect_Board.y - Play_Rect.y) * double(12.0 / 16)) };
 	SDL_Rect Title_Parameters_Rect_Shadow = { Title_Parameters_Rect_Board.x + 2, Title_Parameters_Rect_Board.y + 2, Title_Parameters_Rect_Board.w - 4,  Title_Parameters_Rect_Board.h - 4 };
@@ -1515,15 +1532,14 @@ void Playground(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int& volume
 	bool quit = false;
 	char name[] = "Sound.wav";
 
-	int red_board_rule = 0, red_board_Menu = 0, red_text_Menu = 214, red_text_Rand = 214, red_board_Rand = 0, red_board_Start = 0, red_text_Start = 214, red_text_Stop = 214, red_board_Stop = 0, red_text_Clear = 214, red_board_Clear = 0, red_text_Size_S = 214, red_board_Size_S = 0, red_text_Size_M = 214, red_board_Size_M = 0, red_text_Size_L = 214, red_board_Size_L = 0, red_board_Generation = 255, red_text_Generation = 255, red_board_Parameters = 255, red_text_Parameters = 255, red_board_Size = 255, red_text_Size = 255, red_board_Width = 0, red_text_Width = 214, red_board_Height = 0, red_text_Height = 214, red_text_Width_Input = 214, red_text_Height_Input = 214;
-	int red_text_Menu_press = 255, red_text_Rand_press = 255, red_text_Start_press = 255, red_text_Stop_press = 255, red_text_Clear_press = 255, red_text_Size_S_press = 255, red_text_Size_M_press = 255, red_text_Size_L_press = 255, color_Menu = 0, color_Rand = 0, color_Start = 0, color_Stop = 0, color_Clear = 0, color_Size_S = 0, color_Size_M = 0, color_Size_L  = 0;
+	int red_board_rule = 0, red_board_Menu = 0, red_text_Menu = 214, red_text_Rand = 214, red_board_Rand = 0, red_board_Start = 0, red_text_Start = 214, green_board_End = 220, green_text_End = -3, red_text_Stop = 214, red_board_Stop = 0, red_text_Clear = 214, red_board_Clear = 0, red_text_Size_S = 214, red_board_Size_S = 0, red_text_Size_M = 214, red_board_Size_M = 0, red_text_Size_L = 214, red_board_Size_L = 0, red_board_Generation = 255, red_text_Generation = 255, red_board_Parameters = 255, red_text_Parameters = 255, red_board_Size = 255, red_text_Size = 255, red_board_Width = 0, red_text_Width = 214, red_board_Height = 0, red_text_Height = 214, red_text_Width_Input = 214, red_text_Height_Input = 214;
+	int red_text_Menu_press = 255, red_text_Rand_press = 255, red_text_Start_press = 255, green_text_End_press = -4, red_text_Stop_press = 255, red_text_Clear_press = 255, red_text_Size_S_press = 255, red_text_Size_M_press = 255, red_text_Size_L_press = 255, color_Menu = 0, color_Rand = 0, color_Start = 0, color_Stop = 0, color_Clear = 0, color_Size_S = 0, color_Size_M = 0, color_Size_L  = 0, color_End = 0;
 
 	char Button_Menu[] = u8"E";
 	char Button_Rand[] = u8"Случайно";
 	char Button_Start[] = u8"Начать";
 	char Button_Stop[] = u8"Остановить";
-	char Button_Start_End_Game[] = u8"Конец игры";
-	char Button_Stop_End_Game[] = u8"Перезапуск";
+	char Button_End[] = u8"Конец";
 	char Button_Clear[] = u8"Очистить";
 	char Button_Size_S[] = u8"S";
 	char Button_Size_M[] = u8"M";
@@ -1605,6 +1621,25 @@ void Playground(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int& volume
 		}
 	}
 
+	int** Blocks_Res_6 = (int**)malloc(sizeof(int*) * Width_ground);
+	for (int i = 0; i < Width_ground; i++)
+	{
+		Blocks_Res_6[i] = (int*)malloc(sizeof(int) * Height_ground);
+		for (int j = 0; j < Height_ground; j++)
+		{
+			Blocks_Res_6[i][j] = -1;
+		}
+	}
+
+	int** Blocks_Res_7 = (int**)malloc(sizeof(int*) * Width_ground);
+	for (int i = 0; i < Width_ground; i++)
+	{
+		Blocks_Res_7[i] = (int*)malloc(sizeof(int) * Height_ground);
+		for (int j = 0; j < Height_ground; j++)
+		{
+			Blocks_Res_7[i][j] = -1;
+		}
+	}
 
 	SDL_Rect** Block_Rect = (SDL_Rect**)malloc(sizeof(SDL_Rect*) * Width_ground);
 	int Size_Block = (Play_Rect.y + Play_Rect.h - Title_Rect_Board.y - Title_Rect_Board.h + 1 - Height_ground - 3) / (Height_ground + 2);
@@ -1635,24 +1670,22 @@ void Playground(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int& volume
 
 	Button_Menu_Texture = get_text_texture(renderer, Button_Menu, symbols, red_text_Menu);
 	Button_Menu_Texture_Pressed = get_text_texture(renderer, Button_Menu, symbols, red_text_Menu_press);
-	Button_Rand_Texture = get_text_texture(renderer, Button_Rand, Settings_font, red_text_Rand);
-	Button_Rand_Texture_Pressed = get_text_texture(renderer, Button_Rand, Settings_font, red_text_Rand_press);
-	Button_Start_Texture = get_text_texture(renderer, Button_Start, Settings_font, red_text_Start);
-	Button_Start_Texture_Pressed = get_text_texture(renderer, Button_Start, Settings_font, red_text_Start_press);
-	Button_Stop_Texture = get_text_texture(renderer, Button_Stop, Settings_font, red_text_Stop);
-	Button_Stop_Texture_Pressed = get_text_texture(renderer, Button_Stop, Settings_font, red_text_Stop_press);
-	Button_Start_Texture_End_Game = get_text_texture(renderer, Button_Start_End_Game, Settings_font, red_text_Start);
-	Button_Start_Texture_Pressed_End_Game = get_text_texture(renderer, Button_Start_End_Game, Settings_font, red_text_Start_press);
-	Button_Stop_Texture_End_Game = get_text_texture(renderer, Button_Stop_End_Game, Settings_font, red_text_Stop);
-	Button_Stop_Texture_Pressed_End_Game = get_text_texture(renderer, Button_Stop_End_Game, Settings_font, red_text_Stop_press);
-	Button_Clear_Texture = get_text_texture(renderer, Button_Clear, Settings_font, red_text_Clear);
-	Button_Clear_Texture_Pressed = get_text_texture(renderer, Button_Clear, Settings_font, red_text_Clear_press);
-	Button_Size_S_Texture = get_text_texture(renderer, Button_Size_S, Settings_font, red_text_Size_S);
-	Button_Size_S_Texture_Pressed = get_text_texture(renderer, Button_Size_S, Settings_font, red_text_Size_S_press);
-	Button_Size_M_Texture = get_text_texture(renderer, Button_Size_M, Settings_font, red_text_Size_M);
-	Button_Size_M_Texture_Pressed = get_text_texture(renderer, Button_Size_M, Settings_font, red_text_Size_M_press);
-	Button_Size_L_Texture = get_text_texture(renderer, Button_Size_L, Settings_font, red_text_Size_L);
-	Button_Size_L_Texture_Pressed = get_text_texture(renderer, Button_Size_L, Settings_font, red_text_Size_L_press);
+	Button_Rand_Texture = get_text_texture(renderer, Button_Rand, my_font, red_text_Rand);
+	Button_Rand_Texture_Pressed = get_text_texture(renderer, Button_Rand, my_font, red_text_Rand_press);
+	Button_Start_Texture = get_text_texture(renderer, Button_Start, my_font, red_text_Start);
+	Button_Start_Texture_Pressed = get_text_texture(renderer, Button_Start, my_font, red_text_Start_press);
+	Button_Stop_Texture = get_text_texture(renderer, Button_Stop, my_font, red_text_Stop);
+	Button_Stop_Texture_Pressed = get_text_texture(renderer, Button_Stop, my_font, red_text_Stop_press);
+	Button_End_Texture= get_text_texture(renderer, Button_End, my_font, green_text_End);
+	Button_End_Texture_Pressed = get_text_texture(renderer, Button_End, my_font, green_text_End_press);
+	Button_Clear_Texture = get_text_texture(renderer, Button_Clear, my_font, red_text_Clear);
+	Button_Clear_Texture_Pressed = get_text_texture(renderer, Button_Clear, my_font, red_text_Clear_press);
+	Button_Size_S_Texture = get_text_texture(renderer, Button_Size_S, my_font, red_text_Size_S);
+	Button_Size_S_Texture_Pressed = get_text_texture(renderer, Button_Size_S, my_font, red_text_Size_S_press);
+	Button_Size_M_Texture = get_text_texture(renderer, Button_Size_M, my_font, red_text_Size_M);
+	Button_Size_M_Texture_Pressed = get_text_texture(renderer, Button_Size_M, my_font, red_text_Size_M_press);
+	Button_Size_L_Texture = get_text_texture(renderer, Button_Size_L, my_font, red_text_Size_L);
+	Button_Size_L_Texture_Pressed = get_text_texture(renderer, Button_Size_L, my_font, red_text_Size_L_press);
 	Generation_Texture = get_text_texture(renderer, Generation, my_font, red_text_Generation);
 	Generation_Count_Texture = get_text_texture(renderer, Generate_count_char, my_font, red_text_Generation);
 	Parameters_Texture = get_text_texture(renderer, Parameters, my_font, red_text_Parameters);
@@ -1664,12 +1697,17 @@ void Playground(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int& volume
 	Width_Input_Help_Texture = get_text_texture(renderer, Width_Help, Bind_font, red_text_Width_Input);
 	Height_Input_Help_Texture = get_text_texture(renderer, Height_Help, Bind_font, red_text_Height_Input);
 
-	int Pressed_Button_Left = 0, Pressed_Button_Right = 0, Generate_Ground = 0, End_Game = 0, count = 0;
+	char BackgroudFile[] = "Background_2.bmp";
+	SDL_Texture* TextureBackground = TakeTextureBackground(renderer, BackgroudFile);
+	SDL_Rect Background = { 0,0, SCREEN_WIDTH, SCREEN_HEIGHT };
+
+	int Pressed_Button_Left = 0, Pressed_Button_Right = 0, Generate_Ground = 0, End_Game = 0, count = 0, Stop_number = -1;
 
 	while (!quit)
 	{
 		if ((Fl == 1) or (Main == 1)) { quit = true; break; }
-		while (SDL_PollEvent(&event)) {
+		while (SDL_PollEvent(&event)) 
+		{
 			if (event.type == SDL_QUIT)
 			{
 				OutputGameProgress(Width_ground, Height_ground, Generate_count, Blocks);
@@ -1706,6 +1744,16 @@ void Playground(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int& volume
 			{
 				red_board_Start = 0;
 				color_Start = 0;
+			}
+			if (((event.button.x <= Button_End_Rect_Board.x + Button_End_Rect_Board.w) and (event.button.x >= Button_End_Rect_Board.x)) and ((event.button.y <= Button_End_Rect_Board.y + Button_End_Rect_Board.h) and (event.button.y >= Button_End_Rect_Board.y)))
+			{
+				green_board_End = 255;
+				color_End = 1;
+			}
+			else
+			{
+				green_board_End = 220;
+				color_End = 0;
 			}
 			if (((event.button.x <= Button_Stop_Rect_Board.x + Button_Stop_Rect_Board.w) and (event.button.x >= Button_Stop_Rect_Board.x)) and ((event.button.y <= Button_Stop_Rect_Board.y + Button_Stop_Rect_Board.h) and (event.button.y >= Button_Stop_Rect_Board.y)))
 			{
@@ -1759,7 +1807,7 @@ void Playground(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int& volume
 			}
 			if ((event.type == SDL_KEYDOWN) && (event.key.keysym.sym == SDLK_r))
 			{
-				if (End_Game == 1)
+				if (End_Game == 0)
 				{
 					if (Sound_Enable == 1)
 					{
@@ -1767,54 +1815,14 @@ void Playground(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int& volume
 					}
 					SDL_SetRenderDrawColor(renderer, 255, 0, 0, 0);
 					SDL_RenderFillRect(renderer, &Button_Start_Rect_Board);
-					SDL_SetRenderDrawColor(renderer, 140, 140, 140, 0);
-					SDL_RenderFillRect(renderer, &Button_Start_Rect_Shadow);
-					SDL_SetRenderDrawColor(renderer, 64, 64, 64, 0);
-					SDL_RenderFillRect(renderer, &Button_Start_Rect);
-					draw_Place(renderer, Button_Start_Texture_Pressed_End_Game, Button_Start_Text);
-					SDL_RenderPresent(renderer);
-					SDL_Delay(50);
-					SDL_SetRenderDrawColor(renderer, 140, 140, 140, 0);
-					SDL_RenderFillRect(renderer, &Button_Start_Rect_Shadow);
-					SDL_SetRenderDrawColor(renderer, 64, 64, 64, 0);
-					SDL_RenderFillRect(renderer, &Button_Start_Rect);
-					draw_Place(renderer, Button_Start_Texture_End_Game, Button_Start_Text);
-					SDL_RenderPresent(renderer);
-					SDL_Delay(20);
-					End_Game_Menu(window, renderer, Fl, volume_music, volume_sound, Sound_Enable, Music_Enable, Main, Generate_count_char, victory);
-					Generate_Ground = 0;
-					End_Game = 0;
-					for (int i = 0; i < Width_ground; i++)
-					{
-						for (int j = 0; j < Height_ground; j++)
-						{
-							Blocks[i][j] = 0;
-						}
-					}
-					End_Game = 0;
-					Generate_count = 0;
-					SDL_DestroyTexture(Generation_Count_Texture);
-					_itoa_s(Generate_count, Generate_count_char, 10);
-					Generation_Count_Texture = get_text_texture(renderer, Generate_count_char, my_font, red_text_Generation);
-					draw_Place(renderer, Generation_Count_Texture, Generation_Count_Text);
-				}
-				else
-				{
-					
-					if (Sound_Enable == 1)
-					{
-						sound(name, volume_sound);
-					}
-					SDL_SetRenderDrawColor(renderer, 255, 0, 0, 0);
-					SDL_RenderFillRect(renderer, &Button_Start_Rect_Board);
-					SDL_SetRenderDrawColor(renderer, 140, 140, 140, 0);
+					SDL_SetRenderDrawColor(renderer, 120, 120, 120, 0);
 					SDL_RenderFillRect(renderer, &Button_Start_Rect_Shadow);
 					SDL_SetRenderDrawColor(renderer, 64, 64, 64, 0);
 					SDL_RenderFillRect(renderer, &Button_Start_Rect);
 					draw_Place(renderer, Button_Start_Texture_Pressed, Button_Start_Text);
 					SDL_RenderPresent(renderer);
 					SDL_Delay(50);
-					SDL_SetRenderDrawColor(renderer, 140, 140, 140, 0);
+					SDL_SetRenderDrawColor(renderer, 120, 120, 120, 0);
 					SDL_RenderFillRect(renderer, &Button_Start_Rect_Shadow);
 					SDL_SetRenderDrawColor(renderer, 64, 64, 64, 0);
 					SDL_RenderFillRect(renderer, &Button_Start_Rect);
@@ -1835,14 +1843,14 @@ void Playground(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int& volume
 					}
 					SDL_SetRenderDrawColor(renderer, 255, 0, 0, 0);
 					SDL_RenderFillRect(renderer, &Button_Clear_Rect_Board);
-					SDL_SetRenderDrawColor(renderer, 140, 140, 140, 0);
+					SDL_SetRenderDrawColor(renderer, 120, 120, 120, 0);
 					SDL_RenderFillRect(renderer, &Button_Clear_Rect_Shadow);
 					SDL_SetRenderDrawColor(renderer, 64, 64, 64, 0);
 					SDL_RenderFillRect(renderer, &Button_Clear_Rect);
 					draw_Place(renderer, Button_Clear_Texture_Pressed, Button_Clear_Text);
 					SDL_RenderPresent(renderer);
 					SDL_Delay(50);
-					SDL_SetRenderDrawColor(renderer, 140, 140, 140, 0);
+					SDL_SetRenderDrawColor(renderer, 120, 120, 120, 0);
 					SDL_RenderFillRect(renderer, &Button_Clear_Rect_Shadow);
 					SDL_SetRenderDrawColor(renderer, 64, 64, 64, 0);
 					SDL_RenderFillRect(renderer, &Button_Clear_Rect);
@@ -1861,12 +1869,34 @@ void Playground(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int& volume
 					SDL_DestroyTexture(Generation_Count_Texture);
 					_itoa_s(Generate_count, Generate_count_char, 10);
 					Generation_Count_Texture = get_text_texture(renderer, Generate_count_char, my_font, red_text_Generation);
-					draw_Place(renderer, Generation_Count_Texture, Generation_Count_Text);
+					if ((Generate_count <= 10000) and (Generate_count >= 1000))
+					{
+						draw_Place(renderer, Generation_Count_Texture, Generation_Count_Text_4);
+					}
+					else
+					{
+						if ((Generate_count < 1000) and (Generate_count >= 100))
+						{
+							draw_Place(renderer, Generation_Count_Texture, Generation_Count_Text_3);
+						}
+						else
+						{
+							if ((Generate_count < 100) and (Generate_count >= 10))
+							{
+								draw_Place(renderer, Generation_Count_Texture, Generation_Count_Text_2);
+							}
+
+							else
+							{
+								draw_Place(renderer, Generation_Count_Texture, Generation_Count_Text_1);
+							}
+						}
+					}
 				}
 			}
 			if ((event.type == SDL_KEYDOWN) && (event.key.keysym.sym == SDLK_s))
 			{
-				if (End_Game == 1)
+				if (End_Game == 0)
 				{
 					if (Sound_Enable == 1)
 					{
@@ -1874,52 +1904,14 @@ void Playground(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int& volume
 					}
 					SDL_SetRenderDrawColor(renderer, 255, 0, 0, 0);
 					SDL_RenderFillRect(renderer, &Button_Stop_Rect_Board);
-					SDL_SetRenderDrawColor(renderer, 140, 140, 140, 0);
-					SDL_RenderFillRect(renderer, &Button_Stop_Rect_Shadow);
-					SDL_SetRenderDrawColor(renderer, 64, 64, 64, 0);
-					SDL_RenderFillRect(renderer, &Button_Stop_Rect);
-					draw_Place(renderer, Button_Stop_Texture_Pressed_End_Game, Button_Stop_Text);
-					SDL_RenderPresent(renderer);
-					SDL_Delay(50);
-					SDL_SetRenderDrawColor(renderer, 140, 140, 140, 0);
-					SDL_RenderFillRect(renderer, &Button_Stop_Rect_Shadow);
-					SDL_SetRenderDrawColor(renderer, 64, 64, 64, 0);
-					SDL_RenderFillRect(renderer, &Button_Stop_Rect);
-					draw_Place(renderer, Button_Stop_Texture_End_Game, Button_Stop_Text);
-					SDL_RenderPresent(renderer);
-					Generate_Ground = 0;
-					End_Game = 0;
-					SDL_Delay(20);
-					for (int i = 0; i < Width_ground; i++)
-					{
-						for (int j = 0; j < Height_ground; j++)
-						{
-							Blocks[i][j] = 0;
-						}
-					}
-					End_Game = 0;
-					Generate_count = 0;
-					SDL_DestroyTexture(Generation_Count_Texture);
-					_itoa_s(Generate_count, Generate_count_char, 10);
-					Generation_Count_Texture = get_text_texture(renderer, Generate_count_char, my_font, red_text_Generation);
-					draw_Place(renderer, Generation_Count_Texture, Generation_Count_Text);
-				}
-				else
-				{
-					if (Sound_Enable == 1)
-					{
-						sound(name, volume_sound);
-					}
-					SDL_SetRenderDrawColor(renderer, 255, 0, 0, 0);
-					SDL_RenderFillRect(renderer, &Button_Stop_Rect_Board);
-					SDL_SetRenderDrawColor(renderer, 140, 140, 140, 0);
+					SDL_SetRenderDrawColor(renderer, 120, 120, 120, 0);
 					SDL_RenderFillRect(renderer, &Button_Stop_Rect_Shadow);
 					SDL_SetRenderDrawColor(renderer, 64, 64, 64, 0);
 					SDL_RenderFillRect(renderer, &Button_Stop_Rect);
 					draw_Place(renderer, Button_Stop_Texture_Pressed, Button_Stop_Text);
 					SDL_RenderPresent(renderer);
 					SDL_Delay(50);
-					SDL_SetRenderDrawColor(renderer, 140, 140, 140, 0);
+					SDL_SetRenderDrawColor(renderer, 120, 120, 120, 0);
 					SDL_RenderFillRect(renderer, &Button_Stop_Rect_Shadow);
 					SDL_SetRenderDrawColor(renderer, 64, 64, 64, 0);
 					SDL_RenderFillRect(renderer, &Button_Stop_Rect);
@@ -1940,21 +1932,21 @@ void Playground(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int& volume
 					}
 					SDL_SetRenderDrawColor(renderer, 255, 0, 0, 0);
 					SDL_RenderFillRect(renderer, &Button_Menu_Rect_Board);
-					SDL_SetRenderDrawColor(renderer, 140, 140, 140, 0);
+					SDL_SetRenderDrawColor(renderer, 120, 120, 120, 0);
 					SDL_RenderFillRect(renderer, &Button_Menu_Rect_Shadow);
 					SDL_SetRenderDrawColor(renderer, 64, 64, 64, 0);
 					SDL_RenderFillRect(renderer, &Button_Menu_Rect);
 					draw_Place(renderer, Button_Menu_Texture_Pressed, Button_Menu_Text);
 					SDL_RenderPresent(renderer);
 					SDL_Delay(50);
-					SDL_SetRenderDrawColor(renderer, 140, 140, 140, 0);
+					SDL_SetRenderDrawColor(renderer, 120, 120, 120, 0);
 					SDL_RenderFillRect(renderer, &Button_Menu_Rect_Shadow);
 					SDL_SetRenderDrawColor(renderer, 64, 64, 64, 0);
 					SDL_RenderFillRect(renderer, &Button_Menu_Rect);
 					draw_Place(renderer, Button_Menu_Texture, Button_Menu_Text);
 					SDL_RenderPresent(renderer);
 					OutputGameProgress(Width_ground, Height_ground, Generate_count, Blocks);
-					SDL_Delay(20);	
+					SDL_Delay(20);
 					Menu_Pause(window, renderer, Fl, volume_music, volume_sound, Sound_Enable, Music_Enable, Handle_board, Main);
 				}
 			}
@@ -1970,7 +1962,7 @@ void Playground(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int& volume
 					draw_Place(renderer, Button_Menu_Texture, Button_Menu_Text);
 					SDL_RenderPresent(renderer);
 					SDL_Delay(50);
-					SDL_SetRenderDrawColor(renderer, 140, 140, 140, 0);
+					SDL_SetRenderDrawColor(renderer, 120, 120, 120, 0);
 					SDL_RenderFillRect(renderer, &Button_Menu_Rect_Shadow);
 					SDL_SetRenderDrawColor(renderer, 64, 64, 64, 0);
 					SDL_RenderFillRect(renderer, &Button_Menu_Rect);
@@ -1987,8 +1979,30 @@ void Playground(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int& volume
 					SDL_DestroyTexture(Generation_Count_Texture);
 					_itoa_s(Generate_count, Generate_count_char, 10);
 					Generation_Count_Texture = get_text_texture(renderer, Generate_count_char, my_font, red_text_Generation);
-					draw_Place(renderer, Generation_Count_Texture, Generation_Count_Text);
-					
+					if ((Generate_count <= 10000) and (Generate_count >= 1000))
+					{
+						draw_Place(renderer, Generation_Count_Texture, Generation_Count_Text_4);
+					}
+					else
+					{
+						if ((Generate_count < 1000) and (Generate_count >= 100))
+						{
+							draw_Place(renderer, Generation_Count_Texture, Generation_Count_Text_3);
+						}
+						else
+						{
+							if ((Generate_count < 100) and (Generate_count >= 10))
+							{
+								draw_Place(renderer, Generation_Count_Texture, Generation_Count_Text_2);
+							}
+
+							else
+							{
+								draw_Place(renderer, Generation_Count_Texture, Generation_Count_Text_1);
+							}
+						}
+					}
+
 					SDL_SetRenderDrawColor(renderer, red_board_Rand, 0, 0, 0);
 					if (Sound_Enable == 1)
 					{
@@ -1997,7 +2011,7 @@ void Playground(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int& volume
 					draw_Place(renderer, Button_Rand_Texture, Button_Rand_Text);
 					SDL_RenderPresent(renderer);
 					SDL_Delay(50);
-					SDL_SetRenderDrawColor(renderer, 140, 140, 140, 0);
+					SDL_SetRenderDrawColor(renderer, 120, 120, 120, 0);
 					SDL_RenderFillRect(renderer, &Button_Rand_Rect_Shadow);
 					SDL_SetRenderDrawColor(renderer, 64, 64, 64, 0);
 					SDL_RenderFillRect(renderer, &Button_Rand_Rect);
@@ -2022,7 +2036,7 @@ void Playground(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int& volume
 					draw_Place(renderer, Button_Start_Texture, Button_Start_Text);
 					SDL_RenderPresent(renderer);
 					SDL_Delay(50);
-					SDL_SetRenderDrawColor(renderer, 140, 140, 140, 0);
+					SDL_SetRenderDrawColor(renderer, 120, 120, 120, 0);
 					SDL_RenderFillRect(renderer, &Button_Start_Rect_Shadow);
 					SDL_SetRenderDrawColor(renderer, 64, 64, 64, 0);
 					SDL_RenderFillRect(renderer, &Button_Start_Rect);
@@ -2042,7 +2056,7 @@ void Playground(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int& volume
 					draw_Place(renderer, Button_Stop_Texture, Button_Stop_Text);
 					SDL_RenderPresent(renderer);
 					SDL_Delay(50);
-					SDL_SetRenderDrawColor(renderer, 140, 140, 140, 0);
+					SDL_SetRenderDrawColor(renderer, 120, 120, 120, 0);
 					SDL_RenderFillRect(renderer, &Button_Stop_Rect_Shadow);
 					SDL_SetRenderDrawColor(renderer, 64, 64, 64, 0);
 					SDL_RenderFillRect(renderer, &Button_Stop_Rect);
@@ -2052,21 +2066,21 @@ void Playground(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int& volume
 					End_Game = 0;
 					SDL_Delay(20);
 				}
-				if (((event.button.x <= Button_Start_Rect_Board.x + Button_Start_Rect_Board.w) and (event.button.x >= Button_Start_Rect_Board.x)) and ((event.button.y <= Button_Start_Rect_Board.y + Button_Start_Rect_Board.h) and (event.button.y >= Button_Start_Rect_Board.y)) and (End_Game == 1))
+				if (((event.button.x <= Button_End_Rect_Board.x + Button_End_Rect_Board.w) and (event.button.x >= Button_End_Rect_Board.x)) and ((event.button.y <= Button_End_Rect_Board.y + Button_End_Rect_Board.h) and (event.button.y >= Button_End_Rect_Board.y)) and (End_Game == 1))
 				{
-					SDL_SetRenderDrawColor(renderer, red_board_Start, 0, 0, 0);
+					SDL_SetRenderDrawColor(renderer, 0, green_board_End, 0, 0);
 					if (Sound_Enable == 1)
 					{
 						sound(name, volume_sound);
 					}
-					draw_Place(renderer, Button_Start_Texture_End_Game, Button_Start_Text);
+					draw_Place(renderer, Button_End_Texture, Button_End_Text);
 					SDL_RenderPresent(renderer);
 					SDL_Delay(50);
-					SDL_SetRenderDrawColor(renderer, 140, 140, 140, 0);
-					SDL_RenderFillRect(renderer, &Button_Start_Rect_Shadow);
-					SDL_SetRenderDrawColor(renderer, 64, 64, 64, 0);
-					SDL_RenderFillRect(renderer, &Button_Start_Rect);
-					draw_Place(renderer, Button_Start_Texture_End_Game, Button_Start_Text);
+					SDL_SetRenderDrawColor(renderer, 150, 150, 150, 0);
+					SDL_RenderFillRect(renderer, &Button_End_Rect_Shadow);
+					SDL_SetRenderDrawColor(renderer, 96, 96, 96, 0);
+					SDL_RenderFillRect(renderer, &Button_End_Rect);
+					draw_Place(renderer, Button_End_Texture, Button_End_Text);
 					SDL_RenderPresent(renderer);
 					SDL_Delay(20);
 					OutputGameProgress(Width_ground, Height_ground, Generate_count, Blocks);
@@ -2085,40 +2099,29 @@ void Playground(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int& volume
 					SDL_DestroyTexture(Generation_Count_Texture);
 					_itoa_s(Generate_count, Generate_count_char, 10);
 					Generation_Count_Texture = get_text_texture(renderer, Generate_count_char, my_font, red_text_Generation);
-					draw_Place(renderer, Generation_Count_Texture, Generation_Count_Text);
-				}
-				if (((event.button.x <= Button_Stop_Rect_Board.x + Button_Stop_Rect_Board.w) and (event.button.x >= Button_Stop_Rect_Board.x)) and ((event.button.y <= Button_Stop_Rect_Board.y + Button_Stop_Rect_Board.h) and (event.button.y >= Button_Stop_Rect_Board.y)) and (End_Game == 1))
-				{
-					SDL_SetRenderDrawColor(renderer, red_board_Stop, 0, 0, 0);
-					if (Sound_Enable == 1)
+					if ((Generate_count <= 10000) and (Generate_count >= 1000))
 					{
-						sound(name, volume_sound);
+						draw_Place(renderer, Generation_Count_Texture, Generation_Count_Text_4);
 					}
-					draw_Place(renderer, Button_Stop_Texture_End_Game, Button_Stop_Text);
-					SDL_RenderPresent(renderer);
-					SDL_Delay(50);
-					SDL_SetRenderDrawColor(renderer, 140, 140, 140, 0);
-					SDL_RenderFillRect(renderer, &Button_Stop_Rect_Shadow);
-					SDL_SetRenderDrawColor(renderer, 64, 64, 64, 0);
-					SDL_RenderFillRect(renderer, &Button_Stop_Rect);
-					draw_Place(renderer, Button_Stop_Texture_End_Game, Button_Stop_Text);
-					SDL_RenderPresent(renderer);
-					Generate_Ground = 0;
-					End_Game = 0;
-					SDL_Delay(20);
-					for (int i = 0; i < Width_ground; i++)
+					else
 					{
-						for (int j = 0; j < Height_ground; j++)
+						if ((Generate_count < 1000) and (Generate_count >= 100))
 						{
-							Blocks[i][j] = 0;
+							draw_Place(renderer, Generation_Count_Texture, Generation_Count_Text_3);
+						}
+						else
+						{
+							if ((Generate_count < 100) and (Generate_count >= 10))
+							{
+								draw_Place(renderer, Generation_Count_Texture, Generation_Count_Text_2);
+							}
+
+							else
+							{
+								draw_Place(renderer, Generation_Count_Texture, Generation_Count_Text_1);
+							}
 						}
 					}
-					End_Game = 0;
-					Generate_count = 0;
-					SDL_DestroyTexture(Generation_Count_Texture);
-					_itoa_s(Generate_count, Generate_count_char, 10);
-					Generation_Count_Texture = get_text_texture(renderer, Generate_count_char, my_font, red_text_Generation);
-					draw_Place(renderer, Generation_Count_Texture, Generation_Count_Text);
 				}
 				if (((event.button.x <= Button_Clear_Rect_Board.x + Button_Clear_Rect_Board.w) and (event.button.x >= Button_Clear_Rect_Board.x)) and ((event.button.y <= Button_Clear_Rect_Board.y + Button_Clear_Rect_Board.h) and (event.button.y >= Button_Clear_Rect_Board.y)) and (Generate_Ground == 0))
 				{
@@ -2130,7 +2133,7 @@ void Playground(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int& volume
 					draw_Place(renderer, Button_Clear_Texture, Button_Clear_Text);
 					SDL_RenderPresent(renderer);
 					SDL_Delay(50);
-					SDL_SetRenderDrawColor(renderer, 140, 140, 140, 0);
+					SDL_SetRenderDrawColor(renderer, 120, 120, 120, 0);
 					SDL_RenderFillRect(renderer, &Button_Clear_Rect_Shadow);
 					SDL_SetRenderDrawColor(renderer, 64, 64, 64, 0);
 					SDL_RenderFillRect(renderer, &Button_Clear_Rect);
@@ -2149,185 +2152,246 @@ void Playground(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int& volume
 					SDL_DestroyTexture(Generation_Count_Texture);
 					_itoa_s(Generate_count, Generate_count_char, 10);
 					Generation_Count_Texture = get_text_texture(renderer, Generate_count_char, my_font, red_text_Generation);
-					draw_Place(renderer, Generation_Count_Texture, Generation_Count_Text);
+					if ((Generate_count <= 10000) and (Generate_count >= 1000))
+					{
+						draw_Place(renderer, Generation_Count_Texture, Generation_Count_Text_4);
+					}
+					else
+					{
+						if ((Generate_count < 1000) and (Generate_count >= 100))
+						{
+							draw_Place(renderer, Generation_Count_Texture, Generation_Count_Text_3);
+						}
+						else
+						{
+							if ((Generate_count < 100) and (Generate_count >= 10))
+							{
+								draw_Place(renderer, Generation_Count_Texture, Generation_Count_Text_2);
+							}
+
+							else
+							{
+								draw_Place(renderer, Generation_Count_Texture, Generation_Count_Text_1);
+							}
+						}
+					}
 				}
 				if (((event.button.x <= Button_Size_S_Rect_Board.x + Button_Size_S_Rect_Board.w) and (event.button.x >= Button_Size_S_Rect_Board.x)) and ((event.button.y <= Button_Size_S_Rect_Board.y + Button_Size_S_Rect_Board.h) and (event.button.y >= Button_Size_S_Rect_Board.y)) and (Generate_Ground == 0))
 				{
-					Generate_count = 0;
-					End_Game = 0;
-					SDL_DestroyTexture(Generation_Count_Texture);
-					_itoa_s(Generate_count, Generate_count_char, 10);
-					Generation_Count_Texture = get_text_texture(renderer, Generate_count_char, my_font, red_text_Generation);
-					draw_Place(renderer, Generation_Count_Texture, Generation_Count_Text);
-					SDL_SetRenderDrawColor(renderer, red_board_Size_S, 0, 0, 0);
 					if (Sound_Enable == 1)
 					{
 						sound(name, volume_sound);
 					}
-					draw_Place(renderer, Button_Size_S_Texture, Button_Size_S_Text);
-					SDL_RenderPresent(renderer);
-					SDL_Delay(50);
-					SDL_SetRenderDrawColor(renderer, 140, 140, 140, 0);
-					SDL_RenderFillRect(renderer, &Button_Size_S_Rect_Shadow);
-					SDL_SetRenderDrawColor(renderer, 64, 64, 64, 0);
-					SDL_RenderFillRect(renderer, &Button_Size_S_Rect);
-					draw_Place(renderer, Button_Size_S_Texture, Button_Size_S_Text);
-					SDL_RenderPresent(renderer);
-					SDL_Delay(20);
-
-					int Width_ground_double = Width_ground, Height_ground_double = Height_ground;
-					Width_ground = 30;
-					Height_ground = 20;
-
-					SDL_DestroyTexture(Width_Input_Texture);
-					_itoa_s(Width_ground, Width_Input, 10);
-					Width_Input_Texture = get_text_texture(renderer, Width_Input, my_font, red_text_Width_Input);
-
-					SDL_DestroyTexture(Height_Input_Texture);
-					_itoa_s(Height_ground, Height_Input, 10);
-					Height_Input_Texture = get_text_texture(renderer, Height_Input, my_font, red_text_Height_Input);
-
-					if ((Width_ground_double != Width_ground) or (Height_ground_double != Height_ground))
+					if ((Width_ground != 30) or (Height_ground != 20))
 					{
-						int** Blocks_double = (int**)malloc(sizeof(int*) * Width_ground_double);
-						for (int i = 0; i < Width_ground_double; i++)
+						Generate_count = 0;
+						End_Game = 0;
+						SDL_DestroyTexture(Generation_Count_Texture);
+						_itoa_s(Generate_count, Generate_count_char, 10);
+						Generation_Count_Texture = get_text_texture(renderer, Generate_count_char, my_font, red_text_Generation);
+						if ((Generate_count <= 10000) and (Generate_count >= 1000))
 						{
-							Blocks_double[i] = (int*)malloc(sizeof(int) * Height_ground_double);
-							for (int j = 0; j < Height_ground_double; j++)
+							draw_Place(renderer, Generation_Count_Texture, Generation_Count_Text_4);
+						}
+						else
+						{
+							if ((Generate_count < 1000) and (Generate_count >= 100))
 							{
-								Blocks_double[i][j] = Blocks[i][j];
+								draw_Place(renderer, Generation_Count_Texture, Generation_Count_Text_3);
 							}
-						}
-
-						for (int i = 0; i < Width_ground_double; i++)
-						{
-							free(Blocks[i]);
-						}
-						free(Blocks);
-
-						for (int i = 0; i < Width_ground_double; i++)
-						{
-							free(Block_Rect[i]);
-						}
-						free(Block_Rect);
-
-						for (int i = 0; i < Width_ground_double; i++)
-						{
-							free(Blocks_Res_1[i]);
-						}
-						free(Blocks_Res_1);
-
-						for (int i = 0; i < Width_ground_double; i++)
-						{
-							free(Blocks_Res_2[i]);
-						}
-						free(Blocks_Res_2);
-
-						for (int i = 0; i < Width_ground_double; i++)
-						{
-							free(Blocks_Res_3[i]);
-						}
-						free(Blocks_Res_3);
-
-						for (int i = 0; i < Width_ground_double; i++)
-						{
-							free(Blocks_Res_4[i]);
-						}
-						free(Blocks_Res_4);
-
-						for (int i = 0; i < Width_ground_double; i++)
-						{
-							free(Blocks_Res_5[i]);
-						}
-						free(Blocks_Res_5);
-
-						Blocks_Res_1 = (int**)malloc(sizeof(int*) * Width_ground);
-						for (int i = 0; i < Width_ground; i++)
-						{
-							Blocks_Res_1[i] = (int*)malloc(sizeof(int) * Height_ground);
-							for (int j = 0; j < Height_ground; j++)
+							else
 							{
-								Blocks_Res_1[i][j] = -1;
-							}
-						}
-
-						Blocks_Res_2 = (int**)malloc(sizeof(int*) * Width_ground);
-						for (int i = 0; i < Width_ground; i++)
-						{
-							Blocks_Res_2[i] = (int*)malloc(sizeof(int) * Height_ground);
-							for (int j = 0; j < Height_ground; j++)
-							{
-								Blocks_Res_2[i][j] = -1;
-							}
-						}
-
-						Blocks_Res_3 = (int**)malloc(sizeof(int*) * Width_ground);
-						for (int i = 0; i < Width_ground; i++)
-						{
-							Blocks_Res_3[i] = (int*)malloc(sizeof(int) * Height_ground);
-							for (int j = 0; j < Height_ground; j++)
-							{
-								Blocks_Res_3[i][j] = -1;
-							}
-						}
-
-						Blocks_Res_4 = (int**)malloc(sizeof(int*) * Width_ground);
-						for (int i = 0; i < Width_ground; i++)
-						{
-							Blocks_Res_4[i] = (int*)malloc(sizeof(int) * Height_ground);
-							for (int j = 0; j < Height_ground; j++)
-							{
-								Blocks_Res_4[i][j] = -1;
-							}
-						}
-
-						Blocks_Res_5 = (int**)malloc(sizeof(int*) * Width_ground);
-						for (int i = 0; i < Width_ground; i++)
-						{
-							Blocks_Res_5[i] = (int*)malloc(sizeof(int) * Height_ground);
-							for (int j = 0; j < Height_ground; j++)
-							{
-								Blocks_Res_5[i][j] = -1;
-							}
-						}
-
-
-						int w = Width_ground - Width_ground_double, h = Height_ground - Height_ground_double;
-						int t = -1, k = -1, nt = -w / 2, nk = -h / 2;
-
-						Blocks = (int**)malloc(sizeof(int*) * Width_ground);
-						for (int i = 0; i < Width_ground; i++)
-						{
-							if (t != -1) t++;
-							k = -1;
-							Blocks[i] = (int*)malloc(sizeof(int) * Height_ground);
-							for (int j = 0; j < Height_ground; j++)
-							{
-								if (k != -1) k++;
-								if ((w > 0) and (h > 0))
+								if ((Generate_count < 100) and (Generate_count >= 10))
 								{
-									if ((i >= w / 2) and (j >= h / 2) and (t < Width_ground_double) and (k < Height_ground_double))
-									{
-										if (k == -1) { k++; }
-										if (t == -1) { t++; }
-										Blocks[i][j] = Blocks_double[t][k];
-									}
-									else
-									{
-										if ((Blocks[i][j] != 0) and (Blocks[i][j] != 1))
-										{
-											Blocks[i][j] = 0;
-										}
-									}
+									draw_Place(renderer, Generation_Count_Texture, Generation_Count_Text_2);
 								}
+
 								else
 								{
-									if ((w > 0) and (h < 0))
+									draw_Place(renderer, Generation_Count_Texture, Generation_Count_Text_1);
+								}
+							}
+						}
+						SDL_SetRenderDrawColor(renderer, red_board_Size_S, 0, 0, 0);
+						draw_Place(renderer, Button_Size_S_Texture, Button_Size_S_Text);
+						SDL_RenderPresent(renderer);
+						SDL_Delay(50);
+						SDL_SetRenderDrawColor(renderer, 120, 120, 120, 0);
+						SDL_RenderFillRect(renderer, &Button_Size_S_Rect_Shadow);
+						SDL_SetRenderDrawColor(renderer, 64, 64, 64, 0);
+						SDL_RenderFillRect(renderer, &Button_Size_S_Rect);
+						draw_Place(renderer, Button_Size_S_Texture, Button_Size_S_Text);
+						SDL_RenderPresent(renderer);
+						SDL_Delay(20);
+
+						int Width_ground_double = Width_ground, Height_ground_double = Height_ground;
+						Width_ground = 30;
+						Height_ground = 20;
+
+						SDL_DestroyTexture(Width_Input_Texture);
+						_itoa_s(Width_ground, Width_Input, 10);
+						Width_Input_Texture = get_text_texture(renderer, Width_Input, my_font, red_text_Width_Input);
+
+						SDL_DestroyTexture(Height_Input_Texture);
+						_itoa_s(Height_ground, Height_Input, 10);
+						Height_Input_Texture = get_text_texture(renderer, Height_Input, my_font, red_text_Height_Input);
+
+						if ((Width_ground_double != Width_ground) or (Height_ground_double != Height_ground))
+						{
+							int** Blocks_double = (int**)malloc(sizeof(int*) * Width_ground_double);
+							for (int i = 0; i < Width_ground_double; i++)
+							{
+								Blocks_double[i] = (int*)malloc(sizeof(int) * Height_ground_double);
+								for (int j = 0; j < Height_ground_double; j++)
+								{
+									Blocks_double[i][j] = Blocks[i][j];
+								}
+							}
+
+							for (int i = 0; i < Width_ground_double; i++)
+							{
+								free(Blocks[i]);
+							}
+							free(Blocks);
+
+							for (int i = 0; i < Width_ground_double; i++)
+							{
+								free(Block_Rect[i]);
+							}
+							free(Block_Rect);
+
+							for (int i = 0; i < Width_ground_double; i++)
+							{
+								free(Blocks_Res_1[i]);
+							}
+							free(Blocks_Res_1);
+
+							for (int i = 0; i < Width_ground_double; i++)
+							{
+								free(Blocks_Res_2[i]);
+							}
+							free(Blocks_Res_2);
+
+							for (int i = 0; i < Width_ground_double; i++)
+							{
+								free(Blocks_Res_3[i]);
+							}
+							free(Blocks_Res_3);
+
+							for (int i = 0; i < Width_ground_double; i++)
+							{
+								free(Blocks_Res_4[i]);
+							}
+							free(Blocks_Res_4);
+
+							for (int i = 0; i < Width_ground_double; i++)
+							{
+								free(Blocks_Res_5[i]);
+							}
+							free(Blocks_Res_5);
+
+							for (int i = 0; i < Width_ground_double; i++)
+							{
+								free(Blocks_Res_6[i]);
+							}
+							free(Blocks_Res_6);
+
+							for (int i = 0; i < Width_ground_double; i++)
+							{
+								free(Blocks_Res_7[i]);
+							}
+							free(Blocks_Res_7);
+
+							Blocks_Res_1 = (int**)malloc(sizeof(int*) * Width_ground);
+							for (int i = 0; i < Width_ground; i++)
+							{
+								Blocks_Res_1[i] = (int*)malloc(sizeof(int) * Height_ground);
+								for (int j = 0; j < Height_ground; j++)
+								{
+									Blocks_Res_1[i][j] = -1;
+								}
+							}
+
+							Blocks_Res_2 = (int**)malloc(sizeof(int*) * Width_ground);
+							for (int i = 0; i < Width_ground; i++)
+							{
+								Blocks_Res_2[i] = (int*)malloc(sizeof(int) * Height_ground);
+								for (int j = 0; j < Height_ground; j++)
+								{
+									Blocks_Res_2[i][j] = -1;
+								}
+							}
+
+							Blocks_Res_3 = (int**)malloc(sizeof(int*) * Width_ground);
+							for (int i = 0; i < Width_ground; i++)
+							{
+								Blocks_Res_3[i] = (int*)malloc(sizeof(int) * Height_ground);
+								for (int j = 0; j < Height_ground; j++)
+								{
+									Blocks_Res_3[i][j] = -1;
+								}
+							}
+
+							Blocks_Res_4 = (int**)malloc(sizeof(int*) * Width_ground);
+							for (int i = 0; i < Width_ground; i++)
+							{
+								Blocks_Res_4[i] = (int*)malloc(sizeof(int) * Height_ground);
+								for (int j = 0; j < Height_ground; j++)
+								{
+									Blocks_Res_4[i][j] = -1;
+								}
+							}
+
+							Blocks_Res_5 = (int**)malloc(sizeof(int*) * Width_ground);
+							for (int i = 0; i < Width_ground; i++)
+							{
+								Blocks_Res_5[i] = (int*)malloc(sizeof(int) * Height_ground);
+								for (int j = 0; j < Height_ground; j++)
+								{
+									Blocks_Res_5[i][j] = -1;
+								}
+							}
+
+							Blocks_Res_6 = (int**)malloc(sizeof(int*) * Width_ground);
+							for (int i = 0; i < Width_ground; i++)
+							{
+								Blocks_Res_6[i] = (int*)malloc(sizeof(int) * Height_ground);
+								for (int j = 0; j < Height_ground; j++)
+								{
+									Blocks_Res_6[i][j] = -1;
+								}
+							}
+
+							Blocks_Res_7 = (int**)malloc(sizeof(int*) * Width_ground);
+							for (int i = 0; i < Width_ground; i++)
+							{
+								Blocks_Res_7[i] = (int*)malloc(sizeof(int) * Height_ground);
+								for (int j = 0; j < Height_ground; j++)
+								{
+									Blocks_Res_7[i][j] = -1;
+								}
+							}
+
+
+							int w = Width_ground - Width_ground_double, h = Height_ground - Height_ground_double;
+							int t = -1, k = -1, nt = -w / 2, nk = -h / 2;
+
+							Blocks = (int**)malloc(sizeof(int*) * Width_ground);
+							for (int i = 0; i < Width_ground; i++)
+							{
+								if (t != -1) t++;
+								k = -1;
+								Blocks[i] = (int*)malloc(sizeof(int) * Height_ground);
+								for (int j = 0; j < Height_ground; j++)
+								{
+									if (k != -1) k++;
+									if ((w > 0) and (h > 0))
 									{
-										if ((i >= w / 2) and (j + nk >= 0) and (t < Width_ground_double))
+										if ((i >= w / 2) and (j >= h / 2) and (t < Width_ground_double) and (k < Height_ground_double))
 										{
+											if (k == -1) { k++; }
 											if (t == -1) { t++; }
-											Blocks[i][j] = Blocks_double[t][j + nk];
+											Blocks[i][j] = Blocks_double[t][k];
 										}
 										else
 										{
@@ -2339,12 +2403,12 @@ void Playground(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int& volume
 									}
 									else
 									{
-										if ((w < 0) and (h > 0))
+										if ((w > 0) and (h < 0))
 										{
-											if ((i + nt >= 0) and (j >= h / 2) and (k < Height_ground_double))
+											if ((i >= w / 2) and (j + nk >= 0) and (t < Width_ground_double))
 											{
-												if (k == -1) { k++; }
-												Blocks[i][j] = Blocks_double[i + nt][k];
+												if (t == -1) { t++; }
+												Blocks[i][j] = Blocks_double[t][j + nk];
 											}
 											else
 											{
@@ -2356,39 +2420,38 @@ void Playground(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int& volume
 										}
 										else
 										{
-											if ((w < 0) and (h < 0))
+											if ((w < 0) and (h > 0))
 											{
-												if ((i + nt >= 0) and (j + nk >= 0))
+												if ((i + nt >= 0) and (j >= h / 2) and (k < Height_ground_double))
 												{
-													Blocks[i][j] = Blocks_double[i + nt][j + nk];
+													if (k == -1) { k++; }
+													Blocks[i][j] = Blocks_double[i + nt][k];
+												}
+												else
+												{
+													if ((Blocks[i][j] != 0) and (Blocks[i][j] != 1))
+													{
+														Blocks[i][j] = 0;
+													}
 												}
 											}
 											else
 											{
-												if ((w == 0) and (h > 0))
+												if ((w < 0) and (h < 0))
 												{
-													if ((j >= h / 2) and (k < Height_ground_double))
+													if ((i + nt >= 0) and (j + nk >= 0))
 													{
-														if (k == -1) { k++; }
-														Blocks[i][j] = Blocks_double[i][k];
-													}
-													else
-													{
-														if ((Blocks[i][j] != 0) and (Blocks[i][j] != 1))
-														{
-															Blocks[i][j] = 0;
-														}
+														Blocks[i][j] = Blocks_double[i + nt][j + nk];
 													}
 												}
 												else
 												{
-													if ((w > 0) and (h == 0))
+													if ((w == 0) and (h > 0))
 													{
-														if ((i >= w / 2) and (t < Width_ground_double))
+														if ((j >= h / 2) and (k < Height_ground_double))
 														{
-
-															if (t == -1) { t++; }
-															Blocks[i][j] = Blocks_double[t][j];
+															if (k == -1) { k++; }
+															Blocks[i][j] = Blocks_double[i][k];
 														}
 														else
 														{
@@ -2400,20 +2463,39 @@ void Playground(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int& volume
 													}
 													else
 													{
-														if ((w == 0) and (h < 0))
+														if ((w > 0) and (h == 0))
 														{
-															if (j + nk >= 0)
+															if ((i >= w / 2) and (t < Width_ground_double))
 															{
-																Blocks[i][j] = Blocks_double[i][j + nk];
+
+																if (t == -1) { t++; }
+																Blocks[i][j] = Blocks_double[t][j];
+															}
+															else
+															{
+																if ((Blocks[i][j] != 0) and (Blocks[i][j] != 1))
+																{
+																	Blocks[i][j] = 0;
+																}
 															}
 														}
 														else
 														{
-															if ((w < 0) and (h == 0))
+															if ((w == 0) and (h < 0))
 															{
-																if (i + nt >= 0)
+																if (j + nk >= 0)
 																{
-																	Blocks[i][j] = Blocks_double[i + nt][j];
+																	Blocks[i][j] = Blocks_double[i][j + nk];
+																}
+															}
+															else
+															{
+																if ((w < 0) and (h == 0))
+																{
+																	if (i + nt >= 0)
+																	{
+																		Blocks[i][j] = Blocks_double[i + nt][j];
+																	}
 																}
 															}
 														}
@@ -2424,225 +2506,265 @@ void Playground(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int& volume
 									}
 								}
 							}
-						}
 
-						//for (int i = 0; i < Width_ground; i++)
-						//{
-						//	Blocks[i] = (int*)malloc(sizeof(int) * Height_ground);
-						//	for (int j = 0; j < Height_ground; j++)
-						//	{
-						//		Blocks[i][j] = 0;
-						//	}
-						//}
+							//for (int i = 0; i < Width_ground; i++)
+							//{
+							//	Blocks[i] = (int*)malloc(sizeof(int) * Height_ground);
+							//	for (int j = 0; j < Height_ground; j++)
+							//	{
+							//		Blocks[i][j] = 0;
+							//	}
+							//}
 
-						for (int i = 0; i < Width_ground_double; i++)
-						{
-							free(Blocks_double[i]);
-						}
-						free(Blocks_double);
-
-						Block_Rect = (SDL_Rect**)malloc(sizeof(SDL_Rect*) * Width_ground);
-						int Size_Block = (Play_Rect.y + Play_Rect.h - Title_Rect_Board.y - Title_Rect_Board.h + 1 - Height_ground - 3) / (Height_ground + 2);
-						if (Size_Block > (Parameters_Rect_Board.x - Play_Rect.x + 1 - Width_ground - 3) / (Width_ground + 2)) { Size_Block = (Parameters_Rect_Board.x - Play_Rect.x + 1 - Width_ground - 3) / (Width_ground + 2); }
-						for (int i = 0; i < Width_ground; i++)
-						{
-							Block_Rect[i] = (SDL_Rect*)malloc(sizeof(SDL_Rect) * Height_ground);
-							for (int j = 0; j < Height_ground; j++)
+							for (int i = 0; i < Width_ground_double; i++)
 							{
-								if (Width_ground > Height_ground)
+								free(Blocks_double[i]);
+							}
+							free(Blocks_double);
+
+							Block_Rect = (SDL_Rect**)malloc(sizeof(SDL_Rect*) * Width_ground);
+							int Size_Block = (Play_Rect.y + Play_Rect.h - Title_Rect_Board.y - Title_Rect_Board.h + 1 - Height_ground - 3) / (Height_ground + 2);
+							if (Size_Block > (Parameters_Rect_Board.x - Play_Rect.x + 1 - Width_ground - 3) / (Width_ground + 2)) { Size_Block = (Parameters_Rect_Board.x - Play_Rect.x + 1 - Width_ground - 3) / (Width_ground + 2); }
+							for (int i = 0; i < Width_ground; i++)
+							{
+								Block_Rect[i] = (SDL_Rect*)malloc(sizeof(SDL_Rect) * Height_ground);
+								for (int j = 0; j < Height_ground; j++)
 								{
-									Block_Rect[i][j] = { 1 + Play_Rect.x + int((Parameters_Rect_Board.x - Play_Rect.x + 1 - Width_ground - 3 - Size_Block * Width_ground) * double(1.0 / 2)) + i + i * Size_Block, 1 + Title_Rect_Board.y + Title_Rect_Board.h + int((Play_Rect.y + Play_Rect.h - Title_Rect_Board.y - Title_Rect_Board.h + 1 - Height_ground - 3 - Size_Block * Height_ground) * double(1.0 / 2)) + j + j * Size_Block, Size_Block,Size_Block };
-								}
-								else
-								{
-									Block_Rect[i][j] = { 1 + Play_Rect.x + int((Parameters_Rect_Board.x - Play_Rect.x + 1 - Width_ground - 3 - Size_Block * Width_ground) * double(1.0 / 2)) + i + i * Size_Block, 1 + Title_Rect_Board.y + Title_Rect_Board.h + int((Play_Rect.y + Play_Rect.h - Title_Rect_Board.y - Title_Rect_Board.h + 1 - Height_ground - 3 - Size_Block * Height_ground) * double(1.0 / 2)) + j + j * Size_Block, Size_Block,Size_Block };
+									if (Width_ground > Height_ground)
+									{
+										Block_Rect[i][j] = { 1 + Play_Rect.x + int((Parameters_Rect_Board.x - Play_Rect.x + 1 - Width_ground - 3 - Size_Block * Width_ground) * double(1.0 / 2)) + i + i * Size_Block, 1 + Title_Rect_Board.y + Title_Rect_Board.h + int((Play_Rect.y + Play_Rect.h - Title_Rect_Board.y - Title_Rect_Board.h + 1 - Height_ground - 3 - Size_Block * Height_ground) * double(1.0 / 2)) + j + j * Size_Block, Size_Block,Size_Block };
+									}
+									else
+									{
+										Block_Rect[i][j] = { 1 + Play_Rect.x + int((Parameters_Rect_Board.x - Play_Rect.x + 1 - Width_ground - 3 - Size_Block * Width_ground) * double(1.0 / 2)) + i + i * Size_Block, 1 + Title_Rect_Board.y + Title_Rect_Board.h + int((Play_Rect.y + Play_Rect.h - Title_Rect_Board.y - Title_Rect_Board.h + 1 - Height_ground - 3 - Size_Block * Height_ground) * double(1.0 / 2)) + j + j * Size_Block, Size_Block,Size_Block };
+									}
 								}
 							}
-						}
 
-						Earth_Rect_Board = { Block_Rect[0][0].x - 14, Block_Rect[0][0].y - 14, Block_Rect[Width_ground - 1][Height_ground - 1].x + Block_Rect[Width_ground - 1][Height_ground - 1].w - Block_Rect[0][0].x + 28, Block_Rect[Width_ground - 1][Height_ground - 1].y + Block_Rect[Width_ground - 1][Height_ground - 1].h - Block_Rect[0][0].y + 28 };
-						Earth_Rect_Shadow_1 = { Earth_Rect_Board.x + 2, Earth_Rect_Board.y + 2, Earth_Rect_Board.w - 4,  Earth_Rect_Board.h - 4 };
-						Earth_Rect_Glare = { Earth_Rect_Shadow_1.x + 4, Earth_Rect_Shadow_1.y + 4, Earth_Rect_Shadow_1.w - 8,  Earth_Rect_Shadow_1.h - 8 };
-						Earth_Rect_Shadow_2 = { Earth_Rect_Glare.x + 4, Earth_Rect_Glare.y + 4, Earth_Rect_Glare.w - 8,  Earth_Rect_Glare.h - 8 };
-						Earth_Rect = { Earth_Rect_Shadow_2.x + 4, Earth_Rect_Shadow_2.y + 4,Earth_Rect_Shadow_2.w - 8, Earth_Rect_Shadow_2.h - 8 };
+							Earth_Rect_Board = { Block_Rect[0][0].x - 14, Block_Rect[0][0].y - 14, Block_Rect[Width_ground - 1][Height_ground - 1].x + Block_Rect[Width_ground - 1][Height_ground - 1].w - Block_Rect[0][0].x + 28, Block_Rect[Width_ground - 1][Height_ground - 1].y + Block_Rect[Width_ground - 1][Height_ground - 1].h - Block_Rect[0][0].y + 28 };
+							Earth_Rect_Shadow_1 = { Earth_Rect_Board.x + 2, Earth_Rect_Board.y + 2, Earth_Rect_Board.w - 4,  Earth_Rect_Board.h - 4 };
+							Earth_Rect_Glare = { Earth_Rect_Shadow_1.x + 4, Earth_Rect_Shadow_1.y + 4, Earth_Rect_Shadow_1.w - 8,  Earth_Rect_Shadow_1.h - 8 };
+							Earth_Rect_Shadow_2 = { Earth_Rect_Glare.x + 4, Earth_Rect_Glare.y + 4, Earth_Rect_Glare.w - 8,  Earth_Rect_Glare.h - 8 };
+							Earth_Rect = { Earth_Rect_Shadow_2.x + 4, Earth_Rect_Shadow_2.y + 4,Earth_Rect_Shadow_2.w - 8, Earth_Rect_Shadow_2.h - 8 };
+						}
 					}
 				}
 				if (((event.button.x <= Button_Size_M_Rect_Board.x + Button_Size_M_Rect_Board.w) and (event.button.x >= Button_Size_M_Rect_Board.x)) and ((event.button.y <= Button_Size_M_Rect_Board.y + Button_Size_M_Rect_Board.h) and (event.button.y >= Button_Size_M_Rect_Board.y)) and (Generate_Ground == 0))
 				{
-					Generate_count = 0;
-					End_Game = 0;
-					SDL_DestroyTexture(Generation_Count_Texture);
-					_itoa_s(Generate_count, Generate_count_char, 10);
-					Generation_Count_Texture = get_text_texture(renderer, Generate_count_char, my_font, red_text_Generation);
-					draw_Place(renderer, Generation_Count_Texture, Generation_Count_Text);
-					SDL_SetRenderDrawColor(renderer, red_board_Size_M, 0, 0, 0);
+					
 					if (Sound_Enable == 1)
 					{
 						sound(name, volume_sound);
 					}
-					draw_Place(renderer, Button_Size_M_Texture, Button_Size_M_Text);
-					SDL_RenderPresent(renderer);
-					SDL_Delay(50);
-					SDL_SetRenderDrawColor(renderer, 140, 140, 140, 0);
-					SDL_RenderFillRect(renderer, &Button_Size_M_Rect_Shadow);
-					SDL_SetRenderDrawColor(renderer, 64, 64, 64, 0);
-					SDL_RenderFillRect(renderer, &Button_Size_M_Rect);
-					draw_Place(renderer, Button_Size_M_Texture, Button_Size_M_Text);
-					SDL_RenderPresent(renderer);
-					SDL_Delay(20);
-					int Width_ground_double = Width_ground, Height_ground_double = Height_ground;
-					Width_ground = 80;
-					Height_ground = 50;
-
-					SDL_DestroyTexture(Width_Input_Texture);
-					_itoa_s(Width_ground, Width_Input, 10);
-					Width_Input_Texture = get_text_texture(renderer, Width_Input, my_font, red_text_Width_Input);
-
-					SDL_DestroyTexture(Height_Input_Texture);
-					_itoa_s(Height_ground, Height_Input, 10);
-					Height_Input_Texture = get_text_texture(renderer, Height_Input, my_font, red_text_Height_Input);
-
-					if ((Width_ground_double != Width_ground) or (Height_ground_double != Height_ground))
+					if ((Width_ground != 80) or (Height_ground != 50))
 					{
-						int** Blocks_double = (int**)malloc(sizeof(int*) * Width_ground_double);
-						for (int i = 0; i < Width_ground_double; i++)
+						Generate_count = 0;
+						End_Game = 0;
+						SDL_DestroyTexture(Generation_Count_Texture);
+						_itoa_s(Generate_count, Generate_count_char, 10);
+						Generation_Count_Texture = get_text_texture(renderer, Generate_count_char, my_font, red_text_Generation);
+						if ((Generate_count <= 10000) and (Generate_count >= 1000))
 						{
-							Blocks_double[i] = (int*)malloc(sizeof(int) * Height_ground_double);
-							for (int j = 0; j < Height_ground_double; j++)
+							draw_Place(renderer, Generation_Count_Texture, Generation_Count_Text_4);
+						}
+						else
+						{
+							if ((Generate_count < 1000) and (Generate_count >= 100))
 							{
-								Blocks_double[i][j] = Blocks[i][j];
+								draw_Place(renderer, Generation_Count_Texture, Generation_Count_Text_3);
 							}
-						}
-
-						for (int i = 0; i < Width_ground_double; i++)
-						{
-							free(Blocks[i]);
-						}
-						free(Blocks);
-
-						for (int i = 0; i < Width_ground_double; i++)
-						{
-							free(Block_Rect[i]);
-						}
-						free(Block_Rect);
-
-						for (int i = 0; i < Width_ground_double; i++)
-						{
-							free(Blocks_Res_1[i]);
-						}
-						free(Blocks_Res_1);
-
-						for (int i = 0; i < Width_ground_double; i++)
-						{
-							free(Blocks_Res_2[i]);
-						}
-						free(Blocks_Res_2);
-
-						for (int i = 0; i < Width_ground_double; i++)
-						{
-							free(Blocks_Res_3[i]);
-						}
-						free(Blocks_Res_3);
-
-						for (int i = 0; i < Width_ground_double; i++)
-						{
-							free(Blocks_Res_4[i]);
-						}
-						free(Blocks_Res_4);
-
-						for (int i = 0; i < Width_ground_double; i++)
-						{
-							free(Blocks_Res_5[i]);
-						}
-						free(Blocks_Res_5);
-
-						Blocks_Res_1 = (int**)malloc(sizeof(int*) * Width_ground);
-						for (int i = 0; i < Width_ground; i++)
-						{
-							Blocks_Res_1[i] = (int*)malloc(sizeof(int) * Height_ground);
-							for (int j = 0; j < Height_ground; j++)
+							else
 							{
-								Blocks_Res_1[i][j] = -1;
-							}
-						}
-
-						Blocks_Res_2 = (int**)malloc(sizeof(int*) * Width_ground);
-						for (int i = 0; i < Width_ground; i++)
-						{
-							Blocks_Res_2[i] = (int*)malloc(sizeof(int) * Height_ground);
-							for (int j = 0; j < Height_ground; j++)
-							{
-								Blocks_Res_2[i][j] = -1;
-							}
-						}
-
-						Blocks_Res_3 = (int**)malloc(sizeof(int*) * Width_ground);
-						for (int i = 0; i < Width_ground; i++)
-						{
-							Blocks_Res_3[i] = (int*)malloc(sizeof(int) * Height_ground);
-							for (int j = 0; j < Height_ground; j++)
-							{
-								Blocks_Res_3[i][j] = -1;
-							}
-						}
-
-						Blocks_Res_4 = (int**)malloc(sizeof(int*) * Width_ground);
-						for (int i = 0; i < Width_ground; i++)
-						{
-							Blocks_Res_4[i] = (int*)malloc(sizeof(int) * Height_ground);
-							for (int j = 0; j < Height_ground; j++)
-							{
-								Blocks_Res_4[i][j] = -1;
-							}
-						}
-
-						Blocks_Res_5 = (int**)malloc(sizeof(int*) * Width_ground);
-						for (int i = 0; i < Width_ground; i++)
-						{
-							Blocks_Res_5[i] = (int*)malloc(sizeof(int) * Height_ground);
-							for (int j = 0; j < Height_ground; j++)
-							{
-								Blocks_Res_5[i][j] = -1;
-							}
-						}
-
-
-						int w = Width_ground - Width_ground_double, h = Height_ground - Height_ground_double;
-						int t = -1, k = -1, nt = -w / 2, nk = -h / 2;
-
-						Blocks = (int**)malloc(sizeof(int*) * Width_ground);
-						for (int i = 0; i < Width_ground; i++)
-						{
-							if (t != -1) t++;
-							k = -1;
-							Blocks[i] = (int*)malloc(sizeof(int) * Height_ground);
-							for (int j = 0; j < Height_ground; j++)
-							{
-								if (k != -1) k++;
-								if ((w > 0) and (h > 0))
+								if ((Generate_count < 100) and (Generate_count >= 10))
 								{
-									if ((i >= w / 2) and (j >= h / 2) and (t < Width_ground_double) and (k < Height_ground_double))
-									{
-										if (k == -1) { k++; }
-										if (t == -1) { t++; }
-										Blocks[i][j] = Blocks_double[t][k];
-									}
-									else
-									{
-										if ((Blocks[i][j] != 0) and (Blocks[i][j] != 1))
-										{
-											Blocks[i][j] = 0;
-										}
-									}
+									draw_Place(renderer, Generation_Count_Texture, Generation_Count_Text_2);
 								}
+
 								else
 								{
-									if ((w > 0) and (h < 0))
+									draw_Place(renderer, Generation_Count_Texture, Generation_Count_Text_1);
+								}
+							}
+						}
+						SDL_SetRenderDrawColor(renderer, red_board_Size_M, 0, 0, 0);
+						draw_Place(renderer, Button_Size_M_Texture, Button_Size_M_Text);
+						SDL_RenderPresent(renderer);
+						SDL_Delay(50);
+						SDL_SetRenderDrawColor(renderer, 120, 120, 120, 0);
+						SDL_RenderFillRect(renderer, &Button_Size_M_Rect_Shadow);
+						SDL_SetRenderDrawColor(renderer, 64, 64, 64, 0);
+						SDL_RenderFillRect(renderer, &Button_Size_M_Rect);
+						draw_Place(renderer, Button_Size_M_Texture, Button_Size_M_Text);
+						SDL_RenderPresent(renderer);
+						SDL_Delay(20);
+						int Width_ground_double = Width_ground, Height_ground_double = Height_ground;
+						Width_ground = 80;
+						Height_ground = 50;
+
+						SDL_DestroyTexture(Width_Input_Texture);
+						_itoa_s(Width_ground, Width_Input, 10);
+						Width_Input_Texture = get_text_texture(renderer, Width_Input, my_font, red_text_Width_Input);
+
+						SDL_DestroyTexture(Height_Input_Texture);
+						_itoa_s(Height_ground, Height_Input, 10);
+						Height_Input_Texture = get_text_texture(renderer, Height_Input, my_font, red_text_Height_Input);
+
+						if ((Width_ground_double != Width_ground) or (Height_ground_double != Height_ground))
+						{
+							int** Blocks_double = (int**)malloc(sizeof(int*) * Width_ground_double);
+							for (int i = 0; i < Width_ground_double; i++)
+							{
+								Blocks_double[i] = (int*)malloc(sizeof(int) * Height_ground_double);
+								for (int j = 0; j < Height_ground_double; j++)
+								{
+									Blocks_double[i][j] = Blocks[i][j];
+								}
+							}
+
+							for (int i = 0; i < Width_ground_double; i++)
+							{
+								free(Blocks[i]);
+							}
+							free(Blocks);
+
+							for (int i = 0; i < Width_ground_double; i++)
+							{
+								free(Block_Rect[i]);
+							}
+							free(Block_Rect);
+
+							for (int i = 0; i < Width_ground_double; i++)
+							{
+								free(Blocks_Res_1[i]);
+							}
+							free(Blocks_Res_1);
+
+							for (int i = 0; i < Width_ground_double; i++)
+							{
+								free(Blocks_Res_2[i]);
+							}
+							free(Blocks_Res_2);
+
+							for (int i = 0; i < Width_ground_double; i++)
+							{
+								free(Blocks_Res_3[i]);
+							}
+							free(Blocks_Res_3);
+
+							for (int i = 0; i < Width_ground_double; i++)
+							{
+								free(Blocks_Res_4[i]);
+							}
+							free(Blocks_Res_4);
+
+							for (int i = 0; i < Width_ground_double; i++)
+							{
+								free(Blocks_Res_5[i]);
+							}
+							free(Blocks_Res_5);
+
+							for (int i = 0; i < Width_ground_double; i++)
+							{
+								free(Blocks_Res_6[i]);
+							}
+							free(Blocks_Res_6);
+
+							for (int i = 0; i < Width_ground_double; i++)
+							{
+								free(Blocks_Res_7[i]);
+							}
+							free(Blocks_Res_7);
+
+							Blocks_Res_1 = (int**)malloc(sizeof(int*) * Width_ground);
+							for (int i = 0; i < Width_ground; i++)
+							{
+								Blocks_Res_1[i] = (int*)malloc(sizeof(int) * Height_ground);
+								for (int j = 0; j < Height_ground; j++)
+								{
+									Blocks_Res_1[i][j] = -1;
+								}
+							}
+
+							Blocks_Res_2 = (int**)malloc(sizeof(int*) * Width_ground);
+							for (int i = 0; i < Width_ground; i++)
+							{
+								Blocks_Res_2[i] = (int*)malloc(sizeof(int) * Height_ground);
+								for (int j = 0; j < Height_ground; j++)
+								{
+									Blocks_Res_2[i][j] = -1;
+								}
+							}
+
+							Blocks_Res_3 = (int**)malloc(sizeof(int*) * Width_ground);
+							for (int i = 0; i < Width_ground; i++)
+							{
+								Blocks_Res_3[i] = (int*)malloc(sizeof(int) * Height_ground);
+								for (int j = 0; j < Height_ground; j++)
+								{
+									Blocks_Res_3[i][j] = -1;
+								}
+							}
+
+							Blocks_Res_4 = (int**)malloc(sizeof(int*) * Width_ground);
+							for (int i = 0; i < Width_ground; i++)
+							{
+								Blocks_Res_4[i] = (int*)malloc(sizeof(int) * Height_ground);
+								for (int j = 0; j < Height_ground; j++)
+								{
+									Blocks_Res_4[i][j] = -1;
+								}
+							}
+
+							Blocks_Res_5 = (int**)malloc(sizeof(int*) * Width_ground);
+							for (int i = 0; i < Width_ground; i++)
+							{
+								Blocks_Res_5[i] = (int*)malloc(sizeof(int) * Height_ground);
+								for (int j = 0; j < Height_ground; j++)
+								{
+									Blocks_Res_5[i][j] = -1;
+								}
+							}
+
+							Blocks_Res_6 = (int**)malloc(sizeof(int*) * Width_ground);
+							for (int i = 0; i < Width_ground; i++)
+							{
+								Blocks_Res_6[i] = (int*)malloc(sizeof(int) * Height_ground);
+								for (int j = 0; j < Height_ground; j++)
+								{
+									Blocks_Res_6[i][j] = -1;
+								}
+							}
+
+							Blocks_Res_7 = (int**)malloc(sizeof(int*) * Width_ground);
+							for (int i = 0; i < Width_ground; i++)
+							{
+								Blocks_Res_7[i] = (int*)malloc(sizeof(int) * Height_ground);
+								for (int j = 0; j < Height_ground; j++)
+								{
+									Blocks_Res_7[i][j] = -1;
+								}
+							}
+
+
+							int w = Width_ground - Width_ground_double, h = Height_ground - Height_ground_double;
+							int t = -1, k = -1, nt = -w / 2, nk = -h / 2;
+
+							Blocks = (int**)malloc(sizeof(int*) * Width_ground);
+							for (int i = 0; i < Width_ground; i++)
+							{
+								if (t != -1) t++;
+								k = -1;
+								Blocks[i] = (int*)malloc(sizeof(int) * Height_ground);
+								for (int j = 0; j < Height_ground; j++)
+								{
+									if (k != -1) k++;
+									if ((w > 0) and (h > 0))
 									{
-										if ((i >= w / 2) and (j + nk >= 0) and (t < Width_ground_double))
+										if ((i >= w / 2) and (j >= h / 2) and (t < Width_ground_double) and (k < Height_ground_double))
 										{
+											if (k == -1) { k++; }
 											if (t == -1) { t++; }
-											Blocks[i][j] = Blocks_double[t][j + nk];
+											Blocks[i][j] = Blocks_double[t][k];
 										}
 										else
 										{
@@ -2654,12 +2776,12 @@ void Playground(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int& volume
 									}
 									else
 									{
-										if ((w < 0) and (h > 0))
+										if ((w > 0) and (h < 0))
 										{
-											if ((i + nt >= 0) and (j >= h / 2) and (k < Height_ground_double))
+											if ((i >= w / 2) and (j + nk >= 0) and (t < Width_ground_double))
 											{
-												if (k == -1) { k++; }
-												Blocks[i][j] = Blocks_double[i + nt][k];
+												if (t == -1) { t++; }
+												Blocks[i][j] = Blocks_double[t][j + nk];
 											}
 											else
 											{
@@ -2671,39 +2793,38 @@ void Playground(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int& volume
 										}
 										else
 										{
-											if ((w < 0) and (h < 0))
+											if ((w < 0) and (h > 0))
 											{
-												if ((i + nt >= 0) and (j + nk >= 0))
+												if ((i + nt >= 0) and (j >= h / 2) and (k < Height_ground_double))
 												{
-													Blocks[i][j] = Blocks_double[i + nt][j + nk];
+													if (k == -1) { k++; }
+													Blocks[i][j] = Blocks_double[i + nt][k];
+												}
+												else
+												{
+													if ((Blocks[i][j] != 0) and (Blocks[i][j] != 1))
+													{
+														Blocks[i][j] = 0;
+													}
 												}
 											}
 											else
 											{
-												if ((w == 0) and (h > 0))
+												if ((w < 0) and (h < 0))
 												{
-													if ((j >= h / 2) and (k < Height_ground_double))
+													if ((i + nt >= 0) and (j + nk >= 0))
 													{
-														if (k == -1) { k++; }
-														Blocks[i][j] = Blocks_double[i][k];
-													}
-													else
-													{
-														if ((Blocks[i][j] != 0) and (Blocks[i][j] != 1))
-														{
-															Blocks[i][j] = 0;
-														}
+														Blocks[i][j] = Blocks_double[i + nt][j + nk];
 													}
 												}
 												else
 												{
-													if ((w > 0) and (h == 0))
+													if ((w == 0) and (h > 0))
 													{
-														if ((i >= w / 2) and (t < Width_ground_double))
+														if ((j >= h / 2) and (k < Height_ground_double))
 														{
-
-															if (t == -1) { t++; }
-															Blocks[i][j] = Blocks_double[t][j];
+															if (k == -1) { k++; }
+															Blocks[i][j] = Blocks_double[i][k];
 														}
 														else
 														{
@@ -2715,20 +2836,39 @@ void Playground(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int& volume
 													}
 													else
 													{
-														if ((w == 0) and (h < 0))
+														if ((w > 0) and (h == 0))
 														{
-															if (j + nk >= 0)
+															if ((i >= w / 2) and (t < Width_ground_double))
 															{
-																Blocks[i][j] = Blocks_double[i][j + nk];
+
+																if (t == -1) { t++; }
+																Blocks[i][j] = Blocks_double[t][j];
+															}
+															else
+															{
+																if ((Blocks[i][j] != 0) and (Blocks[i][j] != 1))
+																{
+																	Blocks[i][j] = 0;
+																}
 															}
 														}
 														else
 														{
-															if ((w < 0) and (h == 0))
+															if ((w == 0) and (h < 0))
 															{
-																if (i + nt >= 0)
+																if (j + nk >= 0)
 																{
-																	Blocks[i][j] = Blocks_double[i + nt][j];
+																	Blocks[i][j] = Blocks_double[i][j + nk];
+																}
+															}
+															else
+															{
+																if ((w < 0) and (h == 0))
+																{
+																	if (i + nt >= 0)
+																	{
+																		Blocks[i][j] = Blocks_double[i + nt][j];
+																	}
 																}
 															}
 														}
@@ -2739,226 +2879,264 @@ void Playground(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int& volume
 									}
 								}
 							}
-						}
 
-						//for (int i = 0; i < Width_ground; i++)
-						//{
-						//	Blocks[i] = (int*)malloc(sizeof(int) * Height_ground);
-						//	for (int j = 0; j < Height_ground; j++)
-						//	{
-						//		Blocks[i][j] = 0;
-						//	}
-						//}
+							//for (int i = 0; i < Width_ground; i++)
+							//{
+							//	Blocks[i] = (int*)malloc(sizeof(int) * Height_ground);
+							//	for (int j = 0; j < Height_ground; j++)
+							//	{
+							//		Blocks[i][j] = 0;
+							//	}
+							//}
 
-						for (int i = 0; i < Width_ground_double; i++)
-						{
-							free(Blocks_double[i]);
-						}
-						free(Blocks_double);
-
-						Block_Rect = (SDL_Rect**)malloc(sizeof(SDL_Rect*) * Width_ground);
-						int Size_Block = (Play_Rect.y + Play_Rect.h - Title_Rect_Board.y - Title_Rect_Board.h + 1 - Height_ground - 3) / (Height_ground + 2);
-						if (Size_Block > (Parameters_Rect_Board.x - Play_Rect.x + 1 - Width_ground - 3) / (Width_ground + 2)) { Size_Block = (Parameters_Rect_Board.x - Play_Rect.x + 1 - Width_ground - 3) / (Width_ground + 2); }
-						for (int i = 0; i < Width_ground; i++)
-						{
-							Block_Rect[i] = (SDL_Rect*)malloc(sizeof(SDL_Rect) * Height_ground);
-							for (int j = 0; j < Height_ground; j++)
+							for (int i = 0; i < Width_ground_double; i++)
 							{
-								if (Width_ground > Height_ground)
+								free(Blocks_double[i]);
+							}
+							free(Blocks_double);
+
+							Block_Rect = (SDL_Rect**)malloc(sizeof(SDL_Rect*) * Width_ground);
+							int Size_Block = (Play_Rect.y + Play_Rect.h - Title_Rect_Board.y - Title_Rect_Board.h + 1 - Height_ground - 3) / (Height_ground + 2);
+							if (Size_Block > (Parameters_Rect_Board.x - Play_Rect.x + 1 - Width_ground - 3) / (Width_ground + 2)) { Size_Block = (Parameters_Rect_Board.x - Play_Rect.x + 1 - Width_ground - 3) / (Width_ground + 2); }
+							for (int i = 0; i < Width_ground; i++)
+							{
+								Block_Rect[i] = (SDL_Rect*)malloc(sizeof(SDL_Rect) * Height_ground);
+								for (int j = 0; j < Height_ground; j++)
 								{
-									Block_Rect[i][j] = { 1 + Play_Rect.x + int((Parameters_Rect_Board.x - Play_Rect.x + 1 - Width_ground - 3 - Size_Block * Width_ground) * double(1.0 / 2)) + i + i * Size_Block, 1 + Title_Rect_Board.y + Title_Rect_Board.h + int((Play_Rect.y + Play_Rect.h - Title_Rect_Board.y - Title_Rect_Board.h + 1 - Height_ground - 3 - Size_Block * Height_ground) * double(1.0 / 2)) + j + j * Size_Block, Size_Block,Size_Block };
-								}
-								else
-								{
-									Block_Rect[i][j] = { 1 + Play_Rect.x + int((Parameters_Rect_Board.x - Play_Rect.x + 1 - Width_ground - 3 - Size_Block * Width_ground) * double(1.0 / 2)) + i + i * Size_Block, 1 + Title_Rect_Board.y + Title_Rect_Board.h + int((Play_Rect.y + Play_Rect.h - Title_Rect_Board.y - Title_Rect_Board.h + 1 - Height_ground - 3 - Size_Block * Height_ground) * double(1.0 / 2)) + j + j * Size_Block, Size_Block,Size_Block };
+									if (Width_ground > Height_ground)
+									{
+										Block_Rect[i][j] = { 1 + Play_Rect.x + int((Parameters_Rect_Board.x - Play_Rect.x + 1 - Width_ground - 3 - Size_Block * Width_ground) * double(1.0 / 2)) + i + i * Size_Block, 1 + Title_Rect_Board.y + Title_Rect_Board.h + int((Play_Rect.y + Play_Rect.h - Title_Rect_Board.y - Title_Rect_Board.h + 1 - Height_ground - 3 - Size_Block * Height_ground) * double(1.0 / 2)) + j + j * Size_Block, Size_Block,Size_Block };
+									}
+									else
+									{
+										Block_Rect[i][j] = { 1 + Play_Rect.x + int((Parameters_Rect_Board.x - Play_Rect.x + 1 - Width_ground - 3 - Size_Block * Width_ground) * double(1.0 / 2)) + i + i * Size_Block, 1 + Title_Rect_Board.y + Title_Rect_Board.h + int((Play_Rect.y + Play_Rect.h - Title_Rect_Board.y - Title_Rect_Board.h + 1 - Height_ground - 3 - Size_Block * Height_ground) * double(1.0 / 2)) + j + j * Size_Block, Size_Block,Size_Block };
+									}
 								}
 							}
-						}
 
-						Earth_Rect_Board = { Block_Rect[0][0].x - 14, Block_Rect[0][0].y - 14, Block_Rect[Width_ground - 1][Height_ground - 1].x + Block_Rect[Width_ground - 1][Height_ground - 1].w - Block_Rect[0][0].x + 28, Block_Rect[Width_ground - 1][Height_ground - 1].y + Block_Rect[Width_ground - 1][Height_ground - 1].h - Block_Rect[0][0].y + 28 };
-						Earth_Rect_Shadow_1 = { Earth_Rect_Board.x + 2, Earth_Rect_Board.y + 2, Earth_Rect_Board.w - 4,  Earth_Rect_Board.h - 4 };
-						Earth_Rect_Glare = { Earth_Rect_Shadow_1.x + 4, Earth_Rect_Shadow_1.y + 4, Earth_Rect_Shadow_1.w - 8,  Earth_Rect_Shadow_1.h - 8 };
-						Earth_Rect_Shadow_2 = { Earth_Rect_Glare.x + 4, Earth_Rect_Glare.y + 4, Earth_Rect_Glare.w - 8,  Earth_Rect_Glare.h - 8 };
-						Earth_Rect = { Earth_Rect_Shadow_2.x + 4, Earth_Rect_Shadow_2.y + 4,Earth_Rect_Shadow_2.w - 8, Earth_Rect_Shadow_2.h - 8 };
+							Earth_Rect_Board = { Block_Rect[0][0].x - 14, Block_Rect[0][0].y - 14, Block_Rect[Width_ground - 1][Height_ground - 1].x + Block_Rect[Width_ground - 1][Height_ground - 1].w - Block_Rect[0][0].x + 28, Block_Rect[Width_ground - 1][Height_ground - 1].y + Block_Rect[Width_ground - 1][Height_ground - 1].h - Block_Rect[0][0].y + 28 };
+							Earth_Rect_Shadow_1 = { Earth_Rect_Board.x + 2, Earth_Rect_Board.y + 2, Earth_Rect_Board.w - 4,  Earth_Rect_Board.h - 4 };
+							Earth_Rect_Glare = { Earth_Rect_Shadow_1.x + 4, Earth_Rect_Shadow_1.y + 4, Earth_Rect_Shadow_1.w - 8,  Earth_Rect_Shadow_1.h - 8 };
+							Earth_Rect_Shadow_2 = { Earth_Rect_Glare.x + 4, Earth_Rect_Glare.y + 4, Earth_Rect_Glare.w - 8,  Earth_Rect_Glare.h - 8 };
+							Earth_Rect = { Earth_Rect_Shadow_2.x + 4, Earth_Rect_Shadow_2.y + 4,Earth_Rect_Shadow_2.w - 8, Earth_Rect_Shadow_2.h - 8 };
+						}
 					}
 				}
 				if (((event.button.x <= Button_Size_L_Rect_Board.x + Button_Size_L_Rect_Board.w) and (event.button.x >= Button_Size_L_Rect_Board.x)) and ((event.button.y <= Button_Size_L_Rect_Board.y + Button_Size_L_Rect_Board.h) and (event.button.y >= Button_Size_L_Rect_Board.y)) and (Generate_Ground == 0))
 				{
-					Generate_count = 0;
-					End_Game = 0;
-					SDL_DestroyTexture(Generation_Count_Texture);
-					_itoa_s(Generate_count, Generate_count_char, 10);
-					Generation_Count_Texture = get_text_texture(renderer, Generate_count_char, my_font, red_text_Generation);
-					draw_Place(renderer, Generation_Count_Texture, Generation_Count_Text);
-					SDL_SetRenderDrawColor(renderer, red_board_Size_L, 0, 0, 0);
 					if (Sound_Enable == 1)
 					{
 						sound(name, volume_sound);
 					}
-					draw_Place(renderer, Button_Size_L_Texture, Button_Size_L_Text);
-					SDL_RenderPresent(renderer);
-					SDL_Delay(50);
-					SDL_SetRenderDrawColor(renderer, 140, 140, 140, 0);
-					SDL_RenderFillRect(renderer, &Button_Size_L_Rect_Shadow);
-					SDL_SetRenderDrawColor(renderer, 64, 64, 64, 0);
-					SDL_RenderFillRect(renderer, &Button_Size_L_Rect);
-					draw_Place(renderer, Button_Size_L_Texture, Button_Size_L_Text);
-					SDL_RenderPresent(renderer);
-					SDL_Delay(20);
-					int Width_ground_double = Width_ground, Height_ground_double = Height_ground;
-					Width_ground = 120;
-					Height_ground = 80;
-
-					SDL_DestroyTexture(Width_Input_Texture);
-					_itoa_s(Width_ground, Width_Input, 10);
-					Width_Input_Texture = get_text_texture(renderer, Width_Input, my_font, red_text_Width_Input);
-
-					SDL_DestroyTexture(Height_Input_Texture);
-					_itoa_s(Height_ground, Height_Input, 10);
-					Height_Input_Texture = get_text_texture(renderer, Height_Input, my_font, red_text_Height_Input);
-
-					if ((Width_ground_double != Width_ground) or (Height_ground_double != Height_ground))
+					if ((Width_ground != 120) or (Height_ground != 80))
 					{
-						int** Blocks_double = (int**)malloc(sizeof(int*) * Width_ground_double);
-						for (int i = 0; i < Width_ground_double; i++)
+						Generate_count = 0;
+						End_Game = 0;
+						SDL_DestroyTexture(Generation_Count_Texture);
+						_itoa_s(Generate_count, Generate_count_char, 10);
+						Generation_Count_Texture = get_text_texture(renderer, Generate_count_char, my_font, red_text_Generation);
+						if ((Generate_count <= 10000) and (Generate_count >= 1000))
 						{
-							Blocks_double[i] = (int*)malloc(sizeof(int) * Height_ground_double);
-							for (int j = 0; j < Height_ground_double; j++)
+							draw_Place(renderer, Generation_Count_Texture, Generation_Count_Text_4);
+						}
+						else
+						{
+							if ((Generate_count < 1000) and (Generate_count >= 100))
 							{
-								Blocks_double[i][j] = Blocks[i][j];
+								draw_Place(renderer, Generation_Count_Texture, Generation_Count_Text_3);
 							}
-						}
-
-						for (int i = 0; i < Width_ground_double; i++)
-						{
-							free(Blocks[i]);
-						}
-						free(Blocks);
-
-						for (int i = 0; i < Width_ground_double; i++)
-						{
-							free(Block_Rect[i]);
-						}
-						free(Block_Rect);
-
-						for (int i = 0; i < Width_ground_double; i++)
-						{
-							free(Blocks_Res_1[i]);
-						}
-						free(Blocks_Res_1);
-
-						for (int i = 0; i < Width_ground_double; i++)
-						{
-							free(Blocks_Res_2[i]);
-						}
-						free(Blocks_Res_2);
-
-						for (int i = 0; i < Width_ground_double; i++)
-						{
-							free(Blocks_Res_3[i]);
-						}
-						free(Blocks_Res_3);
-
-						for (int i = 0; i < Width_ground_double; i++)
-						{
-							free(Blocks_Res_4[i]);
-						}
-						free(Blocks_Res_4);
-
-						for (int i = 0; i < Width_ground_double; i++)
-						{
-							free(Blocks_Res_5[i]);
-						}
-						free(Blocks_Res_5);
-
-						Blocks_Res_1 = (int**)malloc(sizeof(int*) * Width_ground);
-						for (int i = 0; i < Width_ground; i++)
-						{
-							Blocks_Res_1[i] = (int*)malloc(sizeof(int) * Height_ground);
-							for (int j = 0; j < Height_ground; j++)
+							else
 							{
-								Blocks_Res_1[i][j] = -1;
-							}
-						}
-
-						Blocks_Res_2 = (int**)malloc(sizeof(int*) * Width_ground);
-						for (int i = 0; i < Width_ground; i++)
-						{
-							Blocks_Res_2[i] = (int*)malloc(sizeof(int) * Height_ground);
-							for (int j = 0; j < Height_ground; j++)
-							{
-								Blocks_Res_2[i][j] = -1;
-							}
-						}
-
-						Blocks_Res_3 = (int**)malloc(sizeof(int*) * Width_ground);
-						for (int i = 0; i < Width_ground; i++)
-						{
-							Blocks_Res_3[i] = (int*)malloc(sizeof(int) * Height_ground);
-							for (int j = 0; j < Height_ground; j++)
-							{
-								Blocks_Res_3[i][j] = -1;
-							}
-						}
-
-						Blocks_Res_4 = (int**)malloc(sizeof(int*) * Width_ground);
-						for (int i = 0; i < Width_ground; i++)
-						{
-							Blocks_Res_4[i] = (int*)malloc(sizeof(int) * Height_ground);
-							for (int j = 0; j < Height_ground; j++)
-							{
-								Blocks_Res_4[i][j] = -1;
-							}
-						}
-
-						Blocks_Res_5 = (int**)malloc(sizeof(int*) * Width_ground);
-						for (int i = 0; i < Width_ground; i++)
-						{
-							Blocks_Res_5[i] = (int*)malloc(sizeof(int) * Height_ground);
-							for (int j = 0; j < Height_ground; j++)
-							{
-								Blocks_Res_5[i][j] = -1;
-							}
-						}
-
-
-
-						int w = Width_ground - Width_ground_double, h = Height_ground - Height_ground_double;
-						int t = -1, k = -1, nt = -w / 2, nk = -h / 2;
-
-						Blocks = (int**)malloc(sizeof(int*) * Width_ground);
-						for (int i = 0; i < Width_ground; i++)
-						{
-							if (t != -1) t++;
-							k = -1;
-							Blocks[i] = (int*)malloc(sizeof(int) * Height_ground);
-							for (int j = 0; j < Height_ground; j++)
-							{
-								if (k != -1) k++;
-								if ((w > 0) and (h > 0))
+								if ((Generate_count < 100) and (Generate_count >= 10))
 								{
-									if ((i >= w / 2) and (j >= h / 2) and (t < Width_ground_double) and (k < Height_ground_double))
-									{
-										if (k == -1) { k++; }
-										if (t == -1) { t++; }
-										Blocks[i][j] = Blocks_double[t][k];
-									}
-									else
-									{
-										if ((Blocks[i][j] != 0) and (Blocks[i][j] != 1))
-										{
-											Blocks[i][j] = 0;
-										}
-									}
+									draw_Place(renderer, Generation_Count_Texture, Generation_Count_Text_2);
 								}
+
 								else
 								{
-									if ((w > 0) and (h < 0))
+									draw_Place(renderer, Generation_Count_Texture, Generation_Count_Text_1);
+								}
+							}
+						}
+						SDL_SetRenderDrawColor(renderer, red_board_Size_L, 0, 0, 0);
+						draw_Place(renderer, Button_Size_L_Texture, Button_Size_L_Text);
+						SDL_RenderPresent(renderer);
+						SDL_Delay(50);
+						SDL_SetRenderDrawColor(renderer, 120, 120, 120, 0);
+						SDL_RenderFillRect(renderer, &Button_Size_L_Rect_Shadow);
+						SDL_SetRenderDrawColor(renderer, 64, 64, 64, 0);
+						SDL_RenderFillRect(renderer, &Button_Size_L_Rect);
+						draw_Place(renderer, Button_Size_L_Texture, Button_Size_L_Text);
+						SDL_RenderPresent(renderer);
+						SDL_Delay(20);
+						int Width_ground_double = Width_ground, Height_ground_double = Height_ground;
+						Width_ground = 120;
+						Height_ground = 80;
+
+						SDL_DestroyTexture(Width_Input_Texture);
+						_itoa_s(Width_ground, Width_Input, 10);
+						Width_Input_Texture = get_text_texture(renderer, Width_Input, my_font, red_text_Width_Input);
+
+						SDL_DestroyTexture(Height_Input_Texture);
+						_itoa_s(Height_ground, Height_Input, 10);
+						Height_Input_Texture = get_text_texture(renderer, Height_Input, my_font, red_text_Height_Input);
+
+						if ((Width_ground_double != Width_ground) or (Height_ground_double != Height_ground))
+						{
+							int** Blocks_double = (int**)malloc(sizeof(int*) * Width_ground_double);
+							for (int i = 0; i < Width_ground_double; i++)
+							{
+								Blocks_double[i] = (int*)malloc(sizeof(int) * Height_ground_double);
+								for (int j = 0; j < Height_ground_double; j++)
+								{
+									Blocks_double[i][j] = Blocks[i][j];
+								}
+							}
+
+							for (int i = 0; i < Width_ground_double; i++)
+							{
+								free(Blocks[i]);
+							}
+							free(Blocks);
+
+							for (int i = 0; i < Width_ground_double; i++)
+							{
+								free(Block_Rect[i]);
+							}
+							free(Block_Rect);
+
+							for (int i = 0; i < Width_ground_double; i++)
+							{
+								free(Blocks_Res_1[i]);
+							}
+							free(Blocks_Res_1);
+
+							for (int i = 0; i < Width_ground_double; i++)
+							{
+								free(Blocks_Res_2[i]);
+							}
+							free(Blocks_Res_2);
+
+							for (int i = 0; i < Width_ground_double; i++)
+							{
+								free(Blocks_Res_3[i]);
+							}
+							free(Blocks_Res_3);
+
+							for (int i = 0; i < Width_ground_double; i++)
+							{
+								free(Blocks_Res_4[i]);
+							}
+							free(Blocks_Res_4);
+
+							for (int i = 0; i < Width_ground_double; i++)
+							{
+								free(Blocks_Res_5[i]);
+							}
+							free(Blocks_Res_5);
+
+							for (int i = 0; i < Width_ground_double; i++)
+							{
+								free(Blocks_Res_6[i]);
+							}
+							free(Blocks_Res_6);
+
+							for (int i = 0; i < Width_ground_double; i++)
+							{
+								free(Blocks_Res_7[i]);
+							}
+							free(Blocks_Res_7);
+
+							Blocks_Res_1 = (int**)malloc(sizeof(int*) * Width_ground);
+							for (int i = 0; i < Width_ground; i++)
+							{
+								Blocks_Res_1[i] = (int*)malloc(sizeof(int) * Height_ground);
+								for (int j = 0; j < Height_ground; j++)
+								{
+									Blocks_Res_1[i][j] = -1;
+								}
+							}
+
+							Blocks_Res_2 = (int**)malloc(sizeof(int*) * Width_ground);
+							for (int i = 0; i < Width_ground; i++)
+							{
+								Blocks_Res_2[i] = (int*)malloc(sizeof(int) * Height_ground);
+								for (int j = 0; j < Height_ground; j++)
+								{
+									Blocks_Res_2[i][j] = -1;
+								}
+							}
+
+							Blocks_Res_3 = (int**)malloc(sizeof(int*) * Width_ground);
+							for (int i = 0; i < Width_ground; i++)
+							{
+								Blocks_Res_3[i] = (int*)malloc(sizeof(int) * Height_ground);
+								for (int j = 0; j < Height_ground; j++)
+								{
+									Blocks_Res_3[i][j] = -1;
+								}
+							}
+
+							Blocks_Res_4 = (int**)malloc(sizeof(int*) * Width_ground);
+							for (int i = 0; i < Width_ground; i++)
+							{
+								Blocks_Res_4[i] = (int*)malloc(sizeof(int) * Height_ground);
+								for (int j = 0; j < Height_ground; j++)
+								{
+									Blocks_Res_4[i][j] = -1;
+								}
+							}
+
+							Blocks_Res_5 = (int**)malloc(sizeof(int*) * Width_ground);
+							for (int i = 0; i < Width_ground; i++)
+							{
+								Blocks_Res_5[i] = (int*)malloc(sizeof(int) * Height_ground);
+								for (int j = 0; j < Height_ground; j++)
+								{
+									Blocks_Res_5[i][j] = -1;
+								}
+							}
+
+							Blocks_Res_6 = (int**)malloc(sizeof(int*) * Width_ground);
+							for (int i = 0; i < Width_ground; i++)
+							{
+								Blocks_Res_6[i] = (int*)malloc(sizeof(int) * Height_ground);
+								for (int j = 0; j < Height_ground; j++)
+								{
+									Blocks_Res_6[i][j] = -1;
+								}
+							}
+
+							Blocks_Res_7 = (int**)malloc(sizeof(int*) * Width_ground);
+							for (int i = 0; i < Width_ground; i++)
+							{
+								Blocks_Res_7[i] = (int*)malloc(sizeof(int) * Height_ground);
+								for (int j = 0; j < Height_ground; j++)
+								{
+									Blocks_Res_7[i][j] = -1;
+								}
+							}
+
+
+							int w = Width_ground - Width_ground_double, h = Height_ground - Height_ground_double;
+							int t = -1, k = -1, nt = -w / 2, nk = -h / 2;
+
+							Blocks = (int**)malloc(sizeof(int*) * Width_ground);
+							for (int i = 0; i < Width_ground; i++)
+							{
+								if (t != -1) t++;
+								k = -1;
+								Blocks[i] = (int*)malloc(sizeof(int) * Height_ground);
+								for (int j = 0; j < Height_ground; j++)
+								{
+									if (k != -1) k++;
+									if ((w > 0) and (h > 0))
 									{
-										if ((i >= w / 2) and (j + nk >= 0) and (t < Width_ground_double))
+										if ((i >= w / 2) and (j >= h / 2) and (t < Width_ground_double) and (k < Height_ground_double))
 										{
+											if (k == -1) { k++; }
 											if (t == -1) { t++; }
-											Blocks[i][j] = Blocks_double[t][j + nk];
+											Blocks[i][j] = Blocks_double[t][k];
 										}
 										else
 										{
@@ -2970,12 +3148,12 @@ void Playground(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int& volume
 									}
 									else
 									{
-										if ((w < 0) and (h > 0))
+										if ((w > 0) and (h < 0))
 										{
-											if ((i + nt >= 0) and (j >= h / 2) and (k < Height_ground_double))
+											if ((i >= w / 2) and (j + nk >= 0) and (t < Width_ground_double))
 											{
-												if (k == -1) { k++; }
-												Blocks[i][j] = Blocks_double[i + nt][k];
+												if (t == -1) { t++; }
+												Blocks[i][j] = Blocks_double[t][j + nk];
 											}
 											else
 											{
@@ -2987,39 +3165,38 @@ void Playground(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int& volume
 										}
 										else
 										{
-											if ((w < 0) and (h < 0))
+											if ((w < 0) and (h > 0))
 											{
-												if ((i + nt >= 0) and (j + nk >= 0))
+												if ((i + nt >= 0) and (j >= h / 2) and (k < Height_ground_double))
 												{
-													Blocks[i][j] = Blocks_double[i + nt][j + nk];
+													if (k == -1) { k++; }
+													Blocks[i][j] = Blocks_double[i + nt][k];
+												}
+												else
+												{
+													if ((Blocks[i][j] != 0) and (Blocks[i][j] != 1))
+													{
+														Blocks[i][j] = 0;
+													}
 												}
 											}
 											else
 											{
-												if ((w == 0) and (h > 0))
+												if ((w < 0) and (h < 0))
 												{
-													if ((j >= h / 2) and (k < Height_ground_double))
+													if ((i + nt >= 0) and (j + nk >= 0))
 													{
-														if (k == -1) { k++; }
-														Blocks[i][j] = Blocks_double[i][k];
-													}
-													else
-													{
-														if ((Blocks[i][j] != 0) and (Blocks[i][j] != 1))
-														{
-															Blocks[i][j] = 0;
-														}
+														Blocks[i][j] = Blocks_double[i + nt][j + nk];
 													}
 												}
 												else
 												{
-													if ((w > 0) and (h == 0))
+													if ((w == 0) and (h > 0))
 													{
-														if ((i >= w / 2) and (t < Width_ground_double))
+														if ((j >= h / 2) and (k < Height_ground_double))
 														{
-
-															if (t == -1) { t++; }
-															Blocks[i][j] = Blocks_double[t][j];
+															if (k == -1) { k++; }
+															Blocks[i][j] = Blocks_double[i][k];
 														}
 														else
 														{
@@ -3031,20 +3208,39 @@ void Playground(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int& volume
 													}
 													else
 													{
-														if ((w == 0) and (h < 0))
+														if ((w > 0) and (h == 0))
 														{
-															if (j + nk >= 0)
+															if ((i >= w / 2) and (t < Width_ground_double))
 															{
-																Blocks[i][j] = Blocks_double[i][j + nk];
+
+																if (t == -1) { t++; }
+																Blocks[i][j] = Blocks_double[t][j];
+															}
+															else
+															{
+																if ((Blocks[i][j] != 0) and (Blocks[i][j] != 1))
+																{
+																	Blocks[i][j] = 0;
+																}
 															}
 														}
 														else
 														{
-															if ((w < 0) and (h == 0))
+															if ((w == 0) and (h < 0))
 															{
-																if (i + nt >= 0)
+																if (j + nk >= 0)
 																{
-																	Blocks[i][j] = Blocks_double[i + nt][j];
+																	Blocks[i][j] = Blocks_double[i][j + nk];
+																}
+															}
+															else
+															{
+																if ((w < 0) and (h == 0))
+																{
+																	if (i + nt >= 0)
+																	{
+																		Blocks[i][j] = Blocks_double[i + nt][j];
+																	}
 																}
 															}
 														}
@@ -3055,47 +3251,47 @@ void Playground(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int& volume
 									}
 								}
 							}
-						}
 
-						//for (int i = 0; i < Width_ground; i++)
-						//{
-						//	Blocks[i] = (int*)malloc(sizeof(int) * Height_ground);
-						//	for (int j = 0; j < Height_ground; j++)
-						//	{
-						//		Blocks[i][j] = 0;
-						//	}
-						//}
+							//for (int i = 0; i < Width_ground; i++)
+							//{
+							//	Blocks[i] = (int*)malloc(sizeof(int) * Height_ground);
+							//	for (int j = 0; j < Height_ground; j++)
+							//	{
+							//		Blocks[i][j] = 0;
+							//	}
+							//}
 
-						for (int i = 0; i < Width_ground_double; i++)
-						{
-							free(Blocks_double[i]);
-						}
-						free(Blocks_double);
-
-						Block_Rect = (SDL_Rect**)malloc(sizeof(SDL_Rect*) * Width_ground);
-						int Size_Block = (Play_Rect.y + Play_Rect.h - Title_Rect_Board.y - Title_Rect_Board.h + 1 - Height_ground - 3) / (Height_ground + 2);
-						if (Size_Block > (Parameters_Rect_Board.x - Play_Rect.x + 1 - Width_ground - 3) / (Width_ground + 2)) { Size_Block = (Parameters_Rect_Board.x - Play_Rect.x + 1 - Width_ground - 3) / (Width_ground + 2); }
-						for (int i = 0; i < Width_ground; i++)
-						{
-							Block_Rect[i] = (SDL_Rect*)malloc(sizeof(SDL_Rect) * Height_ground);
-							for (int j = 0; j < Height_ground; j++)
+							for (int i = 0; i < Width_ground_double; i++)
 							{
-								if (Width_ground > Height_ground)
+								free(Blocks_double[i]);
+							}
+							free(Blocks_double);
+
+							Block_Rect = (SDL_Rect**)malloc(sizeof(SDL_Rect*) * Width_ground);
+							int Size_Block = (Play_Rect.y + Play_Rect.h - Title_Rect_Board.y - Title_Rect_Board.h + 1 - Height_ground - 3) / (Height_ground + 2);
+							if (Size_Block > (Parameters_Rect_Board.x - Play_Rect.x + 1 - Width_ground - 3) / (Width_ground + 2)) { Size_Block = (Parameters_Rect_Board.x - Play_Rect.x + 1 - Width_ground - 3) / (Width_ground + 2); }
+							for (int i = 0; i < Width_ground; i++)
+							{
+								Block_Rect[i] = (SDL_Rect*)malloc(sizeof(SDL_Rect) * Height_ground);
+								for (int j = 0; j < Height_ground; j++)
 								{
-									Block_Rect[i][j] = { 1 + Play_Rect.x + int((Parameters_Rect_Board.x - Play_Rect.x + 1 - Width_ground - 3 - Size_Block * Width_ground) * double(1.0 / 2)) + i + i * Size_Block, 1 + Title_Rect_Board.y + Title_Rect_Board.h + int((Play_Rect.y + Play_Rect.h - Title_Rect_Board.y - Title_Rect_Board.h + 1 - Height_ground - 3 - Size_Block * Height_ground) * double(1.0 / 2)) + j + j * Size_Block, Size_Block,Size_Block };
-								}
-								else
-								{
-									Block_Rect[i][j] = { 1 + Play_Rect.x + int((Parameters_Rect_Board.x - Play_Rect.x + 1 - Width_ground - 3 - Size_Block * Width_ground) * double(1.0 / 2)) + i + i * Size_Block, 1 + Title_Rect_Board.y + Title_Rect_Board.h + int((Play_Rect.y + Play_Rect.h - Title_Rect_Board.y - Title_Rect_Board.h + 1 - Height_ground - 3 - Size_Block * Height_ground) * double(1.0 / 2)) + j + j * Size_Block, Size_Block,Size_Block };
+									if (Width_ground > Height_ground)
+									{
+										Block_Rect[i][j] = { 1 + Play_Rect.x + int((Parameters_Rect_Board.x - Play_Rect.x + 1 - Width_ground - 3 - Size_Block * Width_ground) * double(1.0 / 2)) + i + i * Size_Block, 1 + Title_Rect_Board.y + Title_Rect_Board.h + int((Play_Rect.y + Play_Rect.h - Title_Rect_Board.y - Title_Rect_Board.h + 1 - Height_ground - 3 - Size_Block * Height_ground) * double(1.0 / 2)) + j + j * Size_Block, Size_Block,Size_Block };
+									}
+									else
+									{
+										Block_Rect[i][j] = { 1 + Play_Rect.x + int((Parameters_Rect_Board.x - Play_Rect.x + 1 - Width_ground - 3 - Size_Block * Width_ground) * double(1.0 / 2)) + i + i * Size_Block, 1 + Title_Rect_Board.y + Title_Rect_Board.h + int((Play_Rect.y + Play_Rect.h - Title_Rect_Board.y - Title_Rect_Board.h + 1 - Height_ground - 3 - Size_Block * Height_ground) * double(1.0 / 2)) + j + j * Size_Block, Size_Block,Size_Block };
+									}
 								}
 							}
-						}
 
-						Earth_Rect_Board = { Block_Rect[0][0].x - 14, Block_Rect[0][0].y - 14, Block_Rect[Width_ground - 1][Height_ground - 1].x + Block_Rect[Width_ground - 1][Height_ground - 1].w - Block_Rect[0][0].x + 28, Block_Rect[Width_ground - 1][Height_ground - 1].y + Block_Rect[Width_ground - 1][Height_ground - 1].h - Block_Rect[0][0].y + 28 };
-						Earth_Rect_Shadow_1 = { Earth_Rect_Board.x + 2, Earth_Rect_Board.y + 2, Earth_Rect_Board.w - 4,  Earth_Rect_Board.h - 4 };
-						Earth_Rect_Glare = { Earth_Rect_Shadow_1.x + 4, Earth_Rect_Shadow_1.y + 4, Earth_Rect_Shadow_1.w - 8,  Earth_Rect_Shadow_1.h - 8 };
-						Earth_Rect_Shadow_2 = { Earth_Rect_Glare.x + 4, Earth_Rect_Glare.y + 4, Earth_Rect_Glare.w - 8,  Earth_Rect_Glare.h - 8 };
-						Earth_Rect = { Earth_Rect_Shadow_2.x + 4, Earth_Rect_Shadow_2.y + 4,Earth_Rect_Shadow_2.w - 8, Earth_Rect_Shadow_2.h - 8 };
+							Earth_Rect_Board = { Block_Rect[0][0].x - 14, Block_Rect[0][0].y - 14, Block_Rect[Width_ground - 1][Height_ground - 1].x + Block_Rect[Width_ground - 1][Height_ground - 1].w - Block_Rect[0][0].x + 28, Block_Rect[Width_ground - 1][Height_ground - 1].y + Block_Rect[Width_ground - 1][Height_ground - 1].h - Block_Rect[0][0].y + 28 };
+							Earth_Rect_Shadow_1 = { Earth_Rect_Board.x + 2, Earth_Rect_Board.y + 2, Earth_Rect_Board.w - 4,  Earth_Rect_Board.h - 4 };
+							Earth_Rect_Glare = { Earth_Rect_Shadow_1.x + 4, Earth_Rect_Shadow_1.y + 4, Earth_Rect_Shadow_1.w - 8,  Earth_Rect_Shadow_1.h - 8 };
+							Earth_Rect_Shadow_2 = { Earth_Rect_Glare.x + 4, Earth_Rect_Glare.y + 4, Earth_Rect_Glare.w - 8,  Earth_Rect_Glare.h - 8 };
+							Earth_Rect = { Earth_Rect_Shadow_2.x + 4, Earth_Rect_Shadow_2.y + 4,Earth_Rect_Shadow_2.w - 8, Earth_Rect_Shadow_2.h - 8 };
+						}
 					}
 				}
 				if (((event.button.x <= Width_Input_Rect_Board.x + Width_Input_Rect_Board.w) and (event.button.x >= Width_Input_Rect_Board.x)) and ((event.button.y <= Width_Input_Rect_Board.y + Width_Input_Rect_Board.h) and (event.button.y >= Width_Input_Rect_Board.y)) and (Generate_Ground == 0))
@@ -3105,11 +3301,6 @@ void Playground(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int& volume
 						sound(name, volume_sound);
 					}
 
-					Generate_count = 0;
-					End_Game = 0;
-					SDL_DestroyTexture(Generation_Count_Texture);
-					_itoa_s(Generate_count, Generate_count_char, 10);
-					Generation_Count_Texture = get_text_texture(renderer, Generate_count_char, my_font, red_text_Generation);
 					SDL_SetRenderDrawColor(renderer, 214, 214, 214, 0);
 					SDL_RenderFillRect(renderer, &Width_Input_Help_Rect_Board);
 					SDL_SetRenderDrawColor(renderer, 128, 128, 128, 0);
@@ -3121,162 +3312,181 @@ void Playground(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int& volume
 					int Width_ground_double = Width_ground, Height_ground_double = Height_ground;
 
 					Width_ground = Input_Data(window, renderer, Fl, Width_Input_Rect);
-					if ((Width_ground < 30) or (Width_ground > 120))
+					if ((Width_ground != Width_ground_double) and (Width_ground != -1))
 					{
-						Width_ground = Width_ground_double;
-					}
-					else
-					{
-						if (Sound_Enable == 1)
-						{
-							sound(name, volume_sound);
-						}
-						SDL_DestroyTexture(Width_Input_Texture);
-						_itoa_s(Width_ground, Width_Input, 10);
-						Width_Input_Texture = get_text_texture(renderer, Width_Input, my_font, red_text_Width_Input);
-					}
+						Generate_count = 0;
+						End_Game = 0;
+						SDL_DestroyTexture(Generation_Count_Texture);
+						_itoa_s(Generate_count, Generate_count_char, 10);
+						Generation_Count_Texture = get_text_texture(renderer, Generate_count_char, my_font, red_text_Generation);
 
-					if ((Width_ground_double != Width_ground) or (Height_ground_double != Height_ground))
-					{
-						int** Blocks_double = (int**)malloc(sizeof(int*) * Width_ground_double);
-						for (int i = 0; i < Width_ground_double; i++)
+						if ((Width_ground < 30) or (Width_ground > 120))
 						{
-							Blocks_double[i] = (int*)malloc(sizeof(int) * Height_ground_double);
-							for (int j = 0; j < Height_ground_double; j++)
+							Width_ground = Width_ground_double;
+						}
+						else
+						{
+							SDL_DestroyTexture(Width_Input_Texture);
+							_itoa_s(Width_ground, Width_Input, 10);
+							Width_Input_Texture = get_text_texture(renderer, Width_Input, my_font, red_text_Width_Input);
+						}
+
+						if ((Width_ground_double != Width_ground) or (Height_ground_double != Height_ground))
+						{
+							int** Blocks_double = (int**)malloc(sizeof(int*) * Width_ground_double);
+							for (int i = 0; i < Width_ground_double; i++)
 							{
-								Blocks_double[i][j] = Blocks[i][j];
-							}
-						}
-
-						for (int i = 0; i < Width_ground_double; i++)
-						{
-							free(Blocks[i]);
-						}
-						free(Blocks);
-
-						for (int i = 0; i < Width_ground_double; i++)
-						{
-							free(Block_Rect[i]);
-						}
-						free(Block_Rect);
-
-						for (int i = 0; i < Width_ground_double; i++)
-						{
-							free(Blocks_Res_1[i]);
-						}
-						free(Blocks_Res_1);
-
-						for (int i = 0; i < Width_ground_double; i++)
-						{
-							free(Blocks_Res_2[i]);
-						}
-						free(Blocks_Res_2);
-
-						for (int i = 0; i < Width_ground_double; i++)
-						{
-							free(Blocks_Res_3[i]);
-						}
-						free(Blocks_Res_3);
-
-						for (int i = 0; i < Width_ground_double; i++)
-						{
-							free(Blocks_Res_4[i]);
-						}
-						free(Blocks_Res_4);
-
-						for (int i = 0; i < Width_ground_double; i++)
-						{
-							free(Blocks_Res_5[i]);
-						}
-						free(Blocks_Res_5);
-
-						Blocks_Res_1 = (int**)malloc(sizeof(int*) * Width_ground);
-						for (int i = 0; i < Width_ground; i++)
-						{
-							Blocks_Res_1[i] = (int*)malloc(sizeof(int) * Height_ground);
-							for (int j = 0; j < Height_ground; j++)
-							{
-								Blocks_Res_1[i][j] = -1;
-							}
-						}
-
-						Blocks_Res_2 = (int**)malloc(sizeof(int*) * Width_ground);
-						for (int i = 0; i < Width_ground; i++)
-						{
-							Blocks_Res_2[i] = (int*)malloc(sizeof(int) * Height_ground);
-							for (int j = 0; j < Height_ground; j++)
-							{
-								Blocks_Res_2[i][j] = -1;
-							}
-						}
-
-						Blocks_Res_3 = (int**)malloc(sizeof(int*) * Width_ground);
-						for (int i = 0; i < Width_ground; i++)
-						{
-							Blocks_Res_3[i] = (int*)malloc(sizeof(int) * Height_ground);
-							for (int j = 0; j < Height_ground; j++)
-							{
-								Blocks_Res_3[i][j] = -1;
-							}
-						}
-
-						Blocks_Res_4 = (int**)malloc(sizeof(int*) * Width_ground);
-						for (int i = 0; i < Width_ground; i++)
-						{
-							Blocks_Res_4[i] = (int*)malloc(sizeof(int) * Height_ground);
-							for (int j = 0; j < Height_ground; j++)
-							{
-								Blocks_Res_4[i][j] = -1;
-							}
-						}
-
-						Blocks_Res_5 = (int**)malloc(sizeof(int*) * Width_ground);
-						for (int i = 0; i < Width_ground; i++)
-						{
-							Blocks_Res_5[i] = (int*)malloc(sizeof(int) * Height_ground);
-							for (int j = 0; j < Height_ground; j++)
-							{
-								Blocks_Res_5[i][j] = -1;
-							}
-						}
-
-
-						int w = Width_ground - Width_ground_double, h = Height_ground - Height_ground_double;
-						int t = -1, k = -1, nt = -w / 2, nk = -h / 2;
-
-						Blocks = (int**)malloc(sizeof(int*) * Width_ground);
-						for (int i = 0; i < Width_ground; i++)
-						{
-							if (t != -1) t++;
-							k = -1;
-							Blocks[i] = (int*)malloc(sizeof(int) * Height_ground);
-							for (int j = 0; j < Height_ground; j++)
-							{
-								if (k != -1) k++;
-								if ((w > 0) and (h > 0))
+								Blocks_double[i] = (int*)malloc(sizeof(int) * Height_ground_double);
+								for (int j = 0; j < Height_ground_double; j++)
 								{
-									if ((i >= w / 2) and (j >= h / 2) and (t < Width_ground_double) and (k < Height_ground_double))
-									{
-										if (k == -1) { k++; }
-										if (t == -1) { t++; }
-										Blocks[i][j] = Blocks_double[t][k];
-									}
-									else
-									{
-										if ((Blocks[i][j] != 0) and (Blocks[i][j] != 1))
-										{
-											Blocks[i][j] = 0;
-										}
-									}
+									Blocks_double[i][j] = Blocks[i][j];
 								}
-								else
+							}
+
+							for (int i = 0; i < Width_ground_double; i++)
+							{
+								free(Blocks[i]);
+							}
+							free(Blocks);
+
+							for (int i = 0; i < Width_ground_double; i++)
+							{
+								free(Block_Rect[i]);
+							}
+							free(Block_Rect);
+
+							for (int i = 0; i < Width_ground_double; i++)
+							{
+								free(Blocks_Res_1[i]);
+							}
+							free(Blocks_Res_1);
+
+							for (int i = 0; i < Width_ground_double; i++)
+							{
+								free(Blocks_Res_2[i]);
+							}
+							free(Blocks_Res_2);
+
+							for (int i = 0; i < Width_ground_double; i++)
+							{
+								free(Blocks_Res_3[i]);
+							}
+							free(Blocks_Res_3);
+
+							for (int i = 0; i < Width_ground_double; i++)
+							{
+								free(Blocks_Res_4[i]);
+							}
+							free(Blocks_Res_4);
+
+							for (int i = 0; i < Width_ground_double; i++)
+							{
+								free(Blocks_Res_5[i]);
+							}
+							free(Blocks_Res_5);
+
+							for (int i = 0; i < Width_ground_double; i++)
+							{
+								free(Blocks_Res_6[i]);
+							}
+							free(Blocks_Res_6);
+
+							for (int i = 0; i < Width_ground_double; i++)
+							{
+								free(Blocks_Res_7[i]);
+							}
+							free(Blocks_Res_7);
+
+							Blocks_Res_1 = (int**)malloc(sizeof(int*) * Width_ground);
+							for (int i = 0; i < Width_ground; i++)
+							{
+								Blocks_Res_1[i] = (int*)malloc(sizeof(int) * Height_ground);
+								for (int j = 0; j < Height_ground; j++)
 								{
-									if ((w > 0) and (h < 0))
+									Blocks_Res_1[i][j] = -1;
+								}
+							}
+
+							Blocks_Res_2 = (int**)malloc(sizeof(int*) * Width_ground);
+							for (int i = 0; i < Width_ground; i++)
+							{
+								Blocks_Res_2[i] = (int*)malloc(sizeof(int) * Height_ground);
+								for (int j = 0; j < Height_ground; j++)
+								{
+									Blocks_Res_2[i][j] = -1;
+								}
+							}
+
+							Blocks_Res_3 = (int**)malloc(sizeof(int*) * Width_ground);
+							for (int i = 0; i < Width_ground; i++)
+							{
+								Blocks_Res_3[i] = (int*)malloc(sizeof(int) * Height_ground);
+								for (int j = 0; j < Height_ground; j++)
+								{
+									Blocks_Res_3[i][j] = -1;
+								}
+							}
+
+							Blocks_Res_4 = (int**)malloc(sizeof(int*) * Width_ground);
+							for (int i = 0; i < Width_ground; i++)
+							{
+								Blocks_Res_4[i] = (int*)malloc(sizeof(int) * Height_ground);
+								for (int j = 0; j < Height_ground; j++)
+								{
+									Blocks_Res_4[i][j] = -1;
+								}
+							}
+
+							Blocks_Res_5 = (int**)malloc(sizeof(int*) * Width_ground);
+							for (int i = 0; i < Width_ground; i++)
+							{
+								Blocks_Res_5[i] = (int*)malloc(sizeof(int) * Height_ground);
+								for (int j = 0; j < Height_ground; j++)
+								{
+									Blocks_Res_5[i][j] = -1;
+								}
+							}
+
+							Blocks_Res_6 = (int**)malloc(sizeof(int*) * Width_ground);
+							for (int i = 0; i < Width_ground; i++)
+							{
+								Blocks_Res_6[i] = (int*)malloc(sizeof(int) * Height_ground);
+								for (int j = 0; j < Height_ground; j++)
+								{
+									Blocks_Res_6[i][j] = -1;
+								}
+							}
+
+							Blocks_Res_7 = (int**)malloc(sizeof(int*) * Width_ground);
+							for (int i = 0; i < Width_ground; i++)
+							{
+								Blocks_Res_7[i] = (int*)malloc(sizeof(int) * Height_ground);
+								for (int j = 0; j < Height_ground; j++)
+								{
+									Blocks_Res_7[i][j] = -1;
+								}
+							}
+
+
+							int w = Width_ground - Width_ground_double, h = Height_ground - Height_ground_double;
+							int t = -1, k = -1, nt = -w / 2, nk = -h / 2;
+
+							Blocks = (int**)malloc(sizeof(int*) * Width_ground);
+							for (int i = 0; i < Width_ground; i++)
+							{
+								if (t != -1) t++;
+								k = -1;
+								Blocks[i] = (int*)malloc(sizeof(int) * Height_ground);
+								for (int j = 0; j < Height_ground; j++)
+								{
+									if (k != -1) k++;
+									if ((w > 0) and (h > 0))
 									{
-										if ((i >= w / 2) and (j + nk >= 0) and (t < Width_ground_double))
+										if ((i >= w / 2) and (j >= h / 2) and (t < Width_ground_double) and (k < Height_ground_double))
 										{
+											if (k == -1) { k++; }
 											if (t == -1) { t++; }
-											Blocks[i][j] = Blocks_double[t][j + nk];
+											Blocks[i][j] = Blocks_double[t][k];
 										}
 										else
 										{
@@ -3288,12 +3498,12 @@ void Playground(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int& volume
 									}
 									else
 									{
-										if ((w < 0) and (h > 0))
+										if ((w > 0) and (h < 0))
 										{
-											if ((i + nt >= 0) and (j >= h / 2) and (k < Height_ground_double))
+											if ((i >= w / 2) and (j + nk >= 0) and (t < Width_ground_double))
 											{
-												if (k == -1) { k++; }
-												Blocks[i][j] = Blocks_double[i + nt][k];
+												if (t == -1) { t++; }
+												Blocks[i][j] = Blocks_double[t][j + nk];
 											}
 											else
 											{
@@ -3305,39 +3515,38 @@ void Playground(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int& volume
 										}
 										else
 										{
-											if ((w < 0) and (h < 0))
+											if ((w < 0) and (h > 0))
 											{
-												if ((i + nt >= 0) and (j + nk >= 0))
+												if ((i + nt >= 0) and (j >= h / 2) and (k < Height_ground_double))
 												{
-													Blocks[i][j] = Blocks_double[nt][nk];
+													if (k == -1) { k++; }
+													Blocks[i][j] = Blocks_double[i + nt][k];
+												}
+												else
+												{
+													if ((Blocks[i][j] != 0) and (Blocks[i][j] != 1))
+													{
+														Blocks[i][j] = 0;
+													}
 												}
 											}
 											else
 											{
-												if ((w == 0) and (h > 0))
+												if ((w < 0) and (h < 0))
 												{
-													if ((j >= h / 2) and (k < Height_ground_double))
+													if ((i + nt >= 0) and (j + nk >= 0))
 													{
-														if (k == -1) { k++; }
-														Blocks[i][j] = Blocks_double[i][k];
-													}
-													else
-													{
-														if ((Blocks[i][j] != 0) and (Blocks[i][j] != 1))
-														{
-															Blocks[i][j] = 0;
-														}
+														Blocks[i][j] = Blocks_double[nt][nk];
 													}
 												}
 												else
 												{
-													if ((w > 0) and (h == 0))
+													if ((w == 0) and (h > 0))
 													{
-														if ((i >= w / 2) and (t < Width_ground_double))
+														if ((j >= h / 2) and (k < Height_ground_double))
 														{
-
-															if (t == -1) { t++; }
-															Blocks[i][j] = Blocks_double[t][j];
+															if (k == -1) { k++; }
+															Blocks[i][j] = Blocks_double[i][k];
 														}
 														else
 														{
@@ -3349,20 +3558,39 @@ void Playground(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int& volume
 													}
 													else
 													{
-														if ((w == 0) and (h < 0))
+														if ((w > 0) and (h == 0))
 														{
-															if (j + nk >= 0)
+															if ((i >= w / 2) and (t < Width_ground_double))
 															{
-																Blocks[i][j] = Blocks_double[i][j + nk];
+
+																if (t == -1) { t++; }
+																Blocks[i][j] = Blocks_double[t][j];
+															}
+															else
+															{
+																if ((Blocks[i][j] != 0) and (Blocks[i][j] != 1))
+																{
+																	Blocks[i][j] = 0;
+																}
 															}
 														}
 														else
 														{
-															if ((w < 0) and (h == 0))
+															if ((w == 0) and (h < 0))
 															{
-																if (i + nt >= 0)
+																if (j + nk >= 0)
 																{
-																	Blocks[i][j] = Blocks_double[i + nt][j];
+																	Blocks[i][j] = Blocks_double[i][j + nk];
+																}
+															}
+															else
+															{
+																if ((w < 0) and (h == 0))
+																{
+																	if (i + nt >= 0)
+																	{
+																		Blocks[i][j] = Blocks_double[i + nt][j];
+																	}
 																}
 															}
 														}
@@ -3373,47 +3601,51 @@ void Playground(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int& volume
 									}
 								}
 							}
-						}
 
-						//for (int i = 0; i < Width_ground; i++)
-						//{
-						//	Blocks[i] = (int*)malloc(sizeof(int) * Height_ground);
-						//	for (int j = 0; j < Height_ground; j++)
-						//	{
-						//		Blocks[i][j] = 0;
-						//	}
-						//}
+							//for (int i = 0; i < Width_ground; i++)
+							//{
+							//	Blocks[i] = (int*)malloc(sizeof(int) * Height_ground);
+							//	for (int j = 0; j < Height_ground; j++)
+							//	{
+							//		Blocks[i][j] = 0;
+							//	}
+							//}
 
-						for (int i = 0; i < Width_ground_double; i++)
-						{
-							free(Blocks_double[i]);
-						}
-						free(Blocks_double);
-
-						Block_Rect = (SDL_Rect**)malloc(sizeof(SDL_Rect*) * Width_ground);
-						int Size_Block = (Play_Rect.y + Play_Rect.h - Title_Rect_Board.y - Title_Rect_Board.h + 1 - Height_ground - 3) / (Height_ground + 2);
-						if (Size_Block > (Parameters_Rect_Board.x - Play_Rect.x + 1 - Width_ground - 3) / (Width_ground + 2)) { Size_Block = (Parameters_Rect_Board.x - Play_Rect.x + 1 - Width_ground - 3) / (Width_ground + 2); }
-						for (int i = 0; i < Width_ground; i++)
-						{
-							Block_Rect[i] = (SDL_Rect*)malloc(sizeof(SDL_Rect) * Height_ground);
-							for (int j = 0; j < Height_ground; j++)
+							for (int i = 0; i < Width_ground_double; i++)
 							{
-								if (Width_ground > Height_ground)
+								free(Blocks_double[i]);
+							}
+							free(Blocks_double);
+
+							Block_Rect = (SDL_Rect**)malloc(sizeof(SDL_Rect*) * Width_ground);
+							int Size_Block = (Play_Rect.y + Play_Rect.h - Title_Rect_Board.y - Title_Rect_Board.h + 1 - Height_ground - 3) / (Height_ground + 2);
+							if (Size_Block > (Parameters_Rect_Board.x - Play_Rect.x + 1 - Width_ground - 3) / (Width_ground + 2)) { Size_Block = (Parameters_Rect_Board.x - Play_Rect.x + 1 - Width_ground - 3) / (Width_ground + 2); }
+							for (int i = 0; i < Width_ground; i++)
+							{
+								Block_Rect[i] = (SDL_Rect*)malloc(sizeof(SDL_Rect) * Height_ground);
+								for (int j = 0; j < Height_ground; j++)
 								{
-									Block_Rect[i][j] = { 1 + Play_Rect.x + int((Parameters_Rect_Board.x - Play_Rect.x + 1 - Width_ground - 3 - Size_Block * Width_ground) * double(1.0 / 2)) + i + i * Size_Block, 1 + Title_Rect_Board.y + Title_Rect_Board.h + int((Play_Rect.y + Play_Rect.h - Title_Rect_Board.y - Title_Rect_Board.h + 1 - Height_ground - 3 - Size_Block * Height_ground) * double(1.0 / 2)) + j + j * Size_Block, Size_Block,Size_Block };
-								}
-								else
-								{
-									Block_Rect[i][j] = { 1 + Play_Rect.x + int((Parameters_Rect_Board.x - Play_Rect.x + 1 - Width_ground - 3 - Size_Block * Width_ground) * double(1.0 / 2)) + i + i * Size_Block, 1 + Title_Rect_Board.y + Title_Rect_Board.h + int((Play_Rect.y + Play_Rect.h - Title_Rect_Board.y - Title_Rect_Board.h + 1 - Height_ground - 3 - Size_Block * Height_ground) * double(1.0 / 2)) + j + j * Size_Block, Size_Block,Size_Block };
+									if (Width_ground > Height_ground)
+									{
+										Block_Rect[i][j] = { 1 + Play_Rect.x + int((Parameters_Rect_Board.x - Play_Rect.x + 1 - Width_ground - 3 - Size_Block * Width_ground) * double(1.0 / 2)) + i + i * Size_Block, 1 + Title_Rect_Board.y + Title_Rect_Board.h + int((Play_Rect.y + Play_Rect.h - Title_Rect_Board.y - Title_Rect_Board.h + 1 - Height_ground - 3 - Size_Block * Height_ground) * double(1.0 / 2)) + j + j * Size_Block, Size_Block,Size_Block };
+									}
+									else
+									{
+										Block_Rect[i][j] = { 1 + Play_Rect.x + int((Parameters_Rect_Board.x - Play_Rect.x + 1 - Width_ground - 3 - Size_Block * Width_ground) * double(1.0 / 2)) + i + i * Size_Block, 1 + Title_Rect_Board.y + Title_Rect_Board.h + int((Play_Rect.y + Play_Rect.h - Title_Rect_Board.y - Title_Rect_Board.h + 1 - Height_ground - 3 - Size_Block * Height_ground) * double(1.0 / 2)) + j + j * Size_Block, Size_Block,Size_Block };
+									}
 								}
 							}
-						}
 
-						Earth_Rect_Board = { Block_Rect[0][0].x - 14, Block_Rect[0][0].y - 14, Block_Rect[Width_ground - 1][Height_ground - 1].x + Block_Rect[Width_ground - 1][Height_ground - 1].w - Block_Rect[0][0].x + 28, Block_Rect[Width_ground - 1][Height_ground - 1].y + Block_Rect[Width_ground - 1][Height_ground - 1].h - Block_Rect[0][0].y + 28 };
-						Earth_Rect_Shadow_1 = { Earth_Rect_Board.x + 2, Earth_Rect_Board.y + 2, Earth_Rect_Board.w - 4,  Earth_Rect_Board.h - 4 };
-						Earth_Rect_Glare = { Earth_Rect_Shadow_1.x + 4, Earth_Rect_Shadow_1.y + 4, Earth_Rect_Shadow_1.w - 8,  Earth_Rect_Shadow_1.h - 8 };
-						Earth_Rect_Shadow_2 = { Earth_Rect_Glare.x + 4, Earth_Rect_Glare.y + 4, Earth_Rect_Glare.w - 8,  Earth_Rect_Glare.h - 8 };
-						Earth_Rect = { Earth_Rect_Shadow_2.x + 4, Earth_Rect_Shadow_2.y + 4,Earth_Rect_Shadow_2.w - 8, Earth_Rect_Shadow_2.h - 8 };
+							Earth_Rect_Board = { Block_Rect[0][0].x - 14, Block_Rect[0][0].y - 14, Block_Rect[Width_ground - 1][Height_ground - 1].x + Block_Rect[Width_ground - 1][Height_ground - 1].w - Block_Rect[0][0].x + 28, Block_Rect[Width_ground - 1][Height_ground - 1].y + Block_Rect[Width_ground - 1][Height_ground - 1].h - Block_Rect[0][0].y + 28 };
+							Earth_Rect_Shadow_1 = { Earth_Rect_Board.x + 2, Earth_Rect_Board.y + 2, Earth_Rect_Board.w - 4,  Earth_Rect_Board.h - 4 };
+							Earth_Rect_Glare = { Earth_Rect_Shadow_1.x + 4, Earth_Rect_Shadow_1.y + 4, Earth_Rect_Shadow_1.w - 8,  Earth_Rect_Shadow_1.h - 8 };
+							Earth_Rect_Shadow_2 = { Earth_Rect_Glare.x + 4, Earth_Rect_Glare.y + 4, Earth_Rect_Glare.w - 8,  Earth_Rect_Glare.h - 8 };
+							Earth_Rect = { Earth_Rect_Shadow_2.x + 4, Earth_Rect_Shadow_2.y + 4,Earth_Rect_Shadow_2.w - 8, Earth_Rect_Shadow_2.h - 8 };
+						}
+					}
+					else
+					{
+						Width_ground = Width_ground_double;
 					}
 				}
 				if (((event.button.x <= Height_Input_Rect_Board.x + Height_Input_Rect_Board.w) and (event.button.x >= Height_Input_Rect_Board.x)) and ((event.button.y <= Height_Input_Rect_Board.y + Height_Input_Rect_Board.h) and (event.button.y >= Height_Input_Rect_Board.y)) and (Generate_Ground == 0))
@@ -3423,11 +3655,6 @@ void Playground(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int& volume
 						sound(name, volume_sound);
 					}
 
-					Generate_count = 0;
-					End_Game = 0;
-					SDL_DestroyTexture(Generation_Count_Texture);
-					_itoa_s(Generate_count, Generate_count_char, 10);
-					Generation_Count_Texture = get_text_texture(renderer, Generate_count_char, my_font, red_text_Generation);
 					SDL_SetRenderDrawColor(renderer, 214, 214, 214, 0);
 					SDL_RenderFillRect(renderer, &Height_Input_Help_Rect_Board);
 					SDL_SetRenderDrawColor(renderer, 128, 128, 128, 0);
@@ -3439,158 +3666,181 @@ void Playground(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int& volume
 					int Width_ground_double = Width_ground, Height_ground_double = Height_ground;
 
 					Height_ground = Input_Data(window, renderer, Fl, Height_Input_Rect);
-					if ((Height_ground < 20) or (Height_ground > 80))
+					if ((Height_ground != Height_ground_double) and (Height_ground != -1))
 					{
-						Height_ground = Height_ground_double;
-					}
-					else
-					{
-						SDL_DestroyTexture(Height_Input_Texture);
-						_itoa_s(Height_ground, Height_Input, 10);
-						Height_Input_Texture = get_text_texture(renderer, Height_Input, my_font, red_text_Height_Input);
-					}
+						Generate_count = 0;
+						End_Game = 0;
+						SDL_DestroyTexture(Generation_Count_Texture);
+						_itoa_s(Generate_count, Generate_count_char, 10);
+						Generation_Count_Texture = get_text_texture(renderer, Generate_count_char, my_font, red_text_Generation);
 
-					if ((Width_ground_double != Width_ground) or (Height_ground_double != Height_ground))
-					{
-						int** Blocks_double = (int**)malloc(sizeof(int*) * Width_ground_double);
-						for (int i = 0; i < Width_ground_double; i++)
+						if ((Height_ground < 20) or (Height_ground > 80))
 						{
-							Blocks_double[i] = (int*)malloc(sizeof(int) * Height_ground_double);
-							for (int j = 0; j < Height_ground_double; j++)
+							Height_ground = Height_ground_double;
+						}
+						else
+						{
+							SDL_DestroyTexture(Height_Input_Texture);
+							_itoa_s(Height_ground, Height_Input, 10);
+							Height_Input_Texture = get_text_texture(renderer, Height_Input, my_font, red_text_Height_Input);
+						}
+
+						if ((Width_ground_double != Width_ground) or (Height_ground_double != Height_ground))
+						{
+							int** Blocks_double = (int**)malloc(sizeof(int*) * Width_ground_double);
+							for (int i = 0; i < Width_ground_double; i++)
 							{
-								Blocks_double[i][j] = Blocks[i][j];
-							}
-						}
-
-						for (int i = 0; i < Width_ground_double; i++)
-						{
-							free(Blocks[i]);
-						}
-						free(Blocks);
-
-						for (int i = 0; i < Width_ground_double; i++)
-						{
-							free(Block_Rect[i]);
-						}
-						free(Block_Rect);
-
-						for (int i = 0; i < Width_ground_double; i++)
-						{
-							free(Blocks_Res_1[i]);
-						}
-						free(Blocks_Res_1);
-
-						for (int i = 0; i < Width_ground_double; i++)
-						{
-							free(Blocks_Res_2[i]);
-						}
-						free(Blocks_Res_2);
-
-						for (int i = 0; i < Width_ground_double; i++)
-						{
-							free(Blocks_Res_3[i]);
-						}
-						free(Blocks_Res_3);
-
-						for (int i = 0; i < Width_ground_double; i++)
-						{
-							free(Blocks_Res_4[i]);
-						}
-						free(Blocks_Res_4);
-
-						for (int i = 0; i < Width_ground_double; i++)
-						{
-							free(Blocks_Res_5[i]);
-						}
-						free(Blocks_Res_5);
-
-						Blocks_Res_1 = (int**)malloc(sizeof(int*) * Width_ground);
-						for (int i = 0; i < Width_ground; i++)
-						{
-							Blocks_Res_1[i] = (int*)malloc(sizeof(int) * Height_ground);
-							for (int j = 0; j < Height_ground; j++)
-							{
-								Blocks_Res_1[i][j] = -1;
-							}
-						}
-
-						Blocks_Res_2 = (int**)malloc(sizeof(int*) * Width_ground);
-						for (int i = 0; i < Width_ground; i++)
-						{
-							Blocks_Res_2[i] = (int*)malloc(sizeof(int) * Height_ground);
-							for (int j = 0; j < Height_ground; j++)
-							{
-								Blocks_Res_2[i][j] = -1;
-							}
-						}
-
-						Blocks_Res_3 = (int**)malloc(sizeof(int*) * Width_ground);
-						for (int i = 0; i < Width_ground; i++)
-						{
-							Blocks_Res_3[i] = (int*)malloc(sizeof(int) * Height_ground);
-							for (int j = 0; j < Height_ground; j++)
-							{
-								Blocks_Res_3[i][j] = -1;
-							}
-						}
-
-						Blocks_Res_4 = (int**)malloc(sizeof(int*) * Width_ground);
-						for (int i = 0; i < Width_ground; i++)
-						{
-							Blocks_Res_4[i] = (int*)malloc(sizeof(int) * Height_ground);
-							for (int j = 0; j < Height_ground; j++)
-							{
-								Blocks_Res_4[i][j] = -1;
-							}
-						}
-
-						Blocks_Res_5 = (int**)malloc(sizeof(int*) * Width_ground);
-						for (int i = 0; i < Width_ground; i++)
-						{
-							Blocks_Res_5[i] = (int*)malloc(sizeof(int) * Height_ground);
-							for (int j = 0; j < Height_ground; j++)
-							{
-								Blocks_Res_5[i][j] = -1;
-							}
-						}
-
-
-						int w = Width_ground - Width_ground_double, h = Height_ground - Height_ground_double;
-						int t = -1, k = -1, nt = -w / 2, nk = -h / 2;
-
-						Blocks = (int**)malloc(sizeof(int*) * Width_ground);
-						for (int i = 0; i < Width_ground; i++)
-						{
-							if (t != -1) t++;
-							k = -1;
-							Blocks[i] = (int*)malloc(sizeof(int) * Height_ground);
-							for (int j = 0; j < Height_ground; j++)
-							{
-								if (k != -1) k++;
-								if ((w > 0) and (h > 0))
+								Blocks_double[i] = (int*)malloc(sizeof(int) * Height_ground_double);
+								for (int j = 0; j < Height_ground_double; j++)
 								{
-									if ((i >= w / 2) and (j >= h / 2) and (t < Width_ground_double) and (k < Height_ground_double))
-									{
-										if (k == -1) { k++; }
-										if (t == -1) { t++; }
-										Blocks[i][j] = Blocks_double[t][k];
-									}
-									else
-									{
-										if ((Blocks[i][j] != 0) and (Blocks[i][j] != 1))
-										{
-											Blocks[i][j] = 0;
-										}
-									}
+									Blocks_double[i][j] = Blocks[i][j];
 								}
-								else
+							}
+
+							for (int i = 0; i < Width_ground_double; i++)
+							{
+								free(Blocks[i]);
+							}
+							free(Blocks);
+
+							for (int i = 0; i < Width_ground_double; i++)
+							{
+								free(Block_Rect[i]);
+							}
+							free(Block_Rect);
+
+							for (int i = 0; i < Width_ground_double; i++)
+							{
+								free(Blocks_Res_1[i]);
+							}
+							free(Blocks_Res_1);
+
+							for (int i = 0; i < Width_ground_double; i++)
+							{
+								free(Blocks_Res_2[i]);
+							}
+							free(Blocks_Res_2);
+
+							for (int i = 0; i < Width_ground_double; i++)
+							{
+								free(Blocks_Res_3[i]);
+							}
+							free(Blocks_Res_3);
+
+							for (int i = 0; i < Width_ground_double; i++)
+							{
+								free(Blocks_Res_4[i]);
+							}
+							free(Blocks_Res_4);
+
+							for (int i = 0; i < Width_ground_double; i++)
+							{
+								free(Blocks_Res_5[i]);
+							}
+							free(Blocks_Res_5);
+
+							for (int i = 0; i < Width_ground_double; i++)
+							{
+								free(Blocks_Res_6[i]);
+							}
+							free(Blocks_Res_6);
+
+							for (int i = 0; i < Width_ground_double; i++)
+							{
+								free(Blocks_Res_7[i]);
+							}
+							free(Blocks_Res_7);
+
+							Blocks_Res_1 = (int**)malloc(sizeof(int*) * Width_ground);
+							for (int i = 0; i < Width_ground; i++)
+							{
+								Blocks_Res_1[i] = (int*)malloc(sizeof(int) * Height_ground);
+								for (int j = 0; j < Height_ground; j++)
 								{
-									if ((w > 0) and (h < 0))
+									Blocks_Res_1[i][j] = -1;
+								}
+							}
+
+							Blocks_Res_2 = (int**)malloc(sizeof(int*) * Width_ground);
+							for (int i = 0; i < Width_ground; i++)
+							{
+								Blocks_Res_2[i] = (int*)malloc(sizeof(int) * Height_ground);
+								for (int j = 0; j < Height_ground; j++)
+								{
+									Blocks_Res_2[i][j] = -1;
+								}
+							}
+
+							Blocks_Res_3 = (int**)malloc(sizeof(int*) * Width_ground);
+							for (int i = 0; i < Width_ground; i++)
+							{
+								Blocks_Res_3[i] = (int*)malloc(sizeof(int) * Height_ground);
+								for (int j = 0; j < Height_ground; j++)
+								{
+									Blocks_Res_3[i][j] = -1;
+								}
+							}
+
+							Blocks_Res_4 = (int**)malloc(sizeof(int*) * Width_ground);
+							for (int i = 0; i < Width_ground; i++)
+							{
+								Blocks_Res_4[i] = (int*)malloc(sizeof(int) * Height_ground);
+								for (int j = 0; j < Height_ground; j++)
+								{
+									Blocks_Res_4[i][j] = -1;
+								}
+							}
+
+							Blocks_Res_5 = (int**)malloc(sizeof(int*) * Width_ground);
+							for (int i = 0; i < Width_ground; i++)
+							{
+								Blocks_Res_5[i] = (int*)malloc(sizeof(int) * Height_ground);
+								for (int j = 0; j < Height_ground; j++)
+								{
+									Blocks_Res_5[i][j] = -1;
+								}
+							}
+
+							Blocks_Res_6 = (int**)malloc(sizeof(int*) * Width_ground);
+							for (int i = 0; i < Width_ground; i++)
+							{
+								Blocks_Res_6[i] = (int*)malloc(sizeof(int) * Height_ground);
+								for (int j = 0; j < Height_ground; j++)
+								{
+									Blocks_Res_6[i][j] = -1;
+								}
+							}
+
+							Blocks_Res_7 = (int**)malloc(sizeof(int*) * Width_ground);
+							for (int i = 0; i < Width_ground; i++)
+							{
+								Blocks_Res_7[i] = (int*)malloc(sizeof(int) * Height_ground);
+								for (int j = 0; j < Height_ground; j++)
+								{
+									Blocks_Res_7[i][j] = -1;
+								}
+							}
+
+
+							int w = Width_ground - Width_ground_double, h = Height_ground - Height_ground_double;
+							int t = -1, k = -1, nt = -w / 2, nk = -h / 2;
+
+							Blocks = (int**)malloc(sizeof(int*) * Width_ground);
+							for (int i = 0; i < Width_ground; i++)
+							{
+								if (t != -1) t++;
+								k = -1;
+								Blocks[i] = (int*)malloc(sizeof(int) * Height_ground);
+								for (int j = 0; j < Height_ground; j++)
+								{
+									if (k != -1) k++;
+									if ((w > 0) and (h > 0))
 									{
-										if ((i >= w / 2) and (j + nk >= 0) and (t < Width_ground_double))
+										if ((i >= w / 2) and (j >= h / 2) and (t < Width_ground_double) and (k < Height_ground_double))
 										{
+											if (k == -1) { k++; }
 											if (t == -1) { t++; }
-											Blocks[i][j] = Blocks_double[t][j + nk];
+											Blocks[i][j] = Blocks_double[t][k];
 										}
 										else
 										{
@@ -3602,12 +3852,12 @@ void Playground(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int& volume
 									}
 									else
 									{
-										if ((w < 0) and (h > 0))
+										if ((w > 0) and (h < 0))
 										{
-											if ((i + nt >= 0) and (j >= h / 2) and (k < Height_ground_double))
+											if ((i >= w / 2) and (j + nk >= 0) and (t < Width_ground_double))
 											{
-												if (k == -1) { k++; }
-												Blocks[i][j] = Blocks_double[i + nt][k];
+												if (t == -1) { t++; }
+												Blocks[i][j] = Blocks_double[t][j + nk];
 											}
 											else
 											{
@@ -3619,39 +3869,38 @@ void Playground(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int& volume
 										}
 										else
 										{
-											if ((w < 0) and (h < 0))
+											if ((w < 0) and (h > 0))
 											{
-												if ((i + nt >= 0) and (j + nk >= 0))
+												if ((i + nt >= 0) and (j >= h / 2) and (k < Height_ground_double))
 												{
-													Blocks[i][j] = Blocks_double[nt][nk];
+													if (k == -1) { k++; }
+													Blocks[i][j] = Blocks_double[i + nt][k];
+												}
+												else
+												{
+													if ((Blocks[i][j] != 0) and (Blocks[i][j] != 1))
+													{
+														Blocks[i][j] = 0;
+													}
 												}
 											}
 											else
 											{
-												if ((w == 0) and (h > 0))
+												if ((w < 0) and (h < 0))
 												{
-													if ((j >= h / 2) and (k < Height_ground_double))
+													if ((i + nt >= 0) and (j + nk >= 0))
 													{
-														if (k == -1) { k++; }
-														Blocks[i][j] = Blocks_double[i][k];
-													}
-													else
-													{
-														if ((Blocks[i][j] != 0) and (Blocks[i][j] != 1))
-														{
-															Blocks[i][j] = 0;
-														}
+														Blocks[i][j] = Blocks_double[nt][nk];
 													}
 												}
 												else
 												{
-													if ((w > 0) and (h == 0))
+													if ((w == 0) and (h > 0))
 													{
-														if ((i >= w / 2) and (t < Width_ground_double))
+														if ((j >= h / 2) and (k < Height_ground_double))
 														{
-
-															if (t == -1) { t++; }
-															Blocks[i][j] = Blocks_double[t][j];
+															if (k == -1) { k++; }
+															Blocks[i][j] = Blocks_double[i][k];
 														}
 														else
 														{
@@ -3663,20 +3912,39 @@ void Playground(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int& volume
 													}
 													else
 													{
-														if ((w == 0) and (h < 0))
+														if ((w > 0) and (h == 0))
 														{
-															if (j + nk >= 0)
+															if ((i >= w / 2) and (t < Width_ground_double))
 															{
-																Blocks[i][j] = Blocks_double[i][j + nk];
+
+																if (t == -1) { t++; }
+																Blocks[i][j] = Blocks_double[t][j];
+															}
+															else
+															{
+																if ((Blocks[i][j] != 0) and (Blocks[i][j] != 1))
+																{
+																	Blocks[i][j] = 0;
+																}
 															}
 														}
 														else
 														{
-															if ((w < 0) and (h == 0))
+															if ((w == 0) and (h < 0))
 															{
-																if (i + nt >= 0)
+																if (j + nk >= 0)
 																{
-																	Blocks[i][j] = Blocks_double[i + nt][j];
+																	Blocks[i][j] = Blocks_double[i][j + nk];
+																}
+															}
+															else
+															{
+																if ((w < 0) and (h == 0))
+																{
+																	if (i + nt >= 0)
+																	{
+																		Blocks[i][j] = Blocks_double[i + nt][j];
+																	}
 																}
 															}
 														}
@@ -3687,59 +3955,752 @@ void Playground(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int& volume
 									}
 								}
 							}
-						}
 
-						//for (int i = 0; i < Width_ground; i++)
-						//{
-						//	Blocks[i] = (int*)malloc(sizeof(int) * Height_ground);
-						//	for (int j = 0; j < Height_ground; j++)
-						//	{
-						//		Blocks[i][j] = 0;
-						//	}
-						//}
+							//for (int i = 0; i < Width_ground; i++)
+							//{
+							//	Blocks[i] = (int*)malloc(sizeof(int) * Height_ground);
+							//	for (int j = 0; j < Height_ground; j++)
+							//	{
+							//		Blocks[i][j] = 0;
+							//	}
+							//}
 
-						for (int i = 0; i < Width_ground_double; i++)
-						{
-							free(Blocks_double[i]);
-						}
-						free(Blocks_double);
-
-						Block_Rect = (SDL_Rect**)malloc(sizeof(SDL_Rect*) * Width_ground);
-						int Size_Block = (Play_Rect.y + Play_Rect.h - Title_Rect_Board.y - Title_Rect_Board.h + 1 - Height_ground - 3) / (Height_ground + 2);
-						if (Size_Block > (Parameters_Rect_Board.x - Play_Rect.x + 1 - Width_ground - 3) / (Width_ground + 2)) { Size_Block = (Parameters_Rect_Board.x - Play_Rect.x + 1 - Width_ground - 3) / (Width_ground + 2); }
-						for (int i = 0; i < Width_ground; i++)
-						{
-							Block_Rect[i] = (SDL_Rect*)malloc(sizeof(SDL_Rect) * Height_ground);
-							for (int j = 0; j < Height_ground; j++)
+							for (int i = 0; i < Width_ground_double; i++)
 							{
-								if (Width_ground > Height_ground)
+								free(Blocks_double[i]);
+							}
+							free(Blocks_double);
+
+							Block_Rect = (SDL_Rect**)malloc(sizeof(SDL_Rect*) * Width_ground);
+							int Size_Block = (Play_Rect.y + Play_Rect.h - Title_Rect_Board.y - Title_Rect_Board.h + 1 - Height_ground - 3) / (Height_ground + 2);
+							if (Size_Block > (Parameters_Rect_Board.x - Play_Rect.x + 1 - Width_ground - 3) / (Width_ground + 2)) { Size_Block = (Parameters_Rect_Board.x - Play_Rect.x + 1 - Width_ground - 3) / (Width_ground + 2); }
+							for (int i = 0; i < Width_ground; i++)
+							{
+								Block_Rect[i] = (SDL_Rect*)malloc(sizeof(SDL_Rect) * Height_ground);
+								for (int j = 0; j < Height_ground; j++)
 								{
-									Block_Rect[i][j] = { 1 + Play_Rect.x + int((Parameters_Rect_Board.x - Play_Rect.x + 1 - Width_ground - 3 - Size_Block * Width_ground) * double(1.0 / 2)) + i + i * Size_Block, 1 + Title_Rect_Board.y + Title_Rect_Board.h + int((Play_Rect.y + Play_Rect.h - Title_Rect_Board.y - Title_Rect_Board.h + 1 - Height_ground - 3 - Size_Block * Height_ground) * double(1.0 / 2)) + j + j * Size_Block, Size_Block,Size_Block };
-								}
-								else
-								{
-									Block_Rect[i][j] = { 1 + Play_Rect.x + int((Parameters_Rect_Board.x - Play_Rect.x + 1 - Width_ground - 3 - Size_Block * Width_ground) * double(1.0 / 2)) + i + i * Size_Block, 1 + Title_Rect_Board.y + Title_Rect_Board.h + int((Play_Rect.y + Play_Rect.h - Title_Rect_Board.y - Title_Rect_Board.h + 1 - Height_ground - 3 - Size_Block * Height_ground) * double(1.0 / 2)) + j + j * Size_Block, Size_Block,Size_Block };
+									if (Width_ground > Height_ground)
+									{
+										Block_Rect[i][j] = { 1 + Play_Rect.x + int((Parameters_Rect_Board.x - Play_Rect.x + 1 - Width_ground - 3 - Size_Block * Width_ground) * double(1.0 / 2)) + i + i * Size_Block, 1 + Title_Rect_Board.y + Title_Rect_Board.h + int((Play_Rect.y + Play_Rect.h - Title_Rect_Board.y - Title_Rect_Board.h + 1 - Height_ground - 3 - Size_Block * Height_ground) * double(1.0 / 2)) + j + j * Size_Block, Size_Block,Size_Block };
+									}
+									else
+									{
+										Block_Rect[i][j] = { 1 + Play_Rect.x + int((Parameters_Rect_Board.x - Play_Rect.x + 1 - Width_ground - 3 - Size_Block * Width_ground) * double(1.0 / 2)) + i + i * Size_Block, 1 + Title_Rect_Board.y + Title_Rect_Board.h + int((Play_Rect.y + Play_Rect.h - Title_Rect_Board.y - Title_Rect_Board.h + 1 - Height_ground - 3 - Size_Block * Height_ground) * double(1.0 / 2)) + j + j * Size_Block, Size_Block,Size_Block };
+									}
 								}
 							}
-						}
 
-						Earth_Rect_Board = { Block_Rect[0][0].x - 14, Block_Rect[0][0].y - 14, Block_Rect[Width_ground - 1][Height_ground - 1].x + Block_Rect[Width_ground - 1][Height_ground - 1].w - Block_Rect[0][0].x + 28, Block_Rect[Width_ground - 1][Height_ground - 1].y + Block_Rect[Width_ground - 1][Height_ground - 1].h - Block_Rect[0][0].y + 28 };
-						Earth_Rect_Shadow_1 = { Earth_Rect_Board.x + 2, Earth_Rect_Board.y + 2, Earth_Rect_Board.w - 4,  Earth_Rect_Board.h - 4 };
-						Earth_Rect_Glare = { Earth_Rect_Shadow_1.x + 4, Earth_Rect_Shadow_1.y + 4, Earth_Rect_Shadow_1.w - 8,  Earth_Rect_Shadow_1.h - 8 };
-						Earth_Rect_Shadow_2 = { Earth_Rect_Glare.x + 4, Earth_Rect_Glare.y + 4, Earth_Rect_Glare.w - 8,  Earth_Rect_Glare.h - 8 };
-						Earth_Rect = { Earth_Rect_Shadow_2.x + 4, Earth_Rect_Shadow_2.y + 4,Earth_Rect_Shadow_2.w - 8, Earth_Rect_Shadow_2.h - 8 };
+							Earth_Rect_Board = { Block_Rect[0][0].x - 14, Block_Rect[0][0].y - 14, Block_Rect[Width_ground - 1][Height_ground - 1].x + Block_Rect[Width_ground - 1][Height_ground - 1].w - Block_Rect[0][0].x + 28, Block_Rect[Width_ground - 1][Height_ground - 1].y + Block_Rect[Width_ground - 1][Height_ground - 1].h - Block_Rect[0][0].y + 28 };
+							Earth_Rect_Shadow_1 = { Earth_Rect_Board.x + 2, Earth_Rect_Board.y + 2, Earth_Rect_Board.w - 4,  Earth_Rect_Board.h - 4 };
+							Earth_Rect_Glare = { Earth_Rect_Shadow_1.x + 4, Earth_Rect_Shadow_1.y + 4, Earth_Rect_Shadow_1.w - 8,  Earth_Rect_Shadow_1.h - 8 };
+							Earth_Rect_Shadow_2 = { Earth_Rect_Glare.x + 4, Earth_Rect_Glare.y + 4, Earth_Rect_Glare.w - 8,  Earth_Rect_Glare.h - 8 };
+							Earth_Rect = { Earth_Rect_Shadow_2.x + 4, Earth_Rect_Shadow_2.y + 4,Earth_Rect_Shadow_2.w - 8, Earth_Rect_Shadow_2.h - 8 };
+						}
+					}
+					else
+					{
+						Height_ground = Height_ground_double;
 					}
 
+				}
+				if (((event.button.x <= Width_Rect_Board.x + Width_Rect_Board.w) and (event.button.x >= Width_Rect_Board.x)) and ((event.button.y <= Width_Rect_Board.y + Width_Rect_Board.h) and (event.button.y >= Width_Rect_Board.y)) and (Generate_Ground == 0))
+				{
+					if (Sound_Enable == 1)
+					{
+						sound(name, volume_sound);
+					}
+
+					int Width_ground_double = Width_ground, Height_ground_double = Height_ground;
+					if (Width_ground != 90)
+					{
+						Generate_count = 0;
+						End_Game = 0;
+						SDL_DestroyTexture(Generation_Count_Texture);
+						_itoa_s(Generate_count, Generate_count_char, 10);
+						Generation_Count_Texture = get_text_texture(renderer, Generate_count_char, my_font, red_text_Generation);
+
+						Width_ground = 90;
+						SDL_DestroyTexture(Width_Input_Texture);
+						_itoa_s(Width_ground, Width_Input, 10);
+						Width_Input_Texture = get_text_texture(renderer, Width_Input, my_font, red_text_Width_Input);
+
+						if ((Width_ground_double != Width_ground) or (Height_ground_double != Height_ground))
+						{
+							int** Blocks_double = (int**)malloc(sizeof(int*) * Width_ground_double);
+							for (int i = 0; i < Width_ground_double; i++)
+							{
+								Blocks_double[i] = (int*)malloc(sizeof(int) * Height_ground_double);
+								for (int j = 0; j < Height_ground_double; j++)
+								{
+									Blocks_double[i][j] = Blocks[i][j];
+								}
+							}
+
+							for (int i = 0; i < Width_ground_double; i++)
+							{
+								free(Blocks[i]);
+							}
+							free(Blocks);
+
+							for (int i = 0; i < Width_ground_double; i++)
+							{
+								free(Block_Rect[i]);
+							}
+							free(Block_Rect);
+
+							for (int i = 0; i < Width_ground_double; i++)
+							{
+								free(Blocks_Res_1[i]);
+							}
+							free(Blocks_Res_1);
+
+							for (int i = 0; i < Width_ground_double; i++)
+							{
+								free(Blocks_Res_2[i]);
+							}
+							free(Blocks_Res_2);
+
+							for (int i = 0; i < Width_ground_double; i++)
+							{
+								free(Blocks_Res_3[i]);
+							}
+							free(Blocks_Res_3);
+
+							for (int i = 0; i < Width_ground_double; i++)
+							{
+								free(Blocks_Res_4[i]);
+							}
+							free(Blocks_Res_4);
+
+							for (int i = 0; i < Width_ground_double; i++)
+							{
+								free(Blocks_Res_5[i]);
+							}
+							free(Blocks_Res_5);
+
+							for (int i = 0; i < Width_ground_double; i++)
+							{
+								free(Blocks_Res_6[i]);
+							}
+							free(Blocks_Res_6);
+
+							for (int i = 0; i < Width_ground_double; i++)
+							{
+								free(Blocks_Res_7[i]);
+							}
+							free(Blocks_Res_7);
+
+							Blocks_Res_1 = (int**)malloc(sizeof(int*) * Width_ground);
+							for (int i = 0; i < Width_ground; i++)
+							{
+								Blocks_Res_1[i] = (int*)malloc(sizeof(int) * Height_ground);
+								for (int j = 0; j < Height_ground; j++)
+								{
+									Blocks_Res_1[i][j] = -1;
+								}
+							}
+
+							Blocks_Res_2 = (int**)malloc(sizeof(int*) * Width_ground);
+							for (int i = 0; i < Width_ground; i++)
+							{
+								Blocks_Res_2[i] = (int*)malloc(sizeof(int) * Height_ground);
+								for (int j = 0; j < Height_ground; j++)
+								{
+									Blocks_Res_2[i][j] = -1;
+								}
+							}
+
+							Blocks_Res_3 = (int**)malloc(sizeof(int*) * Width_ground);
+							for (int i = 0; i < Width_ground; i++)
+							{
+								Blocks_Res_3[i] = (int*)malloc(sizeof(int) * Height_ground);
+								for (int j = 0; j < Height_ground; j++)
+								{
+									Blocks_Res_3[i][j] = -1;
+								}
+							}
+
+							Blocks_Res_4 = (int**)malloc(sizeof(int*) * Width_ground);
+							for (int i = 0; i < Width_ground; i++)
+							{
+								Blocks_Res_4[i] = (int*)malloc(sizeof(int) * Height_ground);
+								for (int j = 0; j < Height_ground; j++)
+								{
+									Blocks_Res_4[i][j] = -1;
+								}
+							}
+
+							Blocks_Res_5 = (int**)malloc(sizeof(int*) * Width_ground);
+							for (int i = 0; i < Width_ground; i++)
+							{
+								Blocks_Res_5[i] = (int*)malloc(sizeof(int) * Height_ground);
+								for (int j = 0; j < Height_ground; j++)
+								{
+									Blocks_Res_5[i][j] = -1;
+								}
+							}
+
+							Blocks_Res_6 = (int**)malloc(sizeof(int*) * Width_ground);
+							for (int i = 0; i < Width_ground; i++)
+							{
+								Blocks_Res_6[i] = (int*)malloc(sizeof(int) * Height_ground);
+								for (int j = 0; j < Height_ground; j++)
+								{
+									Blocks_Res_6[i][j] = -1;
+								}
+							}
+
+							Blocks_Res_7 = (int**)malloc(sizeof(int*) * Width_ground);
+							for (int i = 0; i < Width_ground; i++)
+							{
+								Blocks_Res_7[i] = (int*)malloc(sizeof(int) * Height_ground);
+								for (int j = 0; j < Height_ground; j++)
+								{
+									Blocks_Res_7[i][j] = -1;
+								}
+							}
+
+
+							int w = Width_ground - Width_ground_double, h = Height_ground - Height_ground_double;
+							int t = -1, k = -1, nt = -w / 2, nk = -h / 2;
+
+							Blocks = (int**)malloc(sizeof(int*) * Width_ground);
+							for (int i = 0; i < Width_ground; i++)
+							{
+								if (t != -1) t++;
+								k = -1;
+								Blocks[i] = (int*)malloc(sizeof(int) * Height_ground);
+								for (int j = 0; j < Height_ground; j++)
+								{
+									if (k != -1) k++;
+									if ((w > 0) and (h > 0))
+									{
+										if ((i >= w / 2) and (j >= h / 2) and (t < Width_ground_double) and (k < Height_ground_double))
+										{
+											if (k == -1) { k++; }
+											if (t == -1) { t++; }
+											Blocks[i][j] = Blocks_double[t][k];
+										}
+										else
+										{
+											if ((Blocks[i][j] != 0) and (Blocks[i][j] != 1))
+											{
+												Blocks[i][j] = 0;
+											}
+										}
+									}
+									else
+									{
+										if ((w > 0) and (h < 0))
+										{
+											if ((i >= w / 2) and (j + nk >= 0) and (t < Width_ground_double))
+											{
+												if (t == -1) { t++; }
+												Blocks[i][j] = Blocks_double[t][j + nk];
+											}
+											else
+											{
+												if ((Blocks[i][j] != 0) and (Blocks[i][j] != 1))
+												{
+													Blocks[i][j] = 0;
+												}
+											}
+										}
+										else
+										{
+											if ((w < 0) and (h > 0))
+											{
+												if ((i + nt >= 0) and (j >= h / 2) and (k < Height_ground_double))
+												{
+													if (k == -1) { k++; }
+													Blocks[i][j] = Blocks_double[i + nt][k];
+												}
+												else
+												{
+													if ((Blocks[i][j] != 0) and (Blocks[i][j] != 1))
+													{
+														Blocks[i][j] = 0;
+													}
+												}
+											}
+											else
+											{
+												if ((w < 0) and (h < 0))
+												{
+													if ((i + nt >= 0) and (j + nk >= 0))
+													{
+														Blocks[i][j] = Blocks_double[nt][nk];
+													}
+												}
+												else
+												{
+													if ((w == 0) and (h > 0))
+													{
+														if ((j >= h / 2) and (k < Height_ground_double))
+														{
+															if (k == -1) { k++; }
+															Blocks[i][j] = Blocks_double[i][k];
+														}
+														else
+														{
+															if ((Blocks[i][j] != 0) and (Blocks[i][j] != 1))
+															{
+																Blocks[i][j] = 0;
+															}
+														}
+													}
+													else
+													{
+														if ((w > 0) and (h == 0))
+														{
+															if ((i >= w / 2) and (t < Width_ground_double))
+															{
+
+																if (t == -1) { t++; }
+																Blocks[i][j] = Blocks_double[t][j];
+															}
+															else
+															{
+																if ((Blocks[i][j] != 0) and (Blocks[i][j] != 1))
+																{
+																	Blocks[i][j] = 0;
+																}
+															}
+														}
+														else
+														{
+															if ((w == 0) and (h < 0))
+															{
+																if (j + nk >= 0)
+																{
+																	Blocks[i][j] = Blocks_double[i][j + nk];
+																}
+															}
+															else
+															{
+																if ((w < 0) and (h == 0))
+																{
+																	if (i + nt >= 0)
+																	{
+																		Blocks[i][j] = Blocks_double[i + nt][j];
+																	}
+																}
+															}
+														}
+													}
+												}
+											}
+										}
+									}
+								}
+							}
+
+							//for (int i = 0; i < Width_ground; i++)
+							//{
+							//	Blocks[i] = (int*)malloc(sizeof(int) * Height_ground);
+							//	for (int j = 0; j < Height_ground; j++)
+							//	{
+							//		Blocks[i][j] = 0;
+							//	}
+							//}
+
+							for (int i = 0; i < Width_ground_double; i++)
+							{
+								free(Blocks_double[i]);
+							}
+							free(Blocks_double);
+
+							Block_Rect = (SDL_Rect**)malloc(sizeof(SDL_Rect*) * Width_ground);
+							int Size_Block = (Play_Rect.y + Play_Rect.h - Title_Rect_Board.y - Title_Rect_Board.h + 1 - Height_ground - 3) / (Height_ground + 2);
+							if (Size_Block > (Parameters_Rect_Board.x - Play_Rect.x + 1 - Width_ground - 3) / (Width_ground + 2)) { Size_Block = (Parameters_Rect_Board.x - Play_Rect.x + 1 - Width_ground - 3) / (Width_ground + 2); }
+							for (int i = 0; i < Width_ground; i++)
+							{
+								Block_Rect[i] = (SDL_Rect*)malloc(sizeof(SDL_Rect) * Height_ground);
+								for (int j = 0; j < Height_ground; j++)
+								{
+									if (Width_ground > Height_ground)
+									{
+										Block_Rect[i][j] = { 1 + Play_Rect.x + int((Parameters_Rect_Board.x - Play_Rect.x + 1 - Width_ground - 3 - Size_Block * Width_ground) * double(1.0 / 2)) + i + i * Size_Block, 1 + Title_Rect_Board.y + Title_Rect_Board.h + int((Play_Rect.y + Play_Rect.h - Title_Rect_Board.y - Title_Rect_Board.h + 1 - Height_ground - 3 - Size_Block * Height_ground) * double(1.0 / 2)) + j + j * Size_Block, Size_Block,Size_Block };
+									}
+									else
+									{
+										Block_Rect[i][j] = { 1 + Play_Rect.x + int((Parameters_Rect_Board.x - Play_Rect.x + 1 - Width_ground - 3 - Size_Block * Width_ground) * double(1.0 / 2)) + i + i * Size_Block, 1 + Title_Rect_Board.y + Title_Rect_Board.h + int((Play_Rect.y + Play_Rect.h - Title_Rect_Board.y - Title_Rect_Board.h + 1 - Height_ground - 3 - Size_Block * Height_ground) * double(1.0 / 2)) + j + j * Size_Block, Size_Block,Size_Block };
+									}
+								}
+							}
+
+							Earth_Rect_Board = { Block_Rect[0][0].x - 14, Block_Rect[0][0].y - 14, Block_Rect[Width_ground - 1][Height_ground - 1].x + Block_Rect[Width_ground - 1][Height_ground - 1].w - Block_Rect[0][0].x + 28, Block_Rect[Width_ground - 1][Height_ground - 1].y + Block_Rect[Width_ground - 1][Height_ground - 1].h - Block_Rect[0][0].y + 28 };
+							Earth_Rect_Shadow_1 = { Earth_Rect_Board.x + 2, Earth_Rect_Board.y + 2, Earth_Rect_Board.w - 4,  Earth_Rect_Board.h - 4 };
+							Earth_Rect_Glare = { Earth_Rect_Shadow_1.x + 4, Earth_Rect_Shadow_1.y + 4, Earth_Rect_Shadow_1.w - 8,  Earth_Rect_Shadow_1.h - 8 };
+							Earth_Rect_Shadow_2 = { Earth_Rect_Glare.x + 4, Earth_Rect_Glare.y + 4, Earth_Rect_Glare.w - 8,  Earth_Rect_Glare.h - 8 };
+							Earth_Rect = { Earth_Rect_Shadow_2.x + 4, Earth_Rect_Shadow_2.y + 4,Earth_Rect_Shadow_2.w - 8, Earth_Rect_Shadow_2.h - 8 };
+						}
+					}
+				}
+				if (((event.button.x <= Height_Rect_Board.x + Height_Rect_Board.w) and (event.button.x >= Height_Rect_Board.x)) and ((event.button.y <= Height_Rect_Board.y + Height_Rect_Board.h) and (event.button.y >= Height_Rect_Board.y)) and (Generate_Ground == 0))
+				{
+					if (Sound_Enable == 1)
+					{
+						sound(name, volume_sound);
+					}
+
+					int Width_ground_double = Width_ground, Height_ground_double = Height_ground;
+					if (Height_ground != 60)
+					{
+						Generate_count = 0;
+						End_Game = 0;
+						SDL_DestroyTexture(Generation_Count_Texture);
+						_itoa_s(Generate_count, Generate_count_char, 10);
+						Generation_Count_Texture = get_text_texture(renderer, Generate_count_char, my_font, red_text_Generation);
+
+						Height_ground = 60;
+						SDL_DestroyTexture(Height_Input_Texture);
+						_itoa_s(Height_ground, Height_Input, 10);
+						Height_Input_Texture = get_text_texture(renderer, Height_Input, my_font, red_text_Height_Input);
+
+						if ((Width_ground_double != Width_ground) or (Height_ground_double != Height_ground))
+						{
+							int** Blocks_double = (int**)malloc(sizeof(int*) * Width_ground_double);
+							for (int i = 0; i < Width_ground_double; i++)
+							{
+								Blocks_double[i] = (int*)malloc(sizeof(int) * Height_ground_double);
+								for (int j = 0; j < Height_ground_double; j++)
+								{
+									Blocks_double[i][j] = Blocks[i][j];
+								}
+							}
+
+							for (int i = 0; i < Width_ground_double; i++)
+							{
+								free(Blocks[i]);
+							}
+							free(Blocks);
+
+							for (int i = 0; i < Width_ground_double; i++)
+							{
+								free(Block_Rect[i]);
+							}
+							free(Block_Rect);
+
+							for (int i = 0; i < Width_ground_double; i++)
+							{
+								free(Blocks_Res_1[i]);
+							}
+							free(Blocks_Res_1);
+
+							for (int i = 0; i < Width_ground_double; i++)
+							{
+								free(Blocks_Res_2[i]);
+							}
+							free(Blocks_Res_2);
+
+							for (int i = 0; i < Width_ground_double; i++)
+							{
+								free(Blocks_Res_3[i]);
+							}
+							free(Blocks_Res_3);
+
+							for (int i = 0; i < Width_ground_double; i++)
+							{
+								free(Blocks_Res_4[i]);
+							}
+							free(Blocks_Res_4);
+
+							for (int i = 0; i < Width_ground_double; i++)
+							{
+								free(Blocks_Res_5[i]);
+							}
+							free(Blocks_Res_5);
+
+							for (int i = 0; i < Width_ground_double; i++)
+							{
+								free(Blocks_Res_6[i]);
+							}
+							free(Blocks_Res_6);
+
+							for (int i = 0; i < Width_ground_double; i++)
+							{
+								free(Blocks_Res_7[i]);
+							}
+							free(Blocks_Res_7);
+
+							Blocks_Res_1 = (int**)malloc(sizeof(int*) * Width_ground);
+							for (int i = 0; i < Width_ground; i++)
+							{
+								Blocks_Res_1[i] = (int*)malloc(sizeof(int) * Height_ground);
+								for (int j = 0; j < Height_ground; j++)
+								{
+									Blocks_Res_1[i][j] = -1;
+								}
+							}
+
+							Blocks_Res_2 = (int**)malloc(sizeof(int*) * Width_ground);
+							for (int i = 0; i < Width_ground; i++)
+							{
+								Blocks_Res_2[i] = (int*)malloc(sizeof(int) * Height_ground);
+								for (int j = 0; j < Height_ground; j++)
+								{
+									Blocks_Res_2[i][j] = -1;
+								}
+							}
+
+							Blocks_Res_3 = (int**)malloc(sizeof(int*) * Width_ground);
+							for (int i = 0; i < Width_ground; i++)
+							{
+								Blocks_Res_3[i] = (int*)malloc(sizeof(int) * Height_ground);
+								for (int j = 0; j < Height_ground; j++)
+								{
+									Blocks_Res_3[i][j] = -1;
+								}
+							}
+
+							Blocks_Res_4 = (int**)malloc(sizeof(int*) * Width_ground);
+							for (int i = 0; i < Width_ground; i++)
+							{
+								Blocks_Res_4[i] = (int*)malloc(sizeof(int) * Height_ground);
+								for (int j = 0; j < Height_ground; j++)
+								{
+									Blocks_Res_4[i][j] = -1;
+								}
+							}
+
+							Blocks_Res_5 = (int**)malloc(sizeof(int*) * Width_ground);
+							for (int i = 0; i < Width_ground; i++)
+							{
+								Blocks_Res_5[i] = (int*)malloc(sizeof(int) * Height_ground);
+								for (int j = 0; j < Height_ground; j++)
+								{
+									Blocks_Res_5[i][j] = -1;
+								}
+							}
+
+							Blocks_Res_6 = (int**)malloc(sizeof(int*) * Width_ground);
+							for (int i = 0; i < Width_ground; i++)
+							{
+								Blocks_Res_6[i] = (int*)malloc(sizeof(int) * Height_ground);
+								for (int j = 0; j < Height_ground; j++)
+								{
+									Blocks_Res_6[i][j] = -1;
+								}
+							}
+
+							Blocks_Res_7 = (int**)malloc(sizeof(int*) * Width_ground);
+							for (int i = 0; i < Width_ground; i++)
+							{
+								Blocks_Res_7[i] = (int*)malloc(sizeof(int) * Height_ground);
+								for (int j = 0; j < Height_ground; j++)
+								{
+									Blocks_Res_7[i][j] = -1;
+								}
+							}
+
+
+							int w = Width_ground - Width_ground_double, h = Height_ground - Height_ground_double;
+							int t = -1, k = -1, nt = -w / 2, nk = -h / 2;
+
+							Blocks = (int**)malloc(sizeof(int*) * Width_ground);
+							for (int i = 0; i < Width_ground; i++)
+							{
+								if (t != -1) t++;
+								k = -1;
+								Blocks[i] = (int*)malloc(sizeof(int) * Height_ground);
+								for (int j = 0; j < Height_ground; j++)
+								{
+									if (k != -1) k++;
+									if ((w > 0) and (h > 0))
+									{
+										if ((i >= w / 2) and (j >= h / 2) and (t < Width_ground_double) and (k < Height_ground_double))
+										{
+											if (k == -1) { k++; }
+											if (t == -1) { t++; }
+											Blocks[i][j] = Blocks_double[t][k];
+										}
+										else
+										{
+											if ((Blocks[i][j] != 0) and (Blocks[i][j] != 1))
+											{
+												Blocks[i][j] = 0;
+											}
+										}
+									}
+									else
+									{
+										if ((w > 0) and (h < 0))
+										{
+											if ((i >= w / 2) and (j + nk >= 0) and (t < Width_ground_double))
+											{
+												if (t == -1) { t++; }
+												Blocks[i][j] = Blocks_double[t][j + nk];
+											}
+											else
+											{
+												if ((Blocks[i][j] != 0) and (Blocks[i][j] != 1))
+												{
+													Blocks[i][j] = 0;
+												}
+											}
+										}
+										else
+										{
+											if ((w < 0) and (h > 0))
+											{
+												if ((i + nt >= 0) and (j >= h / 2) and (k < Height_ground_double))
+												{
+													if (k == -1) { k++; }
+													Blocks[i][j] = Blocks_double[i + nt][k];
+												}
+												else
+												{
+													if ((Blocks[i][j] != 0) and (Blocks[i][j] != 1))
+													{
+														Blocks[i][j] = 0;
+													}
+												}
+											}
+											else
+											{
+												if ((w < 0) and (h < 0))
+												{
+													if ((i + nt >= 0) and (j + nk >= 0))
+													{
+														Blocks[i][j] = Blocks_double[nt][nk];
+													}
+												}
+												else
+												{
+													if ((w == 0) and (h > 0))
+													{
+														if ((j >= h / 2) and (k < Height_ground_double))
+														{
+															if (k == -1) { k++; }
+															Blocks[i][j] = Blocks_double[i][k];
+														}
+														else
+														{
+															if ((Blocks[i][j] != 0) and (Blocks[i][j] != 1))
+															{
+																Blocks[i][j] = 0;
+															}
+														}
+													}
+													else
+													{
+														if ((w > 0) and (h == 0))
+														{
+															if ((i >= w / 2) and (t < Width_ground_double))
+															{
+
+																if (t == -1) { t++; }
+																Blocks[i][j] = Blocks_double[t][j];
+															}
+															else
+															{
+																if ((Blocks[i][j] != 0) and (Blocks[i][j] != 1))
+																{
+																	Blocks[i][j] = 0;
+																}
+															}
+														}
+														else
+														{
+															if ((w == 0) and (h < 0))
+															{
+																if (j + nk >= 0)
+																{
+																	Blocks[i][j] = Blocks_double[i][j + nk];
+																}
+															}
+															else
+															{
+																if ((w < 0) and (h == 0))
+																{
+																	if (i + nt >= 0)
+																	{
+																		Blocks[i][j] = Blocks_double[i + nt][j];
+																	}
+																}
+															}
+														}
+													}
+												}
+											}
+										}
+									}
+								}
+							}
+
+							//for (int i = 0; i < Width_ground; i++)
+							//{
+							//	Blocks[i] = (int*)malloc(sizeof(int) * Height_ground);
+							//	for (int j = 0; j < Height_ground; j++)
+							//	{
+							//		Blocks[i][j] = 0;
+							//	}
+							//}
+
+							for (int i = 0; i < Width_ground_double; i++)
+							{
+								free(Blocks_double[i]);
+							}
+							free(Blocks_double);
+
+							Block_Rect = (SDL_Rect**)malloc(sizeof(SDL_Rect*) * Width_ground);
+							int Size_Block = (Play_Rect.y + Play_Rect.h - Title_Rect_Board.y - Title_Rect_Board.h + 1 - Height_ground - 3) / (Height_ground + 2);
+							if (Size_Block > (Parameters_Rect_Board.x - Play_Rect.x + 1 - Width_ground - 3) / (Width_ground + 2)) { Size_Block = (Parameters_Rect_Board.x - Play_Rect.x + 1 - Width_ground - 3) / (Width_ground + 2); }
+							for (int i = 0; i < Width_ground; i++)
+							{
+								Block_Rect[i] = (SDL_Rect*)malloc(sizeof(SDL_Rect) * Height_ground);
+								for (int j = 0; j < Height_ground; j++)
+								{
+									if (Width_ground > Height_ground)
+									{
+										Block_Rect[i][j] = { 1 + Play_Rect.x + int((Parameters_Rect_Board.x - Play_Rect.x + 1 - Width_ground - 3 - Size_Block * Width_ground) * double(1.0 / 2)) + i + i * Size_Block, 1 + Title_Rect_Board.y + Title_Rect_Board.h + int((Play_Rect.y + Play_Rect.h - Title_Rect_Board.y - Title_Rect_Board.h + 1 - Height_ground - 3 - Size_Block * Height_ground) * double(1.0 / 2)) + j + j * Size_Block, Size_Block,Size_Block };
+									}
+									else
+									{
+										Block_Rect[i][j] = { 1 + Play_Rect.x + int((Parameters_Rect_Board.x - Play_Rect.x + 1 - Width_ground - 3 - Size_Block * Width_ground) * double(1.0 / 2)) + i + i * Size_Block, 1 + Title_Rect_Board.y + Title_Rect_Board.h + int((Play_Rect.y + Play_Rect.h - Title_Rect_Board.y - Title_Rect_Board.h + 1 - Height_ground - 3 - Size_Block * Height_ground) * double(1.0 / 2)) + j + j * Size_Block, Size_Block,Size_Block };
+									}
+								}
+							}
+
+							Earth_Rect_Board = { Block_Rect[0][0].x - 14, Block_Rect[0][0].y - 14, Block_Rect[Width_ground - 1][Height_ground - 1].x + Block_Rect[Width_ground - 1][Height_ground - 1].w - Block_Rect[0][0].x + 28, Block_Rect[Width_ground - 1][Height_ground - 1].y + Block_Rect[Width_ground - 1][Height_ground - 1].h - Block_Rect[0][0].y + 28 };
+							Earth_Rect_Shadow_1 = { Earth_Rect_Board.x + 2, Earth_Rect_Board.y + 2, Earth_Rect_Board.w - 4,  Earth_Rect_Board.h - 4 };
+							Earth_Rect_Glare = { Earth_Rect_Shadow_1.x + 4, Earth_Rect_Shadow_1.y + 4, Earth_Rect_Shadow_1.w - 8,  Earth_Rect_Shadow_1.h - 8 };
+							Earth_Rect_Shadow_2 = { Earth_Rect_Glare.x + 4, Earth_Rect_Glare.y + 4, Earth_Rect_Glare.w - 8,  Earth_Rect_Glare.h - 8 };
+							Earth_Rect = { Earth_Rect_Shadow_2.x + 4, Earth_Rect_Shadow_2.y + 4,Earth_Rect_Shadow_2.w - 8, Earth_Rect_Shadow_2.h - 8 };
+						}
+					}
 				}
 				if ((event.button.x >= Earth_Rect_Board.x) and (event.button.x <= Earth_Rect_Board.x + Earth_Rect_Board.w) and (event.button.y >= Earth_Rect_Board.y) and (event.button.y <= Earth_Rect_Board.y + Earth_Rect_Board.h) and (Generate_Ground == 0))
 				{
 					Pressed_Button_Left = 1;
-					Generate_count = 0;
 					End_Game = 0;
 					SDL_DestroyTexture(Generation_Count_Texture);
 					_itoa_s(Generate_count, Generate_count_char, 10);
 					Generation_Count_Texture = get_text_texture(renderer, Generate_count_char, my_font, red_text_Generation);
-					draw_Place(renderer, Generation_Count_Texture, Generation_Count_Text);
+					if ((Generate_count <= 10000) and (Generate_count >= 1000))
+					{
+						draw_Place(renderer, Generation_Count_Texture, Generation_Count_Text_4);
+					}
+					else
+					{
+						if ((Generate_count < 1000) and (Generate_count >= 100))
+						{
+							draw_Place(renderer, Generation_Count_Texture, Generation_Count_Text_3);
+						}
+						else
+						{
+							if ((Generate_count < 100) and (Generate_count >= 10))
+							{
+								draw_Place(renderer, Generation_Count_Texture, Generation_Count_Text_2);
+							}
+
+							else
+							{
+								draw_Place(renderer, Generation_Count_Texture, Generation_Count_Text_1);
+							}
+						}
+					}
 				}
 			}
 			if (event.type == SDL_MOUSEBUTTONDOWN && event.button.button == SDL_BUTTON_RIGHT)
@@ -3747,11 +4708,32 @@ void Playground(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int& volume
 				if ((event.button.x >= Earth_Rect_Board.x) and (event.button.x <= Earth_Rect_Board.x + Earth_Rect_Board.w) and (event.button.y >= Earth_Rect_Board.y) and (event.button.y <= Earth_Rect_Board.y + Earth_Rect_Board.h) and (Generate_Ground == 0))
 				{
 					Pressed_Button_Right = 1;
-					Generate_count = 0;
 					SDL_DestroyTexture(Generation_Count_Texture);
 					_itoa_s(Generate_count, Generate_count_char, 10);
 					Generation_Count_Texture = get_text_texture(renderer, Generate_count_char, my_font, red_text_Generation);
-					draw_Place(renderer, Generation_Count_Texture, Generation_Count_Text);
+					if ((Generate_count <= 10000) and (Generate_count >= 1000))
+					{
+						draw_Place(renderer, Generation_Count_Texture, Generation_Count_Text_4);
+					}
+					else
+					{
+						if ((Generate_count < 1000) and (Generate_count >= 100))
+						{
+							draw_Place(renderer, Generation_Count_Texture, Generation_Count_Text_3);
+						}
+						else
+						{
+							if ((Generate_count < 100) and (Generate_count >= 10))
+							{
+								draw_Place(renderer, Generation_Count_Texture, Generation_Count_Text_2);
+							}
+
+							else
+							{
+								draw_Place(renderer, Generation_Count_Texture, Generation_Count_Text_1);
+							}
+						}
+					}
 				}
 			}
 			if ((event.type == SDL_MOUSEBUTTONUP && event.button.button == SDL_BUTTON_RIGHT) and (Pressed_Button_Right == 1))
@@ -3770,7 +4752,14 @@ void Playground(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int& volume
 					{
 						if (((event.button.x <= Block_Rect[i][j].x + Block_Rect[i][j].w) and (event.button.x >= Block_Rect[i][j].x)) and ((event.button.y <= Block_Rect[i][j].y + Block_Rect[i][j].h) and (event.button.y >= Block_Rect[i][j].y)))
 						{
-							Blocks[i][j] = 1;
+							if (Blocks[i][j] != 1)
+							{
+								Blocks[i][j] = 1;
+								Generate_count = 0;
+								SDL_DestroyTexture(Generation_Count_Texture);
+								_itoa_s(Generate_count, Generate_count_char, 10);
+								Generation_Count_Texture = get_text_texture(renderer, Generate_count_char, my_font, red_text_Generation);
+							}
 						}
 					}
 				}
@@ -3783,7 +4772,14 @@ void Playground(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int& volume
 					{
 						if (((event.button.x <= Block_Rect[i][j].x + Block_Rect[i][j].w) and (event.button.x >= Block_Rect[i][j].x)) and ((event.button.y <= Block_Rect[i][j].y + Block_Rect[i][j].h) and (event.button.y >= Block_Rect[i][j].y)))
 						{
-							Blocks[i][j] = 0;
+							if (Blocks[i][j] != 0)
+							{
+								Blocks[i][j] = 0;
+								Generate_count = 0;
+								SDL_DestroyTexture(Generation_Count_Texture);
+								_itoa_s(Generate_count, Generate_count_char, 10);
+								Generation_Count_Texture = get_text_texture(renderer, Generate_count_char, my_font, red_text_Generation);
+							}
 						}
 					}
 				}
@@ -3794,6 +4790,7 @@ void Playground(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int& volume
 
 		if ((Generate_Ground == 1) and (End_Game == 0))
 		{
+			SDL_Delay(15);
 			int Life = 0;
 			int** Blocks_double = (int**)malloc(sizeof(int*) * Width_ground);
 			for (int i = 0; i < Width_ground; i++)
@@ -3936,7 +4933,7 @@ void Playground(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int& volume
 
 			if (Fl_End == 1)
 			{
-				int End_1 = 0, End_2 = 0, End_3 = 0, End_4 = 0, End_5 = 0;
+				int End_1 = 0, End_2 = 0, End_3 = 0, End_4 = 0, End_5 = 0, End_6 = 0, End_7 = 0;
 				for (int i = 0; i < Width_ground; i++)
 				{
 					for (int j = 0; j < Height_ground; j++)
@@ -3946,11 +4943,14 @@ void Playground(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int& volume
 						if (Blocks[i][j] == Blocks_Res_3[i][j]) { End_3++; }
 						if (Blocks[i][j] == Blocks_Res_4[i][j]) { End_4++; }
 						if (Blocks[i][j] == Blocks_Res_5[i][j]) { End_5++; }
+						if (Blocks[i][j] == Blocks_Res_6[i][j]) { End_6++; }
+						if (Blocks[i][j] == Blocks_Res_7[i][j]) { End_7++; }
 					}
 				}
-				if ((End_1 == Width_ground * Height_ground) or (End_2 == Width_ground * Height_ground) or (End_3 == Width_ground * Height_ground) or (End_4 == Width_ground * Height_ground) or (End_5 == Width_ground * Height_ground))
+				if ((End_1 == Width_ground * Height_ground) or (End_2 == Width_ground * Height_ground) or (End_3 == Width_ground * Height_ground) or (End_4 == Width_ground * Height_ground) or (End_5 == Width_ground * Height_ground) or (End_6 == Width_ground * Height_ground) or (End_7 == Width_ground * Height_ground))
 				{
 					End_Game = 1;
+					Generate_Ground = 0;
 				}
 				else
 				{
@@ -4013,15 +5013,50 @@ void Playground(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int& volume
 								Blocks_Res_1[i][j] = Blocks[i][j];
 							}
 						}
+						count++;
 						break;
 					}
-					count++;
+					case 4:
+					{
+						for (int i = 0; i < Width_ground; i++)
+						{
+							for (int j = 0; j < Height_ground; j++)
+							{
+								Blocks_Res_5[i][j] = Blocks_Res_4[i][j];
+								Blocks_Res_4[i][j] = Blocks_Res_3[i][j];
+								Blocks_Res_3[i][j] = Blocks_Res_2[i][j];
+								Blocks_Res_2[i][j] = Blocks_Res_1[i][j];
+								Blocks_Res_1[i][j] = Blocks[i][j];
+							}
+						}
+						count++;
+						break;
+					}
+					case 5:
+					{
+						for (int i = 0; i < Width_ground; i++)
+						{
+							for (int j = 0; j < Height_ground; j++)
+							{
+								Blocks_Res_6[i][j] = Blocks_Res_5[i][j];
+								Blocks_Res_5[i][j] = Blocks_Res_4[i][j];
+								Blocks_Res_4[i][j] = Blocks_Res_3[i][j];
+								Blocks_Res_3[i][j] = Blocks_Res_2[i][j];
+								Blocks_Res_2[i][j] = Blocks_Res_1[i][j];
+								Blocks_Res_1[i][j] = Blocks[i][j];
+							}
+						}
+						count++;
+						break;
+					}
 					default:
 					{
 						for (int i = 0; i < Width_ground; i++)
 						{
 							for (int j = 0; j < Height_ground; j++)
 							{
+								Blocks_Res_7[i][j] = Blocks_Res_6[i][j];
+								Blocks_Res_6[i][j] = Blocks_Res_5[i][j];
 								Blocks_Res_5[i][j] = Blocks_Res_4[i][j];
 								Blocks_Res_4[i][j] = Blocks_Res_3[i][j];
 								Blocks_Res_3[i][j] = Blocks_Res_2[i][j];
@@ -4038,23 +5073,31 @@ void Playground(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int& volume
 			else
 			{
 				End_Game = 1;
+				Generate_Ground = 0;
 			}
 		}
 
-		if (Generate_count == 10000)
+		if (Generate_count == 5000)
 		{
 			victory = 1;
 			End_Game = 1;
+			Generate_Ground = 0;
+		}
+
+		if (End_Game == 1) 
+		{ 
+			Stop_number = 2; 
+			Generate_Ground = 0;
+		}
+		else 
+		{ 
+			Stop_number = -1; 
 		}
 
 		SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
 		SDL_RenderClear(renderer);
 
-		char BackgroudFile[] = "Background.bmp";
-		SDL_Texture* TextureBackground = TakeTextureBackground(renderer, BackgroudFile);
-		SDL_Rect Background = { 0,0, SCREEN_WIDTH, SCREEN_HEIGHT };
 		SDL_RenderCopy(renderer, TextureBackground, NULL, &Background);
-		SDL_DestroyTexture(TextureBackground);
 
 		SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
 		SDL_RenderFillRect(renderer, &Play_Rect_Board);
@@ -4082,7 +5125,7 @@ void Playground(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int& volume
 		SDL_SetRenderDrawColor(renderer, red_board_rule, 0, 0, 0);
 		SDL_SetRenderDrawColor(renderer, 64, 64, 64, 0);
 		SDL_RenderFillRect(renderer, &Button_Menu_Rect_Shadow);
-		SDL_SetRenderDrawColor(renderer, 140, 140, 140, 0);
+		SDL_SetRenderDrawColor(renderer, 120, 120, 120, 0);
 		SDL_RenderFillRect(renderer, &Button_Menu_Rect);
 		if (color_Menu == 0)
 		{
@@ -4098,7 +5141,7 @@ void Playground(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int& volume
 		SDL_SetRenderDrawColor(renderer, red_board_rule, 0, 0, 0);
 		SDL_SetRenderDrawColor(renderer, 64, 64, 64, 0);
 		SDL_RenderFillRect(renderer, &Button_Rand_Rect_Shadow);
-		SDL_SetRenderDrawColor(renderer, 140, 140, 140, 0);
+		SDL_SetRenderDrawColor(renderer, 120, 120, 120, 0);
 		SDL_RenderFillRect(renderer, &Button_Rand_Rect);
 		if (color_Rand == 0)
 		{
@@ -4108,40 +5151,25 @@ void Playground(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int& volume
 		{
 			draw_Place(renderer, Button_Rand_Texture_Pressed, Button_Rand_Text);
 		}
+
 		if (End_Game == 1)
 		{
 			Generate_Ground = 0;
 
-			SDL_SetRenderDrawColor(renderer, red_board_Start, 0, 0, 0);
-			SDL_RenderFillRect(renderer, &Button_Start_Rect_Board);
+			SDL_SetRenderDrawColor(renderer, 0, green_board_End, 0, 0);
+			SDL_RenderFillRect(renderer, &Button_End_Rect_Board);
 			SDL_SetRenderDrawColor(renderer, red_board_rule, 0, 0, 0);
 			SDL_SetRenderDrawColor(renderer, 64, 64, 64, 0);
-			SDL_RenderFillRect(renderer, &Button_Start_Rect_Shadow);
-			SDL_SetRenderDrawColor(renderer, 140, 140, 140, 0);
-			SDL_RenderFillRect(renderer, &Button_Start_Rect);
-			if (color_Start == 0)
+			SDL_RenderFillRect(renderer, &Button_End_Rect_Shadow);
+			SDL_SetRenderDrawColor(renderer, 120, 120, 120, 0);
+			SDL_RenderFillRect(renderer, &Button_End_Rect);
+			if (color_End == 0)
 			{
-				draw_Place(renderer, Button_Start_Texture_End_Game, Button_Start_Text);
+				draw_Place(renderer, Button_End_Texture, Button_End_Text);
 			}
 			else
 			{
-				draw_Place(renderer, Button_Start_Texture_Pressed_End_Game, Button_Start_Text);
-			}
-
-			SDL_SetRenderDrawColor(renderer, red_board_Stop, 0, 0, 0);
-			SDL_RenderFillRect(renderer, &Button_Stop_Rect_Board);
-			SDL_SetRenderDrawColor(renderer, red_board_rule, 0, 0, 0);
-			SDL_SetRenderDrawColor(renderer, 64, 64, 64, 0);
-			SDL_RenderFillRect(renderer, &Button_Stop_Rect_Shadow);
-			SDL_SetRenderDrawColor(renderer, 140, 140, 140, 0);
-			SDL_RenderFillRect(renderer, &Button_Stop_Rect);
-			if (color_Stop == 0)
-			{
-				draw_Place(renderer, Button_Stop_Texture_End_Game, Button_Stop_Text);
-			}
-			else
-			{
-				draw_Place(renderer, Button_Stop_Texture_Pressed_End_Game, Button_Stop_Text);
+				draw_Place(renderer, Button_End_Texture_Pressed, Button_End_Text);
 			}
 		}
 		else
@@ -4151,7 +5179,7 @@ void Playground(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int& volume
 			SDL_SetRenderDrawColor(renderer, red_board_rule, 0, 0, 0);
 			SDL_SetRenderDrawColor(renderer, 64, 64, 64, 0);
 			SDL_RenderFillRect(renderer, &Button_Start_Rect_Shadow);
-			SDL_SetRenderDrawColor(renderer, 140, 140, 140, 0);
+			SDL_SetRenderDrawColor(renderer, 120, 120, 120, 0);
 			SDL_RenderFillRect(renderer, &Button_Start_Rect);
 			if (color_Start == 0)
 			{
@@ -4167,7 +5195,7 @@ void Playground(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int& volume
 			SDL_SetRenderDrawColor(renderer, red_board_rule, 0, 0, 0);
 			SDL_SetRenderDrawColor(renderer, 64, 64, 64, 0);
 			SDL_RenderFillRect(renderer, &Button_Stop_Rect_Shadow);
-			SDL_SetRenderDrawColor(renderer, 140, 140, 140, 0);
+			SDL_SetRenderDrawColor(renderer, 120, 120, 120, 0);
 			SDL_RenderFillRect(renderer, &Button_Stop_Rect);
 			if (color_Stop == 0)
 			{
@@ -4183,7 +5211,7 @@ void Playground(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int& volume
 		SDL_SetRenderDrawColor(renderer, red_board_rule, 0, 0, 0);
 		SDL_SetRenderDrawColor(renderer, 64, 64, 64, 0);
 		SDL_RenderFillRect(renderer, &Button_Clear_Rect_Shadow);
-		SDL_SetRenderDrawColor(renderer, 140, 140, 140, 0);
+		SDL_SetRenderDrawColor(renderer, 120, 120, 120, 0);
 		SDL_RenderFillRect(renderer, &Button_Clear_Rect);
 		if (color_Clear == 0)
 		{
@@ -4199,7 +5227,7 @@ void Playground(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int& volume
 		SDL_SetRenderDrawColor(renderer, red_board_rule, 0, 0, 0);
 		SDL_SetRenderDrawColor(renderer, 64, 64, 64, 0);
 		SDL_RenderFillRect(renderer, &Button_Size_S_Rect_Shadow);
-		SDL_SetRenderDrawColor(renderer, 140, 140, 140, 0);
+		SDL_SetRenderDrawColor(renderer, 120, 120, 120, 0);
 		SDL_RenderFillRect(renderer, &Button_Size_S_Rect);
 		if (color_Size_S == 0)
 		{
@@ -4215,7 +5243,7 @@ void Playground(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int& volume
 		SDL_SetRenderDrawColor(renderer, red_board_rule, 0, 0, 0);
 		SDL_SetRenderDrawColor(renderer, 64, 64, 64, 0);
 		SDL_RenderFillRect(renderer, &Button_Size_M_Rect_Shadow);
-		SDL_SetRenderDrawColor(renderer, 140, 140, 140, 0);
+		SDL_SetRenderDrawColor(renderer, 120, 120, 120, 0);
 		SDL_RenderFillRect(renderer, &Button_Size_M_Rect);
 		if (color_Size_M == 0)
 		{
@@ -4231,7 +5259,7 @@ void Playground(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int& volume
 		SDL_SetRenderDrawColor(renderer, red_board_rule, 0, 0, 0);
 		SDL_SetRenderDrawColor(renderer, 64, 64, 64, 0);
 		SDL_RenderFillRect(renderer, &Button_Size_L_Rect_Shadow);
-		SDL_SetRenderDrawColor(renderer, 140, 140, 140, 0);
+		SDL_SetRenderDrawColor(renderer, 120, 120, 120, 0);
 		SDL_RenderFillRect(renderer, &Button_Size_L_Rect);
 		if (color_Size_L == 0)
 		{
@@ -4254,6 +5282,7 @@ void Playground(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int& volume
 
 		for (int i = 0; i < 5; i++)
 		{
+			if (i == Stop_number) { continue; }
 			SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
 			SDL_RenderFillRect(renderer, &Sets_Rect_Board[i]);
 			SDL_SetRenderDrawColor(renderer, 32, 32, 32, 0);
@@ -4277,16 +5306,38 @@ void Playground(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int& volume
 		SDL_RenderFillRect(renderer, &Generation_Rect_Board);
 		SDL_SetRenderDrawColor(renderer, 64, 64, 64, 0);
 		SDL_RenderFillRect(renderer, &Generation_Rect_Shadow);
-		SDL_SetRenderDrawColor(renderer, 140, 140, 140, 0);
+		SDL_SetRenderDrawColor(renderer, 160, 160, 160, 0);
 		SDL_RenderFillRect(renderer, &Generation_Rect);
 		draw_Place(renderer, Generation_Texture, Generation_Text);
-		draw_Place(renderer, Generation_Count_Texture, Generation_Count_Text);
+		if ((Generate_count <= 10000) and (Generate_count >= 1000))
+		{
+			draw_Place(renderer, Generation_Count_Texture, Generation_Count_Text_4);
+		}
+		else
+		{
+			if ((Generate_count < 1000) and (Generate_count >= 100))
+			{
+				draw_Place(renderer, Generation_Count_Texture, Generation_Count_Text_3);
+			}
+			else
+			{
+				if ((Generate_count < 100) and (Generate_count >= 10))
+				{
+					draw_Place(renderer, Generation_Count_Texture, Generation_Count_Text_2);
+				}
+
+				else
+				{
+					draw_Place(renderer, Generation_Count_Texture, Generation_Count_Text_1);
+				}
+			}
+		}
 
 		SDL_SetRenderDrawColor(renderer, red_board_Parameters, 0, 0, 0);
 		SDL_RenderFillRect(renderer, &Title_Parameters_Rect_Board);
 		SDL_SetRenderDrawColor(renderer, 64, 64, 64, 0);
 		SDL_RenderFillRect(renderer, &Title_Parameters_Rect_Shadow);
-		SDL_SetRenderDrawColor(renderer, 140, 140, 140, 0);
+		SDL_SetRenderDrawColor(renderer, 160, 160, 160, 0);
 		SDL_RenderFillRect(renderer, &Title_Parameters_Rect);
 		draw_Place(renderer, Parameters_Texture, Title_Parameters_Text);
 
@@ -4294,7 +5345,7 @@ void Playground(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int& volume
 		SDL_RenderFillRect(renderer, &Size_Rect_Board);
 		SDL_SetRenderDrawColor(renderer, 64, 64, 64, 0);
 		SDL_RenderFillRect(renderer, &Size_Rect_Shadow);
-		SDL_SetRenderDrawColor(renderer, 140, 140, 140, 0);
+		SDL_SetRenderDrawColor(renderer, 160, 160, 160, 0);
 		SDL_RenderFillRect(renderer, &Size_Rect);
 		draw_Place(renderer, Size_Texture, Size_Text);
 
@@ -4392,6 +5443,19 @@ void Playground(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int& volume
 	}
 	free(Blocks_Res_5);
 
+	for (int i = 0; i < Width_ground; i++)
+	{
+		free(Blocks_Res_6[i]);
+	}
+	free(Blocks_Res_6);
+
+	for (int i = 0; i < Width_ground; i++)
+	{
+		free(Blocks_Res_7[i]);
+	}
+	free(Blocks_Res_7);
+
+	SDL_DestroyTexture(TextureBackground);
 
 	SDL_DestroyTexture(Button_Menu_Texture);
 	SDL_DestroyTexture(Button_Menu_Texture_Pressed);
@@ -4428,8 +5492,6 @@ void Playground(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int& volume
 	SDL_DestroyTexture(Height_Input_Help_Texture);
 
 	TTF_CloseFont(Bind_font);
-	TTF_CloseFont(Settings_font);
-	TTF_CloseFont(arrows);
 	TTF_CloseFont(symbols);
 	TTF_CloseFont(my_font);
 	Mix_FreeMusic(fon);
@@ -4446,8 +5508,8 @@ void Settings(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int &volume_m
 
 	SCREEN_WIDTH += 5;
 
-	TTF_Font* Bind_font = TTF_OpenFont("Button.ttf", 100);
-	TTF_Font* Settings_font = TTF_OpenFont("Button.ttf", 500);
+	TTF_Font* Bind_font = TTF_OpenFont("Button_2.ttf", 100);
+	TTF_Font* Settings_font = TTF_OpenFont("Button_2.ttf", 500);
 	TTF_Font* arrows = TTF_OpenFont("Arrows.ttf", 1000);
 	SDL_Texture* Button_Exit_Texture;
 	SDL_Texture* Button_Music_Texture_Disable;
@@ -4460,6 +5522,7 @@ void Settings(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int &volume_m
 	SDL_Texture* Bind_Texture_1;
 	SDL_Texture* Bind_Texture_2;
 	SDL_Texture* Bind_Texture_3;
+	SDL_Texture* Bind_Texture_4;
 
 	SDL_Texture* Button_Exit_Texture_Pressed;
 	SDL_Texture* Button_Music_Texture_Enable;
@@ -4473,9 +5536,9 @@ void Settings(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int &volume_m
 	SDL_Rect Settings_Rect_Board = { int((double)SCREEN_WIDTH / (double)12) * 3,int((double)SCREEN_HEIGHT / (double)40) * 7,int((double)SCREEN_WIDTH / (double)12) * 6, int((double)SCREEN_HEIGHT / (double)40) * 13 };
 	SDL_Rect Settings_Rect_Shadow = { Settings_Rect_Board.x + 2, Settings_Rect_Board.y + 2, Settings_Rect_Board.w - 4,  Settings_Rect_Board.h - 4 };
 	SDL_Rect Settings_Rect = { Settings_Rect_Shadow.x + 4, Settings_Rect_Shadow.y + 4,Settings_Rect_Shadow.w - 8, Settings_Rect_Shadow.h - 8 };
-	SDL_Rect Settings_Text_1 = { Settings_Rect.x + 20, Settings_Rect.y + 36,int((double)SCREEN_WIDTH / (double)12) * 4, int((double)SCREEN_HEIGHT / (double)80 * 2) };
-	SDL_Rect Settings_Text_2 = { Settings_Rect.x + 20, 3*Settings_Text_1.h + Settings_Rect.y + 36, Settings_Text_1.w, Settings_Text_1.h };
-	SDL_Rect Settings_Text_3 = { Settings_Rect.x + 20, 6 * Settings_Text_1.h + Settings_Rect.y + 36,Settings_Text_1.w, Settings_Text_1.h };
+	SDL_Rect Settings_Text_1 = { Settings_Rect.x + 20, Settings_Rect.y + 36,int((double)SCREEN_WIDTH / (double)12) * 3, int((double)SCREEN_HEIGHT / (double)80 * 2) };
+	SDL_Rect Settings_Text_2 = { Settings_Rect.x + 20, 3*Settings_Text_1.h + Settings_Rect.y + 36, int((double)SCREEN_WIDTH / (double)12) * 4, Settings_Text_1.h };
+	SDL_Rect Settings_Text_3 = { Settings_Rect.x + 20, 6 * Settings_Text_1.h + Settings_Rect.y + 36,int((double)SCREEN_WIDTH / (double)12) * 3, Settings_Text_1.h };
 
 
 	SDL_Rect Bind_Title_Rect_Board = { Title_Rect_Board.x,Title_Rect_Board.y + Title_Rect_Board.h + Settings_Rect_Board.h + 60,Title_Rect_Board.w, Title_Rect_Board.h };
@@ -4483,46 +5546,47 @@ void Settings(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int &volume_m
 	SDL_Rect Bind_Title_Rect = { Bind_Title_Rect_Shadow.x + 4, Bind_Title_Rect_Shadow.y + 4,Bind_Title_Rect_Shadow.w - 8, Bind_Title_Rect_Shadow.h - 8 };
 	SDL_Rect Bind_Title_Text = { Bind_Title_Rect.x + 4, Bind_Title_Rect.y + 12,Bind_Title_Rect.w - 8, Bind_Title_Rect.h - 8 };
 
-	SDL_Rect Bind_Rect_Board = { int((double)SCREEN_WIDTH / (double)24) * 8,Title_Rect_Board.y + Title_Rect_Board.h + Settings_Rect_Board.y + Settings_Rect_Board.h, int((double)SCREEN_WIDTH / (double)24) * 8,int((double)SCREEN_HEIGHT / (double)40) * 10 };
+	SDL_Rect Bind_Rect_Board = { int((double)SCREEN_WIDTH / (double)24) * 6,Title_Rect_Board.y + Title_Rect_Board.h + Settings_Rect_Board.y + Settings_Rect_Board.h, int((double)SCREEN_WIDTH / (double)24) * 12,int((double)SCREEN_HEIGHT / (double)40) * 10 };
 	SDL_Rect Bind_Rect_Shadow = { Bind_Rect_Board.x + 2, Bind_Rect_Board.y + 2, Bind_Rect_Board.w - 4,  Bind_Rect_Board.h - 4 };
 	SDL_Rect Bind_Rect = { Bind_Rect_Shadow.x + 4, Bind_Rect_Shadow.y + 4,Bind_Rect_Shadow.w - 8, Bind_Rect_Shadow.h - 8 };
-	SDL_Rect Bind_Text_1 = { Bind_Rect.x + 20, Bind_Rect.y + 36,int((double)SCREEN_WIDTH / (double)24) * 7, int((double)SCREEN_HEIGHT / (double)80 * 2) };
-	SDL_Rect Bind_Text_2 = { Bind_Rect.x + 20, 3 * Bind_Text_1.h + Bind_Rect.y + 36,Bind_Text_1.w, Bind_Text_1.h };
-	SDL_Rect Bind_Text_3 = { Bind_Rect.x + 20, 6 * Bind_Text_1.h + Bind_Rect.y + 36,Bind_Text_1.w, Bind_Text_1.h };
+	SDL_Rect Bind_Text_1 = { Bind_Rect.x + 20, Bind_Rect.y + int((double)Bind_Rect.h / (double)9),int((double)SCREEN_WIDTH / (double)24) * 11, int((double)Bind_Rect.h / (double)9) };
+	SDL_Rect Bind_Text_2 = { Bind_Rect.x + 20, 3 * Bind_Text_1.h + Bind_Rect.y,Bind_Text_1.w, Bind_Text_1.h };
+	SDL_Rect Bind_Text_3 = { Bind_Rect.x + 20, 5 * Bind_Text_1.h + Bind_Rect.y,Bind_Text_1.w, Bind_Text_1.h };
+	SDL_Rect Bind_Text_4 = { Bind_Rect.x + 20, 7 * Bind_Text_1.h + Bind_Rect.y,Bind_Text_1.w + 10, Bind_Text_1.h };
 
 	SDL_Rect Button_Exit_Rect_Board = { int((double)SCREEN_WIDTH / (double)40) * 2 ,int((double)SCREEN_HEIGHT / (double)20) * 1,int((double)SCREEN_HEIGHT / (double)10), int((double)SCREEN_HEIGHT / (double)10) };
 	SDL_Rect Button_Exit_Rect_Shadow = { Button_Exit_Rect_Board.x + 2, Button_Exit_Rect_Board.y + 2, Button_Exit_Rect_Board.w - 4,  Button_Exit_Rect_Board.h - 4 };
 	SDL_Rect Button_Exit_Rect = { Button_Exit_Rect_Shadow.x + 4,Button_Exit_Rect_Shadow.y + 4,Button_Exit_Rect_Shadow.w - 8, Button_Exit_Rect_Shadow.h - 8 };
 	SDL_Rect Button_Exit_Text = { Button_Exit_Rect.x + 4,Button_Exit_Rect.y + 4,Button_Exit_Rect.w - 8, Button_Exit_Rect.h - 8 };
 
-	SDL_Rect Button_Music_Rect_Board = { Settings_Text_1.x + Settings_Text_1.w + int(Settings_Rect_Board.w * double(1.5/16)) ,Settings_Text_1.y - int(Settings_Text_1.h * double(1./2)),int((double)SCREEN_HEIGHT / (double)10),  int(Settings_Text_1.h * 2)};
+	SDL_Rect Button_Music_Rect_Board = { Settings_Text_1.x + int((double)SCREEN_WIDTH / (double)12) * 4 + int(Settings_Rect_Board.w * double(2.0/16)) ,Settings_Text_1.y - int(Settings_Text_1.h * double(1./2)),int((double)SCREEN_HEIGHT / (double)10),  int(Settings_Text_1.h * 2)};
 	SDL_Rect Button_Music_Rect_Shadow = { Button_Music_Rect_Board.x + 2, Button_Music_Rect_Board.y + 2, Button_Music_Rect_Board.w - 4,  Button_Music_Rect_Board.h - 4 };
 	SDL_Rect Button_Music_Rect = { Button_Music_Rect_Shadow.x + 4,Button_Music_Rect_Shadow.y + 4,Button_Music_Rect_Shadow.w - 8, Button_Music_Rect_Shadow.h - 8 };
 	SDL_Rect Button_Music_Text = { Button_Music_Rect.x + 4,Button_Music_Rect.y + 4,Button_Music_Rect.w - 8, Button_Music_Rect.h - 8 };
 
-	SDL_Rect Button_Sound_Rect_Board = { Settings_Text_2.x + Settings_Text_2.w + int(Settings_Rect_Board.w * double(1.5 / 16)) ,Settings_Text_2.y - int(Settings_Text_1.h * double(1. / 2)),int((double)SCREEN_HEIGHT / (double)10), int(Settings_Text_2.h * 2) };
+	SDL_Rect Button_Sound_Rect_Board = { Settings_Text_2.x + int((double)SCREEN_WIDTH / (double)12) * 4 + int(Settings_Rect_Board.w * double(2.0 / 16)) ,Settings_Text_2.y - int(Settings_Text_1.h * double(1. / 2)),int((double)SCREEN_HEIGHT / (double)10), int(Settings_Text_2.h * 2) };
 	SDL_Rect Button_Sound_Rect_Shadow = { Button_Sound_Rect_Board.x + 2, Button_Sound_Rect_Board.y + 2, Button_Sound_Rect_Board.w - 4,  Button_Sound_Rect_Board.h - 4 };
 	SDL_Rect Button_Sound_Rect = { Button_Sound_Rect_Shadow.x + 4,Button_Sound_Rect_Shadow.y + 4,Button_Sound_Rect_Shadow.w - 8, Button_Sound_Rect_Shadow.h - 8 };
 	SDL_Rect Button_Sound_Text = { Button_Sound_Rect.x + 4,Button_Sound_Rect.y + 4,Button_Sound_Rect.w - 8, Button_Sound_Rect.h - 8 };
 
-	SDL_Rect Total_Volume = { Settings_Text_1.x, 9 * Settings_Text_1.h + Settings_Rect.y + 36,Settings_Text_3.w, int(Settings_Text_1.h * double(1.0 / 6)) };
+	SDL_Rect Total_Volume = { Settings_Text_1.x + int(int((double)SCREEN_WIDTH / (double)12) * 4 * double(1.0 / 60)), 9 * Settings_Text_1.h + Settings_Rect.y + 36,int((double)SCREEN_WIDTH / (double)12) * 4, int(Settings_Text_1.h * double(1.0 / 6)) };
 	int Step = int((Total_Volume.w) * double(1.0 / 4));
 	SDL_Rect Volume_Values[5];
 	for (int i = 0; i < 5; i++)
 	{
-		Volume_Values[i] = { Settings_Text_1.x + i*Step - int(Settings_Text_3.w * double(1.0 / 80)), 8 * Settings_Text_1.h + Settings_Rect.y + 36,int(Settings_Text_3.w*double(1.0/40)), Settings_Text_1.h*2+ int(Settings_Text_1.h * double(1.0 / 6)) };
+		Volume_Values[i] = { Settings_Text_1.x + i*Step + int(int((double)SCREEN_WIDTH / (double)12) * 4 * double(1.0 / 120)), 8 * Settings_Text_1.h + Settings_Rect.y + 36,int(int((double)SCREEN_WIDTH / (double)12) * 4 *double(1.0/60)), Settings_Text_1.h*2+ int(Settings_Text_1.h * double(1.0 / 6)) };
 	}
 	if (Handle_board.x == 0)
 	{
-		Handle_board = { Volume_Values[2].x - int(int(Settings_Text_3.w * double(1.0 / 20)) * double(1.0 / 4)), 8 * Settings_Text_1.h + Settings_Rect.y + 36 + int(Volume_Values[0].h * double(1.0 / 4)),int(Settings_Text_3.w * double(1.0 / 20)), int(Volume_Values[0].h * double(1.0 / 2)) };
+		Handle_board = { Volume_Values[2].x - Volume_Values[0].w, 8 * Settings_Text_1.h + Settings_Rect.y + 36 + int(Volume_Values[0].h * double(1.0 / 4)),Volume_Values[0].w * 3, int(Volume_Values[0].h * double(1.0 / 2))};
 	}
 	else
 	{
 		Handle_board.y = 8 * Settings_Text_1.h + Settings_Rect.y + 36 + int(Volume_Values[0].h * double(1.0 / 4));
-		Handle_board.w = int(Settings_Text_3.w * double(1.0 / 20));
+		Handle_board.w = int(int((double)SCREEN_WIDTH / (double)12) * 4 * double(1.0 / 20));
 		Handle_board.h = int(Volume_Values[0].h * double(1.0 / 2));
 	}
-	int Left_Block = Settings_Text_1.x - int(Handle_board.w * double(1.0 / 2)), Right_Block = Settings_Text_1.x + Settings_Text_1.w - int(Handle_board.w * double(1.0 / 2));
+	int Left_Block = Volume_Values[0].x + int(int((double)SCREEN_WIDTH / (double)12) * 4 * double(1.0 / 120)), Right_Block = Settings_Text_1.x + int((double)SCREEN_WIDTH / (double)12) * 4 + int(int((double)SCREEN_WIDTH / (double)12) * 4 * double(1.0 / 60));
 
 	double percent_value = ((Volume_Values[4].x - int(Handle_board.w * double(1.0 / 4))) - (Volume_Values[0].x - int(Handle_board.w * double(1.0 / 4)))) / 100.0;
 	int Current_Volume = int((Handle_board.x - ((Volume_Values[0].x - int(Handle_board.w * double(1.0 / 4))))) / (percent_value));
@@ -4538,9 +5602,10 @@ void Settings(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int &volume_m
 	char Settings_1[] = u8"Музыка (вкл/выкл)";
 	char Settings_2[] = u8"Звуковые эффекты (вкл/выкл)";
 	char Settings_3[] = u8"Уровень громкости (1-5)";
-	char Bind_1[] = u8"Запустить игру                R";
-	char Bind_2[] = u8"Остановить игру               S";
-	char Bind_3[] = u8"Очистить игровое поле         C";
+	char Bind_1[] = u8"Запустить игру                                                       R";
+	char Bind_2[] = u8"Остановить игру                                                      S";
+	char Bind_3[] = u8"Очистить игровое поле                                                C";
+	char Bind_4[] = u8"Выход в дополнительное меню            ESC";
 
 	Button_Exit_Texture = get_text_texture(renderer, Button_Exit, arrows, red_text_exit);
 	Button_Music_Texture_Disable = get_text_texture(renderer, Button_Music_Disable, arrows, red_text_settings_off);
@@ -4553,12 +5618,17 @@ void Settings(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int &volume_m
 	Bind_Texture_1 = get_text_texture(renderer, Bind_1, Bind_font, red_text_rule);
 	Bind_Texture_2 = get_text_texture(renderer, Bind_2, Bind_font, red_text_rule);
 	Bind_Texture_3 = get_text_texture(renderer, Bind_3, Bind_font, red_text_rule);
+	Bind_Texture_4 = get_text_texture(renderer, Bind_4, Bind_font, red_text_rule);
 
 	int red_text_exit_press = 255, color_exit = 0;
 
 	Button_Exit_Texture_Pressed = get_text_texture(renderer, Button_Exit, arrows, red_text_exit_press);
 	Button_Music_Texture_Enable = get_text_texture(renderer, Button_Music_Enable, arrows, red_text_settings_on);
 	Button_Sound_Texture_Enable = get_text_texture(renderer, Button_Sound_Enable, arrows, red_text_settings_on);
+
+	char BackgroudFile[] = "Background_2.bmp";
+	SDL_Texture* TextureBackground = TakeTextureBackground(renderer, BackgroudFile);
+	SDL_Rect Background = { 0,0, SCREEN_WIDTH, SCREEN_HEIGHT };
 
 	SDL_Event event;
 	bool quit = false;
@@ -4592,14 +5662,14 @@ void Settings(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int &volume_m
 				}
 				SDL_SetRenderDrawColor(renderer, 255, 0, 0, 0);
 				SDL_RenderFillRect(renderer, &Button_Exit_Rect_Board);
-				SDL_SetRenderDrawColor(renderer, 140, 140, 140, 0);
+				SDL_SetRenderDrawColor(renderer, 120, 120, 120, 0);
 				SDL_RenderFillRect(renderer, &Button_Exit_Rect_Shadow);
 				SDL_SetRenderDrawColor(renderer, 64, 64, 64, 0);
 				SDL_RenderFillRect(renderer, &Button_Exit_Rect);
 				draw_Place(renderer, Button_Exit_Texture_Pressed, Button_Exit_Text);
 				SDL_RenderPresent(renderer);
 				SDL_Delay(50);
-				SDL_SetRenderDrawColor(renderer, 140, 140, 140, 0);
+				SDL_SetRenderDrawColor(renderer, 120, 120, 120, 0);
 				SDL_RenderFillRect(renderer, &Button_Exit_Rect_Shadow);
 				SDL_SetRenderDrawColor(renderer, 64, 64, 64, 0);
 				SDL_RenderFillRect(renderer, &Button_Exit_Rect);
@@ -4620,7 +5690,7 @@ void Settings(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int &volume_m
 					draw_Place(renderer, Button_Exit_Texture, Button_Exit_Text);
 					SDL_RenderPresent(renderer);
 					SDL_Delay(50);
-					SDL_SetRenderDrawColor(renderer, 140, 140, 140, 0);
+					SDL_SetRenderDrawColor(renderer, 120, 120, 120, 0);
 					SDL_RenderFillRect(renderer, &Button_Exit_Rect_Shadow);
 					SDL_SetRenderDrawColor(renderer, 64, 64, 64, 0);
 					SDL_RenderFillRect(renderer, &Button_Exit_Rect);
@@ -4674,13 +5744,13 @@ void Settings(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int &volume_m
 					{
 						if (((event.button.x <= Volume_Values[i].x + Volume_Values[i].w) and (event.button.x >= Volume_Values[i].x)) and ((event.button.y <= Volume_Values[i].y + Volume_Values[i].h) and (event.button.y >= Volume_Values[i].y)))
 						{
-							Handle_board.x = Volume_Values[i].x - int(Handle_board.w * double(1.0 / 4));
+							Handle_board.x = Volume_Values[i].x - int(Handle_board.w * double(1.0 / 3));
 							switch (i)
 							{
 							case 0:
 							{
-								volume_sound = 20;
-								volume_music = 20;
+								volume_sound = 10;
+								volume_music = 10;
 								if (Music_Enable == 1)
 								{
 									Mix_VolumeMusic(volume_music);
@@ -4692,6 +5762,20 @@ void Settings(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int &volume_m
 								break;
 							}
 							case 1:
+							{
+								volume_sound = 25;
+								volume_music = 25;
+								if (Music_Enable == 1)
+								{
+									Mix_VolumeMusic(volume_music);
+								}
+								if (Sound_Enable == 1)
+								{
+									sound(name, volume_sound);
+								}
+								break;
+							}
+							case 2:
 							{
 								volume_sound = 40;
 								volume_music = 40;
@@ -4705,24 +5789,10 @@ void Settings(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int &volume_m
 								}
 								break;
 							}
-							case 2:
-							{
-								volume_sound = 60;
-								volume_music = 60;
-								if (Music_Enable == 1)
-								{
-									Mix_VolumeMusic(volume_music);
-								}
-								if (Sound_Enable == 1)
-								{
-									sound(name, volume_sound);
-								}
-								break;
-							}
 							case 3:
 							{
-								volume_sound = 80;
-								volume_music = 80;
+								volume_sound = 55;
+								volume_music = 55;
 								if (Music_Enable == 1)
 								{
 									Mix_VolumeMusic(volume_music);
@@ -4735,8 +5805,8 @@ void Settings(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int &volume_m
 							}
 							case 4:
 							{
-								volume_sound = 100;
-								volume_music = 100;
+								volume_sound = 70;
+								volume_music = 70;
 								if (Music_Enable == 1)
 								{
 									Mix_VolumeMusic(volume_music);
@@ -4756,10 +5826,10 @@ void Settings(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int &volume_m
 			if ((event.type == SDL_MOUSEBUTTONUP && event.button.button == SDL_BUTTON_LEFT) and (Pressed_Button == 1))
 			{
 				Pressed_Button = 0;
-				percent_value = (Right_Block - Left_Block) / 80.0;
+				percent_value = (Right_Block - Left_Block) / 60.0;
 				Current_Volume = int((Handle_board.x - Left_Block) / (percent_value));
-				volume_sound = 20 + Current_Volume;
-				volume_music = 20 + Current_Volume;
+				volume_sound = 10 + Current_Volume;
+				volume_music = 10 + Current_Volume;
 				if (Music_Enable == 1)
 				{
 					Mix_VolumeMusic(volume_music);
@@ -4768,11 +5838,11 @@ void Settings(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int &volume_m
 			}
 			if ((Pressed_Button == 1) and (event.button.x >= Left_Block) and (event.button.x <= Right_Block))
 			{ 
-				Handle_board.x = event.button.x; 
-				percent_value = (Right_Block - Left_Block) / 80.0;
+				Handle_board.x = event.button.x - int(Handle_board.w * double(1.0/2));
+				percent_value = (Right_Block - Left_Block) / 60.0;
 				Current_Volume = int((Handle_board.x - Left_Block) / (percent_value));
-				volume_sound = 20 + Current_Volume;
-				volume_music = 20 + Current_Volume;
+				volume_sound = 10 + Current_Volume;
+				volume_music = 10 + Current_Volume;
 				if (Music_Enable == 1)
 				{
 					Mix_VolumeMusic(volume_music);
@@ -4780,19 +5850,16 @@ void Settings(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int &volume_m
 			}
 		}
 		if ((Fl == 1) or (Main == 1)) { quit = true; break; }
-		
-		SDL_Rect Handle = { Handle_board.x + 2, Handle_board.y + 2,Handle_board.w - 4, Handle_board.h - 4 };
-		SDL_Rect Handle_front = { Handle.x + 4, Handle.y + 4,Handle.w - 8, Handle.h - 8 };
+
+		SDL_Rect Handle_Shadow = { Handle_board.x + 2, Handle_board.y + 2,Handle_board.w - 4, Handle_board.h - 4 };
+		SDL_Rect Handle = { Handle_Shadow.x + 3, Handle_Shadow.y + 3,Handle_Shadow.w - 6, Handle_Shadow.h - 6 };
+		SDL_Rect Handle_front = { Handle.x + 2, Handle.y + 2,Handle.w - 4, Handle.h - 4 };
+		SDL_Rect Handle_Glare = { Handle_front.x + 6, Handle_front.y + 6,Handle_front.w - 12, Handle_front.h - 12 };
 
 		SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
 		SDL_RenderClear(renderer);
 
-		char BackgroudFile[] = "Background.bmp";
-		SDL_Texture* TextureBackground = TakeTextureBackground(renderer, BackgroudFile);
-		SDL_Rect Background = { 0,0, SCREEN_WIDTH, SCREEN_HEIGHT };
 		SDL_RenderCopy(renderer, TextureBackground, NULL, &Background);
-		SDL_DestroyTexture(TextureBackground);
-
 
 		SDL_SetRenderDrawColor(renderer, red_board_title, 0, 0, 0);
 		SDL_RenderFillRect(renderer, &Title_Rect_Board);
@@ -4800,7 +5867,7 @@ void Settings(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int &volume_m
 		SDL_SetRenderDrawColor(renderer, 64, 64, 64, 0);
 		SDL_RenderFillRect(renderer, &Title_Rect_Shadow);
 
-		SDL_SetRenderDrawColor(renderer, 140, 140, 140, 0);
+		SDL_SetRenderDrawColor(renderer, 160, 160, 160, 0);
 		SDL_RenderFillRect(renderer, &Title_Rect);
 
 		draw_Place(renderer, Title_Texture, Title_Text);
@@ -4812,7 +5879,7 @@ void Settings(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int &volume_m
 		SDL_SetRenderDrawColor(renderer, 64, 64, 64, 0);
 		SDL_RenderFillRect(renderer, &Bind_Title_Rect_Shadow);
 
-		SDL_SetRenderDrawColor(renderer, 140, 140, 140, 0);
+		SDL_SetRenderDrawColor(renderer, 160, 160, 160, 0);
 		SDL_RenderFillRect(renderer, &Bind_Title_Rect);
 
 		draw_Place(renderer, Bind_Title_Texture, Bind_Title_Text);
@@ -4824,7 +5891,7 @@ void Settings(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int &volume_m
 		SDL_SetRenderDrawColor(renderer, 64, 64, 64, 0);
 		SDL_RenderFillRect(renderer, &Settings_Rect_Shadow);
 
-		SDL_SetRenderDrawColor(renderer, 140, 140, 140, 0);
+		SDL_SetRenderDrawColor(renderer, 120, 120, 120, 0);
 		SDL_RenderFillRect(renderer, &Settings_Rect);
 
 		draw_Place(renderer, Settings_Texture_1, Settings_Text_1);
@@ -4839,13 +5906,13 @@ void Settings(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int &volume_m
 		SDL_SetRenderDrawColor(renderer, 64, 64, 64, 0);
 		SDL_RenderFillRect(renderer, &Bind_Rect_Shadow);
 
-		SDL_SetRenderDrawColor(renderer, 140, 140, 140, 0);
+		SDL_SetRenderDrawColor(renderer, 120, 120, 120, 0);
 		SDL_RenderFillRect(renderer, &Bind_Rect);
 
 		draw_Place(renderer, Bind_Texture_1, Bind_Text_1);
 		draw_Place(renderer, Bind_Texture_2, Bind_Text_2);
 		draw_Place(renderer, Bind_Texture_3, Bind_Text_3);
-
+		draw_Place(renderer, Bind_Texture_4, Bind_Text_4);
 
 		if (Music_Enable == 0)
 		{
@@ -4910,7 +5977,7 @@ void Settings(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int &volume_m
 		SDL_SetRenderDrawColor(renderer, 64, 64, 64, 0);
 		SDL_RenderFillRect(renderer, &Button_Exit_Rect_Shadow);
 
-		SDL_SetRenderDrawColor(renderer, 140, 140, 140, 0);
+		SDL_SetRenderDrawColor(renderer, 120, 120, 120, 0);
 		SDL_RenderFillRect(renderer, &Button_Exit_Rect);
 
 		if (color_exit == 0)
@@ -4923,7 +5990,7 @@ void Settings(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int &volume_m
 		}
 
 
-		SDL_SetRenderDrawColor(renderer, 214, 214, 214, 0);
+		SDL_SetRenderDrawColor(renderer, 240, 240, 240, 0);
 		SDL_RenderFillRect(renderer, &Total_Volume);
 		for (int i = 0; i < 5; i++)
 		{
@@ -4931,10 +5998,14 @@ void Settings(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int &volume_m
 		}
 		SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
 		SDL_RenderFillRect(renderer, &Handle_board);
+		SDL_SetRenderDrawColor(renderer, 64, 64, 64, 0);
+		SDL_RenderFillRect(renderer, &Handle_Shadow);
 		SDL_SetRenderDrawColor(renderer, 255, 0, 0, 0);
 		SDL_RenderFillRect(renderer, &Handle);
 		SDL_SetRenderDrawColor(renderer, 64, 64, 64, 0);
 		SDL_RenderFillRect(renderer, &Handle_front);
+		SDL_SetRenderDrawColor(renderer, 255, 0, 0, 0);
+		SDL_RenderFillRect(renderer, &Handle_Glare);
 
 
 		SDL_RenderPresent(renderer);
@@ -4942,6 +6013,7 @@ void Settings(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int &volume_m
 
 	OutputSettings(volume_music, volume_sound, Sound_Enable, Music_Enable, Handle_board);
 
+	SDL_DestroyTexture(TextureBackground);
 	SDL_DestroyTexture(Button_Exit_Texture);
 	SDL_DestroyTexture(Button_Music_Texture_Enable);
 	SDL_DestroyTexture(Button_Sound_Texture_Enable);
@@ -4955,6 +6027,7 @@ void Settings(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int &volume_m
 	SDL_DestroyTexture(Bind_Texture_1);
 	SDL_DestroyTexture(Bind_Texture_2);
 	SDL_DestroyTexture(Bind_Texture_3);
+	SDL_DestroyTexture(Bind_Texture_4);
 	SDL_DestroyTexture(Button_Exit_Texture_Pressed);
 	TTF_CloseFont(Bind_font);
 	TTF_CloseFont(Settings_font);
@@ -4973,8 +6046,8 @@ void Rule(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int& volume_music
 
 	SCREEN_WIDTH += 5;
 
-	TTF_Font* my_font = TTF_OpenFont("Button.ttf", 1000);
-	TTF_Font* rules_font = TTF_OpenFont("Button.ttf", 100);
+	TTF_Font* my_font = TTF_OpenFont("Button_2.ttf", 1000);
+	TTF_Font* rules_font = TTF_OpenFont("Button_2.ttf", 100);
 	TTF_Font* arrows = TTF_OpenFont("Arrows.ttf", 1000);
 	SDL_Texture* Button_Exit_Texture;
 	SDL_Texture* Title_Texture;
@@ -5018,15 +6091,15 @@ void Rule(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int& volume_music
 	SDL_Rect Rules_Text_8 = { Rules_Rect.x + 20, int(7.6 * Rules_Text_1.h + Rules_Rect.y + 24),int((double)SCREEN_WIDTH / (double)24) * 20, int((double)SCREEN_HEIGHT / (double)80 * 3) };
 	SDL_Rect Rules_Text_9 = { Rules_Rect.x + 20, int(8.6 * Rules_Text_1.h + Rules_Rect.y + 24),int((double)SCREEN_WIDTH / (double)24) * 19, int((double)SCREEN_HEIGHT / (double)80 * 3) };
 	SDL_Rect Rules_Text_10 = { Rules_Rect.x + 20, int(9.6 * Rules_Text_1.h + Rules_Rect.y + 24),int((double)SCREEN_WIDTH / (double)24) * 5, int((double)SCREEN_HEIGHT / (double)80 * 3) };
-	SDL_Rect Rules_Text_11 = { Rules_Rect.x + 20, int(10.6 * Rules_Text_1.h + Rules_Rect.y + 24),int((double)SCREEN_WIDTH / (double)24) * 19, int((double)SCREEN_HEIGHT / (double)80 * 3) };
-	SDL_Rect Rules_Text_12 = { Rules_Rect.x + 20, int(11.6 * Rules_Text_1.h + Rules_Rect.y + 24),int((double)SCREEN_WIDTH / (double)24) * 21, int((double)SCREEN_HEIGHT / (double)80 * 3) };
-	SDL_Rect Rules_Text_13 = { Rules_Rect.x + 20, int(12.6 * Rules_Text_1.h + Rules_Rect.y + 24),int((double)SCREEN_WIDTH / (double)24) * 16, int((double)SCREEN_HEIGHT / (double)80 * 3) };
+	SDL_Rect Rules_Text_11 = { Rules_Rect.x + 20, int(10.6 * Rules_Text_1.h + Rules_Rect.y + 24),int((double)SCREEN_WIDTH / (double)24) * 21, int((double)SCREEN_HEIGHT / (double)80 * 3) };
+	SDL_Rect Rules_Text_12 = { Rules_Rect.x + 20, int(11.6 * Rules_Text_1.h + Rules_Rect.y + 24),int((double)SCREEN_WIDTH / (double)24) * 20, int((double)SCREEN_HEIGHT / (double)80 * 3) };
+	SDL_Rect Rules_Text_13 = { Rules_Rect.x + 20, int(12.6 * Rules_Text_1.h + Rules_Rect.y + 24),int((double)SCREEN_WIDTH / (double)24) * 14, int((double)SCREEN_HEIGHT / (double)80 * 3) };
 	SDL_Rect Rules_Text_14 = { Rules_Rect.x + 20, int(13.9 * Rules_Text_1.h + Rules_Rect.y + 24),int((double)SCREEN_WIDTH / (double)24) * 6, int((double)SCREEN_HEIGHT / (double)80 * 3) };
 	SDL_Rect Rules_Text_15 = { Rules_Rect.x + 20, int(14.9 * Rules_Text_1.h + Rules_Rect.y + 24),int((double)SCREEN_WIDTH / (double)24) * 12, int((double)SCREEN_HEIGHT / (double)80 * 3) };
 	SDL_Rect Rules_Text_16 = { Rules_Rect.x + 20, int(15.9 * Rules_Text_1.h + Rules_Rect.y + 24),int((double)SCREEN_WIDTH / (double)24) * 21, int((double)SCREEN_HEIGHT / (double)80 * 3) };
 	SDL_Rect Rules_Text_17 = { Rules_Rect.x + 20, int(16.9 * Rules_Text_1.h + Rules_Rect.y + 24),int((double)SCREEN_WIDTH / (double)24) * 20, int((double)SCREEN_HEIGHT / (double)80 * 3) };
-	SDL_Rect Rules_Text_18 = { Rules_Rect.x + 20, int(17.9 * Rules_Text_1.h + Rules_Rect.y + 24),int((double)SCREEN_WIDTH / (double)24) * 21, int((double)SCREEN_HEIGHT / (double)80 * 3) };
-	SDL_Rect Rules_Text_19 = { Rules_Rect.x + 20, int(18.9 * Rules_Text_1.h + Rules_Rect.y + 24),int((double)SCREEN_WIDTH / (double)24) * 20, int((double)SCREEN_HEIGHT / (double)80 * 3) };
+	SDL_Rect Rules_Text_18 = { Rules_Rect.x + 20, int(17.9 * Rules_Text_1.h + Rules_Rect.y + 24),int((double)SCREEN_WIDTH / (double)24) * 20, int((double)SCREEN_HEIGHT / (double)80 * 3) };
+	SDL_Rect Rules_Text_19 = { Rules_Rect.x + 20, int(18.9 * Rules_Text_1.h + Rules_Rect.y + 24),int((double)SCREEN_WIDTH / (double)24) * 15, int((double)SCREEN_HEIGHT / (double)80 * 3) };
 
 	SDL_Rect Button_Exit_Rect_Board = { int((double)SCREEN_WIDTH / (double)40) * 2 ,int((double)SCREEN_HEIGHT / (double)20) * 1,int((double)SCREEN_HEIGHT / (double)10), int((double)SCREEN_HEIGHT / (double)10) };
 	SDL_Rect Button_Exit_Rect_Shadow = { Button_Exit_Rect_Board.x + 2, Button_Exit_Rect_Board.y + 2, Button_Exit_Rect_Board.w - 4,  Button_Exit_Rect_Board.h - 4 };
@@ -5046,15 +6119,15 @@ void Rule(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int& volume_music
 	char Rules_8[] = u8"следующее поколение рассчитывается на основе предыдущего по таким правилам:";
 	char Rules_9[] = u8"•   в пустой (мёртвой) клетке, с которой соседствуют три живые клетки";
 	char Rules_10[] = u8"зарождается жизнь;";
-	char Rules_11[] = u8"•   если у живой клетки есть две или три живые соседки, то эта клетка продолжает";
-	char Rules_12[] = u8"продолжает жить; в противном случае (если живых соседей меньше двух или больше";
-	char Rules_13[] = u8"трёх) клетка умирает («от одиночества» или «от перенаселённости»).";
+	char Rules_11[] = u8"•   если у живой клетки есть две или три живые соседки, то эта клетка продолжает жить;";
+	char Rules_12[] = u8"в противном случае (если живых соседей меньше двух или больше трёх) клетка";
+	char Rules_13[] = u8"умирает («от одиночества» или «от перенаселённости»).";
 	char Rules_14[] = u8"Игра прекращается, если:";
 	char Rules_15[] = u8"•   на поле не останется ни одной «живой» клетки;";
 	char Rules_16[] = u8"•   конфигурация на очередном шаге в точности (без сдвигов и поворотов) повторит";
 	char Rules_17[] = u8"себя же на одном из более ранних шагов (складывается периодическая конфигурация);";
-	char Rules_18[] = u8"•   при очередном шаге ни одна из клеток не меняет своего состояния (частный";
-	char Rules_19[] = u8"случай предыдущего правила, складывается стабильная конфигурация).";
+	char Rules_18[] = u8"•   при очередном шаге ни одна из клеток не меняет своего состояния (частный случай";
+	char Rules_19[] = u8"предыдущего правила, складывается стабильная конфигурация).";
 
 	Button_Exit_Texture = get_text_texture(renderer, Button_Exit, arrows, red_text_exit);
 	Title_Texture = get_text_texture(renderer, Title, my_font, red_text_title);
@@ -5075,8 +6148,12 @@ void Rule(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int& volume_music
 	Rules_Texture_15 = get_text_texture(renderer, Rules_15, rules_font, red_text_rule);
 	Rules_Texture_16 = get_text_texture(renderer, Rules_16, rules_font, red_text_rule);
 	Rules_Texture_17 = get_text_texture(renderer, Rules_17, rules_font, red_text_rule);
-	Rules_Texture_18 = get_text_texture(renderer, Rules_16, rules_font, red_text_rule);
-	Rules_Texture_19 = get_text_texture(renderer, Rules_17, rules_font, red_text_rule);
+	Rules_Texture_18 = get_text_texture(renderer, Rules_18, rules_font, red_text_rule);
+	Rules_Texture_19 = get_text_texture(renderer, Rules_19, rules_font, red_text_rule);
+
+	char BackgroudFile[] = "Background_2.bmp";
+	SDL_Texture* TextureBackground = TakeTextureBackground(renderer, BackgroudFile);
+	SDL_Rect Background = { 0,0, SCREEN_WIDTH, SCREEN_HEIGHT };
 
 	int red_text_exit_press = 255, color_exit = 0;
 
@@ -5113,14 +6190,14 @@ void Rule(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int& volume_music
 				}
 				SDL_SetRenderDrawColor(renderer, 255, 0, 0, 0);
 				SDL_RenderFillRect(renderer, &Button_Exit_Rect_Board);
-				SDL_SetRenderDrawColor(renderer, 140, 140, 140, 0);
+				SDL_SetRenderDrawColor(renderer, 120, 120, 120, 0);
 				SDL_RenderFillRect(renderer, &Button_Exit_Rect_Shadow);
 				SDL_SetRenderDrawColor(renderer, 64, 64, 64, 0);
 				SDL_RenderFillRect(renderer, &Button_Exit_Rect);
 				draw_Place(renderer, Button_Exit_Texture_Pressed, Button_Exit_Text);
 				SDL_RenderPresent(renderer);
 				SDL_Delay(50);
-				SDL_SetRenderDrawColor(renderer, 140, 140, 140, 0);
+				SDL_SetRenderDrawColor(renderer, 120, 120, 120, 0);
 				SDL_RenderFillRect(renderer, &Button_Exit_Rect_Shadow);
 				SDL_SetRenderDrawColor(renderer, 64, 64, 64, 0);
 				SDL_RenderFillRect(renderer, &Button_Exit_Rect);
@@ -5141,7 +6218,7 @@ void Rule(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int& volume_music
 					draw_Place(renderer, Button_Exit_Texture, Button_Exit_Text);
 					SDL_RenderPresent(renderer);
 					SDL_Delay(50);
-					SDL_SetRenderDrawColor(renderer, 140, 140, 140, 0);
+					SDL_SetRenderDrawColor(renderer, 120, 120, 120, 0);
 					SDL_RenderFillRect(renderer, &Button_Exit_Rect_Shadow);
 					SDL_SetRenderDrawColor(renderer, 64, 64, 64, 0);
 					SDL_RenderFillRect(renderer, &Button_Exit_Rect);
@@ -5157,11 +6234,7 @@ void Rule(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int& volume_music
 		SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
 		SDL_RenderClear(renderer);
 
-		char BackgroudFile[] = "Background.bmp";
-		SDL_Texture* TextureBackground = TakeTextureBackground(renderer, BackgroudFile);
-		SDL_Rect Background = { 0,0, SCREEN_WIDTH, SCREEN_HEIGHT };
 		SDL_RenderCopy(renderer, TextureBackground, NULL, &Background);
-		SDL_DestroyTexture(TextureBackground);
 
 		SDL_SetRenderDrawColor(renderer, red_board_exit, 0, 0, 0);
 		SDL_RenderFillRect(renderer, &Button_Exit_Rect_Board);
@@ -5170,7 +6243,7 @@ void Rule(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int& volume_music
 		SDL_SetRenderDrawColor(renderer, 64, 64, 64, 0);
 		SDL_RenderFillRect(renderer, &Button_Exit_Rect_Shadow);
 
-		SDL_SetRenderDrawColor(renderer, 140, 140, 140, 0);
+		SDL_SetRenderDrawColor(renderer, 120, 120, 120, 0);
 		SDL_RenderFillRect(renderer, &Button_Exit_Rect);
 
 		if (color_exit == 0)
@@ -5188,7 +6261,7 @@ void Rule(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int& volume_music
 		SDL_SetRenderDrawColor(renderer, 64, 64, 64, 0);
 		SDL_RenderFillRect(renderer, &Title_Rect_Shadow);
 
-		SDL_SetRenderDrawColor(renderer, 140, 140, 140, 0);
+		SDL_SetRenderDrawColor(renderer, 160, 160, 160, 0);
 		SDL_RenderFillRect(renderer, &Title_Rect);
 
 		draw_Place(renderer, Title_Texture, Title_Text);
@@ -5200,7 +6273,7 @@ void Rule(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int& volume_music
 		SDL_SetRenderDrawColor(renderer, 64, 64, 64, 0);
 		SDL_RenderFillRect(renderer, &Rules_Rect_Shadow);
 
-		SDL_SetRenderDrawColor(renderer, 140, 140, 140, 0);
+		SDL_SetRenderDrawColor(renderer, 120, 120, 120, 0);
 		SDL_RenderFillRect(renderer, &Rules_Rect);
 
 		draw_Place(renderer, Rules_Texture_1, Rules_Text_1);
@@ -5226,6 +6299,7 @@ void Rule(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int& volume_music
 		SDL_RenderPresent(renderer);
 	}
 
+	SDL_DestroyTexture(TextureBackground);
 	SDL_DestroyTexture(Button_Exit_Texture);
 	SDL_DestroyTexture(Title_Texture);
 	SDL_DestroyTexture(Rules_Texture_1);

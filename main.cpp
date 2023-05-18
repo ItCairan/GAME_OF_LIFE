@@ -24,6 +24,7 @@ int main(int argc, char** argv)
 		SDL_Rect Handle_board = { Settings_Game.Handle_board.x,0,0,0};
 
 		window = SDL_CreateWindow("LIFE", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 0, 0, SDL_WINDOW_FULLSCREEN_DESKTOP);
+		//window = SDL_CreateWindow(u8"Боблак", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);;
 		if (window == NULL)
 		{
 			printf("Окно не может быть создано! SDL_Error: %s\n", SDL_GetError());
@@ -40,7 +41,7 @@ int main(int argc, char** argv)
 			SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, 0);
 
 			TTF_Init();
-			TTF_Font* my_font = TTF_OpenFont("Button.ttf", 1000);
+			TTF_Font* my_font = TTF_OpenFont("Button_2.ttf", 1000);
 			SDL_Texture* Button_Start_Texture;
 			SDL_Texture* Button_Exit_Texture;
 			SDL_Texture* Button_Rule_Texture;
@@ -105,6 +106,9 @@ int main(int argc, char** argv)
 			Button_Rule_Texture_Pressed = get_text_texture(renderer, Button_Rule, my_font, red_text_rule_press);
 			Button_Settings_Texture_Pressed = get_text_texture(renderer, Button_Settings, my_font, red_text_settings_press);
 
+			char BackgroudFile[] = "Background_2.bmp";
+			SDL_Texture* TextureBackground = TakeTextureBackground(renderer, BackgroudFile);
+			SDL_Rect Background = { 0,0, SCREEN_WIDTH, SCREEN_HEIGHT };
 
 			SDL_Event event;
 			bool quit = false;
@@ -170,7 +174,7 @@ int main(int argc, char** argv)
 							draw_Place(renderer, Button_Rule_Texture, Button_Rule_Text);
 							SDL_RenderPresent(renderer);
 							SDL_Delay(50);
-							SDL_SetRenderDrawColor(renderer, 140, 140, 140, 0);
+							SDL_SetRenderDrawColor(renderer, 110, 110, 110, 0);
 							SDL_RenderFillRect(renderer, &Button_Rule_Rect_Shadow);
 							SDL_SetRenderDrawColor(renderer, 64, 64, 64, 0);
 							SDL_RenderFillRect(renderer, &Button_Rule_Rect);
@@ -190,7 +194,7 @@ int main(int argc, char** argv)
 							draw_Place(renderer, Button_Settings_Texture, Button_Settings_Text);
 							SDL_RenderPresent(renderer);
 							SDL_Delay(50);
-							SDL_SetRenderDrawColor(renderer, 140, 140, 140, 0);
+							SDL_SetRenderDrawColor(renderer, 110, 110, 110, 0);
 							SDL_RenderFillRect(renderer, &Button_Settings_Rect_Shadow);
 							SDL_SetRenderDrawColor(renderer, 64, 64, 64, 0);
 							SDL_RenderFillRect(renderer, &Button_Settings_Rect);
@@ -214,7 +218,7 @@ int main(int argc, char** argv)
 							draw_Place(renderer, Button_Start_Texture, Button_Start_Text);
 							SDL_RenderPresent(renderer);
 							SDL_Delay(50);
-							SDL_SetRenderDrawColor(renderer, 140, 140, 140, 0);
+							SDL_SetRenderDrawColor(renderer, 110, 110, 110, 0);
 							SDL_RenderFillRect(renderer, &Button_Start_Rect_Shadow);
 							SDL_SetRenderDrawColor(renderer, 64, 64, 64, 0);
 							SDL_RenderFillRect(renderer, &Button_Start_Rect);
@@ -242,13 +246,13 @@ int main(int argc, char** argv)
 							draw_Place(renderer, Button_Exit_Texture, Button_Exit_Text);
 							SDL_RenderPresent(renderer);
 							SDL_Delay(50);
-							SDL_SetRenderDrawColor(renderer, 140, 140, 140, 0);
+							SDL_SetRenderDrawColor(renderer, 110, 110, 110, 0);
 							SDL_RenderFillRect(renderer, &Button_Exit_Rect_Shadow);
 							SDL_SetRenderDrawColor(renderer, 64, 64, 64, 0);
 							SDL_RenderFillRect(renderer, &Button_Exit_Rect);
 							draw_Place(renderer, Button_Exit_Texture, Button_Exit_Text);
 							SDL_RenderPresent(renderer);
-							SDL_Delay(20);
+							SDL_Delay(200);
 							quit = 1;
 						}
 					}
@@ -257,11 +261,7 @@ int main(int argc, char** argv)
 				SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
 				SDL_RenderClear(renderer);
 				
-				char BackgroudFile[] = "Background.bmp";
-				SDL_Texture* TextureBackground = TakeTextureBackground(renderer, BackgroudFile);
-				SDL_Rect Background = { 0,0, SCREEN_WIDTH, SCREEN_HEIGHT };
 				SDL_RenderCopy(renderer, TextureBackground, NULL, &Background);
-				SDL_DestroyTexture(TextureBackground);
 
 				SDL_SetRenderDrawColor(renderer, red_board_start, 0, 0, 0);
 				SDL_RenderFillRect(renderer, &Button_Start_Rect_Board);
@@ -278,7 +278,7 @@ int main(int argc, char** argv)
 				SDL_RenderFillRect(renderer, &Button_Rule_Rect_Shadow);
 				SDL_RenderFillRect(renderer, &Button_Settings_Rect_Shadow);
 
-				SDL_SetRenderDrawColor(renderer, 140, 140, 140, 0);
+				SDL_SetRenderDrawColor(renderer, 120, 120, 120, 0);
 				SDL_RenderFillRect(renderer, &Button_Start_Rect);
 				SDL_RenderFillRect(renderer, &Button_Exit_Rect);
 				SDL_RenderFillRect(renderer, &Button_Rule_Rect);
@@ -323,7 +323,7 @@ int main(int argc, char** argv)
 				SDL_SetRenderDrawColor(renderer, 64, 64, 64, 0);
 				SDL_RenderFillRect(renderer, &Title_Rect_Shadow);
 
-				SDL_SetRenderDrawColor(renderer, 140, 140, 140, 0);
+				SDL_SetRenderDrawColor(renderer, 160, 160, 160, 0);
 				SDL_RenderFillRect(renderer, &Title_Rect);
 
 				draw_Place(renderer, Title_Texture, Title_Text);
@@ -331,6 +331,7 @@ int main(int argc, char** argv)
 				SDL_RenderPresent(renderer);
 			}
 
+			SDL_DestroyTexture(TextureBackground);
 			SDL_DestroyTexture(Button_Start_Texture);
 			SDL_DestroyTexture(Button_Exit_Texture);
 			SDL_DestroyTexture(Button_Rule_Texture);
