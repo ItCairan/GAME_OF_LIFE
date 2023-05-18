@@ -171,6 +171,7 @@ int InputGameProgress(Game_Progress &Progress)
 	FILE* file;
 	char Progress_Game_Default_Name[] = "Progress_Game_Default.txt";
 	char Progress_Game_User_Name[] = "Progress_Game_User.txt";
+	char Verification[] = "Verification";
 
 	fopen_s(&file, Progress_Game_Default_Name, "r");
 
@@ -213,9 +214,21 @@ int InputGameProgress(Game_Progress &Progress)
 				if (Progress_Default.Blocks[i][j] != Progress_User.Blocks[i][j]) { Fl = 1; }
 			}
 		}
-		if (Fl == 0) return 1;
+		if (Fl == 0)
+		{
+			Progress.Width_ground = Progress_Default.Width_ground;
+			Progress.Height_ground = Progress_Default.Height_ground;
+			Progress.Generation_count = Progress_Default.Generation_count;
+			for (int i = 0; i < Progress_Default.Width_ground; i++)
+			{
+				for (int j = 0; j < Progress_Default.Height_ground; j++)
+				{
+					Progress.Blocks[i][j] = Progress_Default.Blocks[i][j];
+				}
+			}
+			return 1;
+		}
 	}
-	char Verification[] = "Verification";
 	if (strcmp(Progress_User.Verification, Verification) != 0)
 	{
 		Progress.Width_ground = Progress_Default.Width_ground;
