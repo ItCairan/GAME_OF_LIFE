@@ -41,7 +41,7 @@ int main(int argc, char** argv)
 			SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, 0);
 
 			TTF_Init();
-			TTF_Font* my_font = TTF_OpenFont("Button_2.ttf", 1000);
+			TTF_Font* my_font = TTF_OpenFont("Button_2.ttf", 500);
 			SDL_Texture* Button_Start_Texture;
 			SDL_Texture* Button_Exit_Texture;
 			SDL_Texture* Button_Rule_Texture;
@@ -114,6 +114,7 @@ int main(int argc, char** argv)
 			bool quit = false;
 			char name[] = "Sound.wav";
 			int Fl = 0, Main = 0;
+			int Choose, Fl_Input = 0;
 
 			while (!quit)
 			{
@@ -225,10 +226,13 @@ int main(int argc, char** argv)
 							draw_Place(renderer, Button_Start_Texture, Button_Start_Text);
 							SDL_RenderPresent(renderer);
 							SDL_Delay(20);
-							int Choose = InputGameProgress(Progress);
+							if (Fl_Input == 0)
+							{
+								Choose = InputGameProgress(Progress);
+							}
 							if (Choose == 2)
 							{
-								Load_Save_Menu(window, renderer, Fl, volume_music, volume_sound, Sound_Enable, Music_Enable, Handle_board, Main, Progress, Choose);
+								Load_Save_Menu(window, renderer, Fl, volume_music, volume_sound, Sound_Enable, Music_Enable, Handle_board, Main, Progress, Choose, Fl_Input);
 							}
 							else
 							{

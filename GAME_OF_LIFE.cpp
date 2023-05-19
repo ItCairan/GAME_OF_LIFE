@@ -586,7 +586,7 @@ void End_Game_Menu(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int& vol
 	Mix_FreeChunk(Sound);
 }
 
-void Load_Save_Menu(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int& volume_music, int& volume_sound, int& Sound_Enable, int& Music_Enable, SDL_Rect& Handle_board, int& Main, Game_Progress Progress, int Choose)
+void Load_Save_Menu(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int& volume_music, int& volume_sound, int& Sound_Enable, int& Music_Enable, SDL_Rect& Handle_board, int& Main, Game_Progress Progress, int Choose, int &Fl_Input)
 {
 	Mix_Chunk* Sound = NULL;
 	Mix_Music* fon = NULL;
@@ -727,6 +727,7 @@ void Load_Save_Menu(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int& vo
 				SDL_RenderPresent(renderer);
 				SDL_Delay(20);
 				Verification(2);
+				Fl_Input = 1;
 				quit = true;
 			}
 			if (event.type == SDL_MOUSEBUTTONDOWN && event.button.button == SDL_BUTTON_LEFT)
@@ -748,6 +749,8 @@ void Load_Save_Menu(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int& vo
 					draw_Place(renderer, Button_Exit_Texture, Button_Exit_Text);
 					SDL_RenderPresent(renderer);
 					SDL_Delay(20);
+					Verification(2);
+					Fl_Input = 1;
 					quit = true;
 				}
 				if (((event.button.x <= Button_Load_Rect_Board.x + Button_Load_Rect_Board.w) and (event.button.x >= Button_Load_Rect_Board.x)) and ((event.button.y <= Button_Load_Rect_Board.y + Button_Load_Rect_Board.h) and (event.button.y >= Button_Load_Rect_Board.y)))
@@ -767,6 +770,7 @@ void Load_Save_Menu(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int& vo
 					draw_Place(renderer, Button_Load_Texture, Button_Load_Text);
 					SDL_RenderPresent(renderer);
 					SDL_Delay(20);
+					Fl_Input = 0;
 					Playground(window, renderer, Fl, volume_music, volume_sound, Sound_Enable, Music_Enable, Handle_board, Main, Progress, Choose);
 				}
 				if (((event.button.x <= Button_New_Rect_Board.x + Button_New_Rect_Board.w) and (event.button.x >= Button_New_Rect_Board.x)) and ((event.button.y <= Button_New_Rect_Board.y + Button_New_Rect_Board.h) and (event.button.y >= Button_New_Rect_Board.y)))
@@ -787,6 +791,7 @@ void Load_Save_Menu(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int& vo
 					SDL_RenderPresent(renderer);
 					SDL_Delay(20);
 					InputGameProgress_Default(Progress);
+					Fl_Input = 0;
 					Playground(window, renderer, Fl, volume_music, volume_sound, Sound_Enable, Music_Enable, Handle_board, Main, Progress, Choose);
 					if ((Fl == 1) or (Main == 1)) { quit = true; break; }
 				}
@@ -6116,7 +6121,7 @@ void Rule(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int& volume_music
 
 	SCREEN_WIDTH += 5;
 
-	TTF_Font* my_font = TTF_OpenFont("Button_2.ttf", 1000);
+	TTF_Font* my_font = TTF_OpenFont("Button_2.ttf", 500);
 	TTF_Font* rules_font = TTF_OpenFont("Button_2.ttf", 100);
 	TTF_Font* arrows = TTF_OpenFont("Arrows.ttf", 1000);
 	SDL_Texture* Button_Exit_Texture;
