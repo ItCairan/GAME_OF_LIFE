@@ -24,7 +24,7 @@ int main(int argc, char** argv)
 		SDL_Rect Handle_board = { Settings_Game.Handle_board.x,0,0,0};
 
 		window = SDL_CreateWindow("LIFE", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 0, 0, SDL_WINDOW_FULLSCREEN_DESKTOP);
-		//window = SDL_CreateWindow(u8"Боблак", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);;
+		//window = SDL_CreateWindow("LIFE", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);;
 		if (window == NULL)
 		{
 			printf("Окно не может быть создано! SDL_Error: %s\n", SDL_GetError());
