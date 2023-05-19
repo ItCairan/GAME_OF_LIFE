@@ -1237,7 +1237,41 @@ int Input_Data(SDL_Window* window, SDL_Renderer* renderer, int& Fl, SDL_Rect &in
 	char inputText[5] = "|";
 	int inputIndex = 0; 
 
-	TTF_Font* font = TTF_OpenFont("Button_2.ttf", 20);
+	TTF_Font* font = NULL;
+
+	int SCREEN_WIDTH, SCREEN_HEIGHT;
+	SDL_GetWindowSize(window, &SCREEN_WIDTH, &SCREEN_HEIGHT);
+
+	if (SCREEN_WIDTH >= 2400)
+	{
+		font = TTF_OpenFont("Button_2.ttf", 29);
+	}
+	else
+	{
+		if (SCREEN_WIDTH >= 1800)
+		{
+			font = TTF_OpenFont("Button_2.ttf", 22);
+		}
+		else
+		{
+			if (SCREEN_WIDTH >= 1500)
+			{
+				font = TTF_OpenFont("Button_2.ttf",16);
+			}
+			else
+			{
+				if (SCREEN_WIDTH >= 1000)
+				{
+					font = TTF_OpenFont("Button_2.ttf", 10);
+				}
+				else
+				{
+					font = TTF_OpenFont("Button_2.ttf", 4);
+				}
+			}
+		}
+	}
+
 	int maxIndex = 0, end = 3;
 
 	while (!quit) {
@@ -1338,14 +1372,37 @@ int Input_Data(SDL_Window* window, SDL_Renderer* renderer, int& Fl, SDL_Rect &in
 
 		int red_text = 214;
 
-		SDL_Rect textRect = { inputRect.x+2, inputRect.y + 2, 0, 0 };
+		SDL_Rect textRect = { inputRect.x+2, inputRect.y+2, 0, 0 };
 		SDL_Color textColor = { 0, 0, 0 };
 		SDL_Color fore_color = { 0, 0, 0 };
 		SDL_Color back_color = { 255, 255, 255 };
 		SDL_Surface* textSurface = TTF_RenderText_Shaded(font, inputText, fore_color, back_color);
 		SDL_Texture* textTexture = get_text_texture(renderer, inputText, font, red_text);
 		textRect.w = textSurface->w;
-		textRect.h = textSurface->h+8;
+
+		if (SCREEN_HEIGHT >= 1500)
+		{
+			textRect.h = textSurface->h + 22;
+		}
+		else
+		{
+			if (SCREEN_HEIGHT >= 1100)
+			{
+				textRect.h = textSurface->h + 16;
+			}
+			else
+			{
+				if (SCREEN_HEIGHT >= 900)
+				{
+					textRect.h = textSurface->h + 8;
+				}
+				else
+				{
+					textRect.h = textSurface->h ;
+				}
+			}
+		}
+
 		SDL_SetRenderDrawColor(renderer, 64, 64, 64, 0);
 		SDL_RenderFillRect(renderer, &inputRect);
 		draw_Place(renderer, textTexture, textRect);
@@ -5554,12 +5611,12 @@ void Settings(SDL_Window* window, SDL_Renderer* renderer, int& Fl, int &volume_m
 	SDL_Rect Settings_Text_3 = { Settings_Rect.x + 20, 6 * Settings_Text_1.h + Settings_Rect.y + 36,int((double)SCREEN_WIDTH / (double)12) * 3, Settings_Text_1.h };
 
 
-	SDL_Rect Bind_Title_Rect_Board = { Title_Rect_Board.x,Title_Rect_Board.y + Title_Rect_Board.h + Settings_Rect_Board.h + 60,Title_Rect_Board.w, Title_Rect_Board.h };
+	SDL_Rect Bind_Title_Rect_Board = { Title_Rect_Board.x,Settings_Rect_Board.y + Settings_Rect_Board.h + 30,Title_Rect_Board.w, Title_Rect_Board.h };
 	SDL_Rect Bind_Title_Rect_Shadow = { Bind_Title_Rect_Board.x + 2, Bind_Title_Rect_Board.y + 2, Bind_Title_Rect_Board.w - 4,  Bind_Title_Rect_Board.h - 4 };
 	SDL_Rect Bind_Title_Rect = { Bind_Title_Rect_Shadow.x + 4, Bind_Title_Rect_Shadow.y + 4,Bind_Title_Rect_Shadow.w - 8, Bind_Title_Rect_Shadow.h - 8 };
 	SDL_Rect Bind_Title_Text = { Bind_Title_Rect.x + 4, Bind_Title_Rect.y + 12,Bind_Title_Rect.w - 8, Bind_Title_Rect.h - 8 };
 
-	SDL_Rect Bind_Rect_Board = { int((double)SCREEN_WIDTH / (double)24) * 6,Title_Rect_Board.y + Title_Rect_Board.h + Settings_Rect_Board.y + Settings_Rect_Board.h, int((double)SCREEN_WIDTH / (double)24) * 12,int((double)SCREEN_HEIGHT / (double)40) * 10 };
+	SDL_Rect Bind_Rect_Board = { int((double)SCREEN_WIDTH / (double)24) * 6,Bind_Title_Rect_Board.y + Bind_Title_Rect_Board.h + 30, int((double)SCREEN_WIDTH / (double)24) * 12,int((double)SCREEN_HEIGHT / (double)40) * 10 };
 	SDL_Rect Bind_Rect_Shadow = { Bind_Rect_Board.x + 2, Bind_Rect_Board.y + 2, Bind_Rect_Board.w - 4,  Bind_Rect_Board.h - 4 };
 	SDL_Rect Bind_Rect = { Bind_Rect_Shadow.x + 4, Bind_Rect_Shadow.y + 4,Bind_Rect_Shadow.w - 8, Bind_Rect_Shadow.h - 8 };
 	SDL_Rect Bind_Text_1 = { Bind_Rect.x + 20, Bind_Rect.y + int((double)Bind_Rect.h / (double)9),int((double)SCREEN_WIDTH / (double)24) * 11, int((double)Bind_Rect.h / (double)9) };
